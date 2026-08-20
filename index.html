@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leslie Weekly Touch Base</title>
+<style>
+  :root{
+    --ink:#382F2D;          /* PMS 412 dark brown */
+    --maroon:#6E3B34;       /* PMS 7610 */
+    --terracotta:#C05131;   /* PMS 7618 */
+    --sage:#7A9B8E;         /* PMS 624 */
+    --sage-deep:#5E8274;
+    --tan:#E7C79A;          /* PMS 721 */
+    --tan-soft:#F4E8D4;
+    --red:#C8102E;          /* Leslie red */
+    --paper:#FAF7F2;
+    --card:#FFFFFF;
+    --line:#E5DCCF;
+    --muted:#8A7F76;
+    --radius:10px;
+    --shadow:0 1px 3px rgba(56,47,45,.08), 0 4px 14px rgba(56,47,45,.06);
+    font-size:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:Calibri,'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.45;
+  }
+  /* ---------- header ---------- */
+  header{
+    background:var(--ink);color:#fff;padding:0;
+    border-bottom:4px solid var(--red);
+  }
+  .hd-inner{max-width:1180px;margin:0 auto;padding:18px 20px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .brand h1{font-size:1.45rem;font-weight:700;letter-spacing:.2px}
+  .brand h1 span{color:var(--tan)}
+  .brand .sub{font-size:.8rem;color:#CFC5BA;text-transform:uppercase;letter-spacing:.14em;margin-top:2px}
+  .hd-actions{display:flex;gap:8px;align-items:center}
+  .sync-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block;margin-right:6px}
+  .sync-dot.ok{background:var(--sage)}
+  .sync-dot.err{background:var(--red)}
+  .sync-label{font-size:.75rem;color:#CFC5BA;display:flex;align-items:center}
+  .mgr-btn{background:transparent;border:1px solid #6b5f58;color:#E9E1D8;font:inherit;font-size:.78rem;padding:5px 12px;border-radius:20px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase}
+  .mgr-btn.on{background:var(--red);border-color:var(--red);color:#fff}
+  /* ---------- nav ---------- */
+  nav{background:var(--maroon)}
+  .nav-inner{max-width:1180px;margin:0 auto;display:flex;overflow-x:auto}
+  nav button{
+    background:none;border:none;color:#EBD9CE;font:inherit;font-size:.9rem;font-weight:600;
+    padding:11px 18px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;
+  }
+  nav button.active{color:#fff;border-bottom-color:var(--tan)}
+  nav button:focus-visible{outline:2px solid var(--tan);outline-offset:-2px}
+  main{max-width:1180px;margin:0 auto;padding:22px 20px 70px}
+  .view{display:none}.view.active{display:block}
+  /* ---------- generic ---------- */
+  h2{font-size:1.2rem;margin-bottom:4px}
+  .lead{color:var(--muted);font-size:.9rem;margin-bottom:18px}
+  .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--maroon);margin-bottom:6px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:18px}
+  .card h3{font-size:1rem;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .stepnum{background:var(--ink);color:var(--tan);font-size:.72rem;font-weight:700;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+  label{display:block;font-size:.8rem;font-weight:700;color:var(--maroon);margin-bottom:4px;letter-spacing:.03em}
+  input[type=text],input[type=number],input[type=date],select,textarea{
+    width:100%;font:inherit;font-size:.92rem;color:var(--ink);
+    border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:#fff;
+  }
+  textarea{min-height:72px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--sage);outline-offset:0;border-color:var(--sage)}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .row>div{flex:1 1 200px}
+  .hint{font-size:.78rem;color:var(--muted);margin-top:4px}
+  .btn{
+    background:var(--red);color:#fff;border:none;font:inherit;font-weight:700;font-size:.95rem;
+    padding:11px 26px;border-radius:6px;cursor:pointer;letter-spacing:.03em;
+  }
+  .btn:hover{background:#A60D26}
+  .btn.ghost{background:#fff;color:var(--maroon);border:1px solid var(--maroon)}
+  .btn.small{padding:6px 14px;font-size:.82rem}
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:var(--ink);color:#fff;padding:10px 22px;border-radius:30px;font-size:.88rem;
+    transition:transform .25s ease;z-index:50;box-shadow:var(--shadow)
+  }
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  /* ---------- KPI pace strip ---------- */
+  .pace-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+  .kpi{
+    background:#fff;border:1px solid var(--line);border-left:5px solid var(--muted);
+    border-radius:8px;padding:12px 14px;position:relative;
+  }
+  .kpi.ok{border-left-color:var(--sage)}
+  .kpi.watch{border-left-color:var(--terracotta)}
+  .kpi.sub{border-left-color:var(--red);background:#FDF4F5}
+  .kpi .k-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+  .kpi .k-val{font-size:1.7rem;font-weight:700;line-height:1.15;margin:2px 0}
+  .kpi .k-tgt{font-size:.76rem;color:var(--muted)}
+  .flag{
+    display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    padding:2px 8px;border-radius:10px;margin-top:6px;color:#fff;background:var(--muted)
+  }
+  .kpi.ok .flag{background:var(--sage-deep)}
+  .kpi.watch .flag{background:var(--terracotta)}
+  .kpi.sub .flag{background:var(--red)}
+  /* ---------- step meter ---------- */
+  .steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+  .step-box{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff}
+  .step-box .s-name{font-size:.82rem;font-weight:700;margin-bottom:6px}
+  .pips{display:flex;gap:5px}
+  .pip{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);background:var(--tan-soft);cursor:pointer;font-size:.75rem;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center}
+  .pip.on{background:var(--maroon);border-color:var(--maroon);color:#fff}
+  .pip:focus-visible{outline:2px solid var(--sage)}
+  .step-meter{display:flex;gap:4px;margin-top:6px}
+  .seg{flex:1;height:10px;border-radius:3px;background:var(--tan-soft)}
+  .seg.s1{background:var(--red)} .seg.s2{background:var(--terracotta)} .seg.s3{background:var(--tan)}
+  .seg.s4{background:var(--sage)} .seg.s5{background:var(--sage-deep)}
+  .lowest-tag{display:inline-block;background:var(--tan-soft);border:1px solid var(--tan);color:var(--maroon);font-size:.76rem;font-weight:700;padding:3px 10px;border-radius:12px;margin-top:8px}
+  /* ---------- review cards ---------- */
+  .rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+  .rev-card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--maroon);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+  .rev-card h4{font-size:1.02rem;margin-bottom:2px}
+  .rev-card .wk{font-size:.75rem;color:var(--muted);margin-bottom:10px}
+  .mini-kpis{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .chip{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:10px;background:var(--tan-soft);color:var(--ink)}
+  .chip.ok{background:#E4EFEA;color:var(--sage-deep)}
+  .chip.watch{background:#F8E3D8;color:var(--terracotta)}
+  .chip.sub{background:#FBE2E6;color:var(--red)}
+  .rev-sec{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .rev-sec .eyebrow{margin-bottom:2px}
+  .rev-sec p{font-size:.88rem;white-space:pre-wrap}
+  .needs-flag{background:#FFF8E9;border:1px solid var(--tan);border-radius:8px;padding:8px 10px;margin-top:10px}
+  .result-chip{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:10px;color:#fff}
+  .result-chip.worked{background:var(--sage-deep)} .result-chip.partial{background:var(--terracotta)} .result-chip.didnt{background:var(--red)}
+  /* ---------- tables ---------- */
+  table{width:100%;border-collapse:collapse;font-size:.85rem;background:#fff}
+  th{background:var(--ink);color:var(--tan);text-align:left;padding:8px 10px;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
+  td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:nth-child(even) td{background:#FCFAF6}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+  td input[type=number]{width:95px;padding:5px 7px}
+  .cell-flag{font-weight:700}
+  .cell-flag.ok{color:var(--sage-deep)} .cell-flag.watch{color:var(--terracotta)} .cell-flag.sub{color:var(--red)}
+  /* ---------- misc ---------- */
+  .bar{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px}
+  .bar>div{min-width:180px}
+  .empty{border:1.5px dashed var(--tan);border-radius:var(--radius);padding:26px;text-align:center;color:var(--muted);background:#FDFBF7}
+  .locked{border:1.5px dashed var(--line);border-radius:var(--radius);padding:30px;text-align:center;color:var(--muted)}
+  .prior-plan{background:var(--tan-soft);border-radius:8px;padding:12px;margin-bottom:10px;font-size:.88rem}
+  .prior-plan b{color:var(--maroon)}
+  .seg-choice{display:flex;gap:8px;flex-wrap:wrap}
+  .seg-choice button{font:inherit;font-size:.85rem;font-weight:700;padding:8px 16px;border-radius:20px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--muted)}
+  .seg-choice button.sel.worked{background:var(--sage-deep);border-color:var(--sage-deep);color:#fff}
+  .seg-choice button.sel.partial{background:var(--terracotta);border-color:var(--terracotta);color:#fff}
+  .seg-choice button.sel.didnt{background:var(--red);border-color:var(--red);color:#fff}
+  @media (prefers-reduced-motion: reduce){ .toast{transition:none} }
+  @media (max-width:640px){ .hd-inner{align-items:flex-start} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-inner">
+    <div class="brand">
+      <h1>Leslie <span>Weekly Touch Base</span></h1>
+      <div class="sub">Review &middot; Plan &middot; Own &middot; Execute — every Monday</div>
+    </div>
+    <div class="hd-actions">
+      <span class="sync-label"><span class="sync-dot" id="syncDot"></span><span id="syncText">Local only</span></span>
+      <button class="mgr-btn" id="mgrBtn" onclick="toggleManager()">Manager</button>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <button class="active" data-v="mytb" onclick="showView('mytb')">My Touch Base</button>
+    <button data-v="review" onclick="showView('review')">Team Review</button>
+    <button data-v="track" onclick="showView('track')">Track Record</button>
+    <button data-v="pace" onclick="showView('pace')">Pace Data &amp; Setup</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============ MY TOUCH BASE ============ -->
+<section class="view active" id="view-mytb">
+  <h2>My Weekly Touch Base</h2>
+  <p class="lead">Complete this <b>before</b> your Monday touch base. You bring the plan — Nels brings the questions. Target: 10 minutes of prep, 30 minutes together.</p>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label for="tbRep">Consultant</label>
+        <select id="tbRep" onchange="loadForm()"></select>
+      </div>
+      <div>
+        <label for="tbWeek">Week of (Monday)</label>
+        <input type="date" id="tbWeek" onchange="snapMonday();loadForm()">
+        <div class="hint">Auto-snaps to the Monday of the selected week.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="stepnum">1</span> Scoreboard — this month's pace</h3>
+    <div class="hint" style="margin-bottom:10px" id="paceSrc"></div>
+    <div class="pace-strip" id="paceStrip"></div>
+  </div>
+
+  <div class="card" id="priorCard" style="display:none">
+    <h3><span class="stepnum">2</span> Last week's action — did it work?</h3>
+    <div class="prior-plan" id="priorPlanBox"></div>
+    <div class="seg-choice" id="priorChoice">
+      <button data-r="worked" onclick="setPrior('worked')">✔ Worked</button>
+      <button data-r="partial" onclick="setPrior('partial')">◐ Partially</button>
+      <button data-r="didnt" onclick="setPrior('didnt')">✘ Didn't work</button>
+    </div>
+    <div style="margin-top:10px">
+      <label for="priorNote">What did you see happen?</label>
+      <textarea id="priorNote" placeholder="Be specific: which calls, what the customer did, what changed."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="stepnum">3</span> Sales System Self-Check</h3>
+    <p class="hint" style="margin-bottom:10px">Rate yourself 1–5 on each step for last week's calls. Be honest — this is a development tool, not a report card. 5 = I ran this step the way we train it, every call.</p>
+    <div class="steps-grid" id="stepsGrid"></div>
+    <div id="lowestStep"></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="stepnum">4</span> Wins</h3>
+    <label for="tbWins">What worked last week — and what specifically did you do to make it work?</label>
+    <textarea id="tbWins" placeholder='"I built rapport" doesn&#39;t count. "I restated her top concern about the upstairs bedroom before presenting" does.'></textarea>
+  </div>
+
+  <div class="card">
+    <h3><span class="stepnum">5</span> This week's opportunity</h3>
+    <div class="row">
+      <div>
+        <label for="oppKpi">KPI to move (sub-standard first)</label>
+        <select id="oppKpi"></select>
+      </div>
+      <div>
+        <label for="oppStep">Sales system step it lives in</label>
+        <select id="oppStep"></select>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label for="oppText">What's causing the gap? (Process, not effort)</label>
+      <textarea id="oppText" placeholder="Name the upstream cause: what happens — or doesn't — in the call that produces this number."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="stepnum">6</span> My action plan — this is yours, own it</h3>
+    <div class="row">
+      <div>
+        <label for="apBehavior">One focus behavior (observable on a ride-along)</label>
+        <input type="text" id="apBehavior" placeholder="e.g., Before presenting options, I restate the customer's top concern in their own words.">
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label for="apWhen">When/where in the call it happens</label>
+        <input type="text" id="apWhen" placeholder="The trigger moment — e.g., right after the comfort survey, before I open the tablet.">
+      </div>
+      <div>
+        <label for="apMeasure">How I'll know it worked this week</label>
+        <input type="text" id="apMeasure" placeholder="A daily self-count, e.g., did it on 4 of 5 calls.">
+      </div>
+      <div>
+        <label for="apCheck">Checkpoint with Nels</label>
+        <input type="text" id="apCheck" placeholder="e.g., Wednesday midday pulse / Thursday ride-along.">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="stepnum">7</span> What I need from Nels</h3>
+    <textarea id="tbNeeds" placeholder="Roleplay time, pricing help, a ride-along, marketing support, an answer from leadership — say it here so it gets handled Monday."></textarea>
+  </div>
+
+  <button class="btn" onclick="saveEntry()">Save my touch base</button>
+  <span class="hint" style="margin-left:10px">Saving again for the same week updates your entry.</span>
+</section>
+
+<!-- ============ TEAM REVIEW ============ -->
+<section class="view" id="view-review">
+  <h2>Team Review — Monday board</h2>
+  <p class="lead">Everyone's scoreboard, plan, and asks for the selected week. Run the touch bases straight off this screen.</p>
+  <div class="bar">
+    <div>
+      <label for="revWeek">Week of</label>
+      <input type="date" id="revWeek" onchange="snapMondayRev();renderReview()">
+    </div>
+  </div>
+  <div class="rev-grid" id="revGrid"></div>
+</section>
+
+<!-- ============ TRACK RECORD ============ -->
+<section class="view" id="view-track">
+  <h2>Track Record</h2>
+  <p class="lead">Hard data by consultant: KPI pace, the opportunity we named, the action taken, and whether it worked — week over week.</p>
+  <div class="bar">
+    <div>
+      <label for="trRep">Consultant</label>
+      <select id="trRep" onchange="renderTrack()"></select>
+    </div>
+    <div style="align-self:flex-end">
+      <button class="btn ghost small" onclick="exportCSV()">Export CSV</button>
+    </div>
+  </div>
+  <div class="tbl-wrap"><table id="trTable"></table></div>
+</section>
+
+<!-- ============ PACE DATA / SETUP ============ -->
+<section class="view" id="view-pace">
+  <div id="paceLocked" class="locked">Manager access required. Use the <b>Manager</b> button in the header.</div>
+  <div id="paceOpen" style="display:none">
+    <h2>Pace Data &amp; Setup</h2>
+    <p class="lead">Enter each consultant's month-to-date numbers from the Sales Manager Pace Report. The scoreboard, flags, and track record all pull from here.</p>
+
+    <div class="card">
+      <h3>Monthly pace report</h3>
+      <div class="bar">
+        <div>
+          <label for="paceMonth">Month</label>
+          <input type="date" id="paceMonth" onchange="renderPaceGrid()">
+          <div class="hint">Any date in the month works.</div>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table id="paceTable"></table></div>
+      <div style="margin-top:12px"><button class="btn" onclick="savePace()">Save pace data</button></div>
+    </div>
+
+    <div class="card">
+      <h3>Targets (flags trigger off these)</h3>
+      <div class="row" id="targetRow"></div>
+      <div class="hint" style="margin:8px 0 12px">On pace = at/above target &middot; Watch = within 85% of target &middot; Sub-standard = below 85%. Appointments target is month-to-date.</div>
+      <button class="btn ghost small" onclick="saveTargets()">Save targets</button>
+    </div>
+
+    <div class="card">
+      <h3>Team &amp; connection</h3>
+      <div class="row">
+        <div>
+          <label for="cfgReps">Consultants (comma-separated)</label>
+          <input type="text" id="cfgReps">
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div>
+          <label for="cfgEndpoint">Apps Script Web App URL</label>
+          <input type="text" id="cfgEndpoint" placeholder="https://script.google.com/macros/s/…/exec">
+        </div>
+        <div>
+          <label for="cfgCode">Team code</label>
+          <input type="text" id="cfgCode" placeholder="Shared code set in Script Properties">
+        </div>
+        <div>
+          <label for="cfgPin">Manager PIN</label>
+          <input type="text" id="cfgPin" placeholder="Gates this tab">
+        </div>
+      </div>
+      <div class="hint" style="margin:8px 0 12px">Leave the URL blank to run local-only on this device. With a URL + team code, the whole team syncs to your Google Sheet.</div>
+      <button class="btn ghost small" onclick="saveSetup()">Save setup</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =================== constants =================== */
+const KPIS = [
+  {key:'appts',     label:'Appointments Run',    fmt:'int'},
+  {key:'tglClose',  label:'TGL Close Rate',      fmt:'pct'},
+  {key:'mktClose',  label:'Marketed Close Rate', fmt:'pct'},
+  {key:'tglTicket', label:'TGL Avg Ticket',      fmt:'usd'},
+  {key:'mktTicket', label:'Marketed Avg Ticket', fmt:'usd'}
+];
+const STEPS = ['Prepare','Greet','Explore','Present','Close','Follow Up'];
+const DEFAULT_CONFIG = {
+  reps:['Jeremy M.','Justin B.','Tom O.','Kevin L.','Tony P.'],
+  targets:{appts:25, tglClose:55, mktClose:40, tglTicket:12500, mktTicket:11000},
+  managerPin:'1928'
+};
+const LS_SETTINGS='leslie_tb_settings_v1';
+const LS_CACHE='leslie_tb_cache_v1';
+
+/* =================== state =================== */
+let settings = {endpoint:'https://script.google.com/macros/s/AKfycbxOQFarMi-Opsp8he1i2S6Z7xBUg1tE9D48_n7Ih9Tu_DYPyaVkGmUD5NTJMsbm6oc4/exec', teamCode:'LESLIE2026'}; // {endpoint, teamCode}
+let state = JSON.parse(localStorage.getItem(LS_CACHE)||'null') || {config:structuredClone(DEFAULT_CONFIG), pace:{}, entries:[]};
+if(!state.config) state.config = structuredClone(DEFAULT_CONFIG);
+if(!state.config.targets) state.config.targets = structuredClone(DEFAULT_CONFIG.targets);
+if(!state.config.reps || !state.config.reps.length) state.config.reps = structuredClone(DEFAULT_CONFIG.reps);
+let managerOn = sessionStorage.getItem('leslie_tb_mgr')==='1';
+let stepScores = {}; let priorResult = null;
+
+/* =================== utils =================== */
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+function cache(){localStorage.setItem(LS_CACHE, JSON.stringify(state));}
+function fmt(v,f){
+  if(v==null||v===''||isNaN(v)) return '—';
+  v=Number(v);
+  if(f==='pct') return v.toFixed(1).replace(/\.0$/,'')+'%';
+  if(f==='usd') return '$'+Math.round(v).toLocaleString();
+  return Math.round(v).toLocaleString();
+}
+function mondayOf(dstr){
+  const d=new Date(dstr+'T12:00:00');
+  const day=d.getDay(); const diff=(day===0?-6:1-day);
+  d.setDate(d.getDate()+diff);
+  return d.toISOString().slice(0,10);
+}
+function monthKey(dstr){return dstr.slice(0,7);}
+function flagFor(key,val){
+  const t=state.config.targets[key];
+  if(val==null||val===''||isNaN(val)||t==null) return {cls:'',txt:'No data'};
+  val=Number(val);
+  if(val>=t) return {cls:'ok',txt:'On pace'};
+  if(val>=t*0.85) return {cls:'watch',txt:'Watch'};
+  return {cls:'sub',txt:'Sub-standard'};
+}
+function getPace(month,rep){ return (state.pace[month]||{})[rep]||{}; }
+function entryFor(rep,week){ return state.entries.find(e=>e.rep===rep&&e.week===week); }
+function prevWeek(week){ const d=new Date(week+'T12:00:00'); d.setDate(d.getDate()-7); return d.toISOString().slice(0,10); }
+
+/* =================== sync =================== */
+async function api(payload){
+  const r=await fetch(settings.endpoint,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...payload,code:settings.teamCode})});
+  const j=await r.json();
+  if(j.error) throw new Error(j.error);
+  return j;
+}
+async function loadRemote(){
+  if(!settings.endpoint){setSync('local');return;}
+  try{
+    const r=await fetch(settings.endpoint+'?action=load&code='+encodeURIComponent(settings.teamCode||''));
+    const j=await r.json();
+    if(j.error) throw new Error(j.error);
+    state={config:{...structuredClone(DEFAULT_CONFIG),...(j.config||{})}, pace:j.pace||{}, entries:j.entries||[]};
+    cache(); setSync('ok'); refreshAll();
+  }catch(e){ setSync('err'); toast('Sync failed — working from local copy'); }
+}
+function setSync(s){
+  const d=$('syncDot'),t=$('syncText');
+  d.className='sync-dot'+(s==='ok'?' ok':s==='err'?' err':'');
+  t.textContent = s==='ok'?'Synced':s==='err'?'Sync error':'Local only';
+}
+async function push(action,data){
+  if(!settings.endpoint){cache();return;}
+  try{ await api({action,...data}); setSync('ok'); }
+  catch(e){ setSync('err'); toast('Saved locally — sync failed'); }
+  cache();
+}
+
+/* =================== nav =================== */
+function showView(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.v===v));
+  $('view-'+v).classList.add('active');
+  if(v==='review') renderReview();
+  if(v==='track') renderTrack();
+  if(v==='pace') renderPaceView();
+}
+function toggleManager(){
+  if(managerOn){ managerOn=false; sessionStorage.removeItem('leslie_tb_mgr'); }
+  else{
+    const pin=prompt('Manager PIN:');
+    if(pin===String(state.config.managerPin||DEFAULT_CONFIG.managerPin)){ managerOn=true; sessionStorage.setItem('leslie_tb_mgr','1'); }
+    else if(pin!==null){ toast('Incorrect PIN'); }
+  }
+  $('mgrBtn').classList.toggle('on',managerOn);
+  renderPaceView(); renderReview();
+}
+
+/* =================== my touch base =================== */
+function snapMonday(){ $('tbWeek').value=mondayOf($('tbWeek').value); }
+function snapMondayRev(){ $('revWeek').value=mondayOf($('revWeek').value); }
+
+function buildStepGrid(){
+  $('stepsGrid').innerHTML = STEPS.map(s=>{
+    const v=stepScores[s]||0;
+    return `<div class="step-box">
+      <div class="s-name">${s}</div>
+      <div class="pips" role="group" aria-label="${s} score">
+        ${[1,2,3,4,5].map(n=>`<button type="button" class="pip${n<=v?' on':''}" onclick="setStep('${s}',${n})">${n}</button>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  const scored=STEPS.filter(s=>stepScores[s]);
+  if(scored.length===STEPS.length){
+    const min=Math.min(...STEPS.map(s=>stepScores[s]));
+    const lows=STEPS.filter(s=>stepScores[s]===min);
+    $('lowestStep').innerHTML=`<span class="lowest-tag">Lowest step: ${lows.join(' & ')} (${min}/5) — strong candidate for this week's focus</span>`;
+  } else $('lowestStep').innerHTML='';
+}
+function setStep(s,n){ stepScores[s]=n; buildStepGrid(); }
+
+function buildOppSelectors(){
+  const rep=$('tbRep').value, week=$('tbWeek').value, mk=monthKey(week);
+  const p=getPace(mk,rep);
+  const flagged=KPIS.map(k=>({...k,flag:flagFor(k.key,p[k.key])}));
+  const subs=flagged.filter(k=>k.flag.cls==='sub'), watch=flagged.filter(k=>k.flag.cls==='watch'), rest=flagged.filter(k=>k.flag.cls==='ok'||k.flag.cls==='');
+  const opt=k=>`<option value="${k.key}">${k.label}${k.flag.cls==='sub'?' — SUB-STANDARD':k.flag.cls==='watch'?' — watch':''}</option>`;
+  $('oppKpi').innerHTML=[...subs,...watch,...rest].map(opt).join('');
+  $('oppStep').innerHTML=STEPS.map(s=>`<option>${s}</option>`).join('');
+}
+
+function renderPaceStrip(){
+  const rep=$('tbRep').value, week=$('tbWeek').value, mk=monthKey(week);
+  const p=getPace(mk,rep);
+  $('paceSrc').textContent=`Pulled from the ${new Date(mk+'-15T12:00:00').toLocaleString('en-US',{month:'long',year:'numeric'})} Sales Manager Pace Report for ${rep}.`;
+  $('paceStrip').innerHTML=KPIS.map(k=>{
+    const f=flagFor(k.key,p[k.key]);
+    return `<div class="kpi ${f.cls}">
+      <div class="k-label">${k.label}</div>
+      <div class="k-val">${fmt(p[k.key],k.fmt)}</div>
+      <div class="k-tgt">Target: ${fmt(state.config.targets[k.key],k.fmt)}</div>
+      <span class="flag">${f.txt}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderPrior(){
+  const rep=$('tbRep').value, week=$('tbWeek').value;
+  const prior=entryFor(rep,prevWeek(week));
+  const card=$('priorCard');
+  if(prior && prior.plan && prior.plan.behavior){
+    card.style.display='';
+    $('priorPlanBox').innerHTML=`<b>Last week you committed to:</b> ${prior.plan.behavior}<br>
+      <b>Measure:</b> ${prior.plan.measure||'—'} &nbsp;&middot;&nbsp; <b>Checkpoint:</b> ${prior.plan.checkpoint||'—'}`;
+  } else { card.style.display='none'; priorResult=null; }
+}
+function setPrior(r){
+  priorResult=r;
+  document.querySelectorAll('#priorChoice button').forEach(b=>{
+    b.className = b.dataset.r===r ? 'sel '+r : '';
+  });
+}
+
+function loadForm(){
+  renderPaceStrip(); buildOppSelectors(); renderPrior();
+  const e=entryFor($('tbRep').value,$('tbWeek').value);
+  stepScores = e?.steps ? {...e.steps} : {};
+  buildStepGrid();
+  $('tbWins').value=e?.wins||'';
+  $('oppText').value=e?.opp?.text||'';
+  if(e?.opp?.kpi) $('oppKpi').value=e.opp.kpi;
+  if(e?.opp?.step) $('oppStep').value=e.opp.step;
+  $('apBehavior').value=e?.plan?.behavior||'';
+  $('apWhen').value=e?.plan?.when||'';
+  $('apMeasure').value=e?.plan?.measure||'';
+  $('apCheck').value=e?.plan?.checkpoint||'';
+  $('tbNeeds').value=e?.needs||'';
+  $('priorNote').value=e?.prior?.note||'';
+  priorResult=e?.prior?.result||null;
+  if(priorResult) setPrior(priorResult); else document.querySelectorAll('#priorChoice button').forEach(b=>b.className='');
+}
+
+async function saveEntry(){
+  const rep=$('tbRep').value, week=$('tbWeek').value, mk=monthKey(week);
+  if(!rep||!week){toast('Pick a consultant and week');return;}
+  const p=getPace(mk,rep);
+  const snapshot={}; KPIS.forEach(k=>snapshot[k.key]=p[k.key]??null);
+  const entry={
+    id:rep+'|'+week, rep, week, ts:Date.now(),
+    kpis:snapshot,
+    steps:{...stepScores},
+    wins:$('tbWins').value.trim(),
+    opp:{kpi:$('oppKpi').value, step:$('oppStep').value, text:$('oppText').value.trim()},
+    plan:{behavior:$('apBehavior').value.trim(), when:$('apWhen').value.trim(), measure:$('apMeasure').value.trim(), checkpoint:$('apCheck').value.trim()},
+    needs:$('tbNeeds').value.trim(),
+    prior:{result:priorResult, note:$('priorNote').value.trim()},
+    managerNotes:(entryFor(rep,week)||{}).managerNotes||''
+  };
+  const i=state.entries.findIndex(e=>e.id===entry.id);
+  if(i>=0) state.entries[i]=entry; else state.entries.push(entry);
+  await push('saveEntry',{entry});
+  toast('Touch base saved — see you Monday');
+}
+
+/* =================== team review =================== */
+function renderReview(){
+  const week=$('revWeek').value; if(!week) return;
+  const grid=$('revGrid'); grid.innerHTML='';
+  state.config.reps.forEach(rep=>{
+    const e=entryFor(rep,week);
+    if(!e){
+      grid.innerHTML+=`<div class="rev-card"><h4>${rep}</h4><div class="wk">Week of ${week}</div><div class="empty" style="padding:16px">No touch base submitted yet.</div></div>`;
+      return;
+    }
+    const kchips=KPIS.map(k=>{
+      const f=flagFor(k.key,e.kpis[k.key]);
+      return `<span class="chip ${f.cls}" title="${k.label}">${k.label.split(' ')[0]}${k.key.includes('mkt')?' Mkt':''}: ${fmt(e.kpis[k.key],k.fmt)}</span>`;
+    }).join('');
+    const segs=STEPS.map(s=>{const v=e.steps?.[s]||0;return `<div class="seg${v?' s'+v:''}" title="${s}: ${v||'—'}/5"></div>`;}).join('');
+    const pr=e.prior?.result;
+    const prChip = pr?`<span class="result-chip ${pr}">${pr==='worked'?'Worked':pr==='partial'?'Partial':"Didn't work"}</span>`:'';
+    const mgrBlock = managerOn
+      ? `<div class="rev-sec"><div class="eyebrow">Manager notes</div>
+          <textarea data-mn="${e.id}" style="min-height:56px">${e.managerNotes||''}</textarea>
+          <button class="btn ghost small" style="margin-top:6px" onclick="saveMgrNote('${e.id}')">Save note</button></div>`
+      : (e.managerNotes?`<div class="rev-sec"><div class="eyebrow">Manager notes</div><p>${e.managerNotes}</p></div>`:'');
+    grid.innerHTML+=`<div class="rev-card">
+      <h4>${rep}</h4><div class="wk">Week of ${e.week}</div>
+      <div class="mini-kpis">${kchips}</div>
+      <div class="eyebrow">Sales system self-check</div>
+      <div class="step-meter">${segs}</div>
+      ${pr?`<div class="rev-sec"><div class="eyebrow">Last week's action</div>${prChip} <span style="font-size:.85rem">${e.prior?.note||''}</span></div>`:''}
+      <div class="rev-sec"><div class="eyebrow">Wins</div><p>${e.wins||'—'}</p></div>
+      <div class="rev-sec"><div class="eyebrow">Opportunity — ${(KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'—'} · ${e.opp?.step||''}</div><p>${e.opp?.text||'—'}</p></div>
+      <div class="rev-sec"><div class="eyebrow">This week's plan</div>
+        <p><b>Behavior:</b> ${e.plan?.behavior||'—'}\n<b>When:</b> ${e.plan?.when||'—'}\n<b>Measure:</b> ${e.plan?.measure||'—'}\n<b>Checkpoint:</b> ${e.plan?.checkpoint||'—'}</p></div>
+      ${e.needs?`<div class="needs-flag"><div class="eyebrow">Needs from Nels</div><p style="font-size:.88rem">${e.needs}</p></div>`:''}
+      ${mgrBlock}
+    </div>`;
+  });
+}
+async function saveMgrNote(id){
+  const ta=document.querySelector(`textarea[data-mn="${CSS.escape(id)}"]`);
+  const e=state.entries.find(x=>x.id===id); if(!e) return;
+  e.managerNotes=ta.value.trim();
+  await push('saveEntry',{entry:e});
+  toast('Note saved');
+}
+
+/* =================== track record =================== */
+function renderTrack(){
+  const rep=$('trRep').value;
+  const rows=state.entries.filter(e=>e.rep===rep).sort((a,b)=>a.week<b.week?1:-1);
+  const t=$('trTable');
+  if(!rows.length){ t.innerHTML='<tr><td class="empty" style="border:none">No entries yet for '+rep+'.</td></tr>'; return; }
+  let html=`<tr><th>Week</th>${KPIS.map(k=>`<th>${k.label}</th>`).join('')}<th>Lowest Step</th><th>Opportunity</th><th>Action Taken</th><th>Result</th></tr>`;
+  rows.forEach(e=>{
+    const next=entryFor(rep, (d=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+7);return x.toISOString().slice(0,10);})(e.week));
+    const res=next?.prior?.result;
+    const resTxt=res?`<span class="result-chip ${res}">${res==='worked'?'Worked':res==='partial'?'Partial':"Didn't"}</span>`:'<span class="hint">Pending</span>';
+    const scored=STEPS.filter(s=>e.steps?.[s]);
+    let low='—';
+    if(scored.length){const m=Math.min(...scored.map(s=>e.steps[s]));low=STEPS.filter(s=>e.steps[s]===m).join(', ')+` (${m})`;}
+    html+=`<tr><td><b>${e.week}</b></td>${KPIS.map(k=>{
+      const f=flagFor(k.key,e.kpis?.[k.key]);
+      return `<td class="cell-flag ${f.cls}">${fmt(e.kpis?.[k.key],k.fmt)}</td>`;
+    }).join('')}<td>${low}</td><td>${(KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'—'}: ${e.opp?.text||''}</td><td>${e.plan?.behavior||'—'}</td><td>${resTxt} ${next?.prior?.note?`<div class="hint">${next.prior.note}</div>`:''}</td></tr>`;
+  });
+  t.innerHTML=html;
+}
+function exportCSV(){
+  const rep=$('trRep').value;
+  const rows=state.entries.filter(e=>e.rep===rep).sort((a,b)=>a.week<b.week?-1:1);
+  const head=['Week','Consultant',...KPIS.map(k=>k.label),...STEPS.map(s=>'Step: '+s),'Opportunity KPI','Opportunity','Action','When','Measure','Checkpoint','Needs','PriorResult','PriorNote','ManagerNotes'];
+  const lines=[head.join(',')];
+  rows.forEach(e=>{
+    const cells=[e.week,e.rep,...KPIS.map(k=>e.kpis?.[k.key]??''),...STEPS.map(s=>e.steps?.[s]??''),
+      (KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'',e.opp?.text||'',e.plan?.behavior||'',e.plan?.when||'',e.plan?.measure||'',e.plan?.checkpoint||'',e.needs||'',e.prior?.result||'',e.prior?.note||'',e.managerNotes||''];
+    lines.push(cells.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(','));
+  });
+  const blob=new Blob([lines.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=rep.replace(/\W+/g,'_')+'_touchbase_track_record.csv';a.click();
+}
+
+/* =================== pace / setup =================== */
+function renderPaceView(){
+  $('paceLocked').style.display=managerOn?'none':'';
+  $('paceOpen').style.display=managerOn?'':'none';
+  if(managerOn){ renderPaceGrid(); renderTargets(); renderSetup(); }
+}
+function renderPaceGrid(){
+  const mk=monthKey($('paceMonth').value||new Date().toISOString().slice(0,10));
+  let html=`<tr><th>Consultant</th>${KPIS.map(k=>`<th>${k.label}</th>`).join('')}</tr>`;
+  state.config.reps.forEach(rep=>{
+    const p=getPace(mk,rep);
+    html+=`<tr><td><b>${rep}</b></td>${KPIS.map(k=>`<td><input type="number" step="any" data-pace="${rep}|${k.key}" value="${p[k.key]??''}"></td>`).join('')}</tr>`;
+  });
+  $('paceTable').innerHTML=html;
+}
+async function savePace(){
+  const mk=monthKey($('paceMonth').value||new Date().toISOString().slice(0,10));
+  if(!state.pace[mk]) state.pace[mk]={};
+  document.querySelectorAll('input[data-pace]').forEach(inp=>{
+    const [rep,key]=inp.dataset.pace.split('|');
+    if(!state.pace[mk][rep]) state.pace[mk][rep]={};
+    state.pace[mk][rep][key]=inp.value===''?null:Number(inp.value);
+  });
+  await push('savePace',{month:mk, data:state.pace[mk]});
+  toast('Pace data saved for '+mk);
+  renderPaceStrip&&renderPaceStrip();
+}
+function renderTargets(){
+  $('targetRow').innerHTML=KPIS.map(k=>`<div><label>${k.label}</label><input type="number" step="any" data-tgt="${k.key}" value="${state.config.targets[k.key]??''}"></div>`).join('');
+}
+async function saveTargets(){
+  document.querySelectorAll('input[data-tgt]').forEach(inp=>{
+    state.config.targets[inp.dataset.tgt]=inp.value===''?null:Number(inp.value);
+  });
+  await push('saveConfig',{config:state.config});
+  toast('Targets saved');
+}
+function renderSetup(){
+  $('cfgReps').value=state.config.reps.join(', ');
+  $('cfgEndpoint').value=settings.endpoint||'';
+  $('cfgCode').value=settings.teamCode||'';
+  $('cfgPin').value=state.config.managerPin||'';
+}
+async function saveSetup(){
+  state.config.reps=$('cfgReps').value.split(',').map(s=>s.trim()).filter(Boolean);
+  state.config.managerPin=$('cfgPin').value.trim()||DEFAULT_CONFIG.managerPin;
+  settings.endpoint=$('cfgEndpoint').value.trim();
+  settings.teamCode=$('cfgCode').value.trim();
+  localStorage.setItem(LS_SETTINGS,JSON.stringify(settings));
+  await push('saveConfig',{config:state.config});
+  fillRepSelects(); toast('Setup saved'); loadRemote();
+}
+
+/* =================== init =================== */
+function fillRepSelects(){
+  const opts=state.config.reps.map(r=>`<option>${r}</option>`).join('');
+  ['tbRep','trRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
+}
+function refreshAll(){
+  fillRepSelects(); loadForm(); renderReview(); renderTrack(); if(managerOn) renderPaceView();
+}
+(function init(){
+  const today=new Date().toISOString().slice(0,10);
+  const mon=mondayOf(today);
+  $('tbWeek').value=mon; $('revWeek').value=mon; $('paceMonth').value=today;
+  $('mgrBtn').classList.toggle('on',managerOn);
+  fillRepSelects(); loadForm();
+  loadRemote();
+})();
+</script>
+</body>
+</html>
