@@ -475,13 +475,27 @@ async function api(payload){
   if(j.error) throw new Error(j.error);
   return j;
 }
+/* Sheets sometimes reinterprets a "2026-08" month label as a date and hands it back
+   as "Sat Aug 01 2026 00:00:00 GMT-0500 ...". Translate any such key back to YYYY-MM. */
+function normPace(p){
+  const out={};
+  for(const k of Object.keys(p||{})){
+    let nk=k;
+    if(!/^\d{4}-\d{2}$/.test(k)){
+      const d=new Date(k);
+      if(!isNaN(d)) nk=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    }
+    out[nk]=Object.assign(out[nk]||{}, p[k]);
+  }
+  return out;
+}
 async function loadRemote(){
   if(!settings.endpoint){setSync('local');return;}
   try{
     const r=await fetch(settings.endpoint+'?action=load&code='+encodeURIComponent(settings.teamCode||''));
     const j=await r.json();
     if(j.error) throw new Error(j.error);
-    state={config:{...structuredClone(DEFAULT_CONFIG),...(j.config||{})}, pace:j.pace||{}, entries:j.entries||[]};
+    state={config:{...structuredClone(DEFAULT_CONFIG),...(j.config||{})}, pace:normPace(j.pace||{}), entries:j.entries||[]};
     cache(); setSync('ok'); refreshAll();
   }catch(e){ setSync('err'); toast('Sync failed: '+(e.message||'network error')+' — working from local copy'); }
 }
