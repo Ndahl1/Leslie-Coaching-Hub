@@ -202,6 +202,14 @@
     </div>
   </div>
 
+  <div class="card" id="tbLock" style="display:none">
+    <h3>&#128274; PIN required</h3>
+    <p class="hint" id="tbLockMsg" style="margin-bottom:12px"></p>
+    <button class="btn" onclick="if(unlockRep($('tbRep').value)){loadForm();}">Enter my PIN</button>
+    <div class="hint" style="margin-top:10px">Forgot your PIN? Ask Nels.</div>
+  </div>
+
+  <div id="tbBody">
   <div class="card">
     <h3><span class="stepnum">1</span> Scoreboard — this month's pace</h3>
     <div class="hint" style="margin-bottom:10px" id="paceSrc"></div>
@@ -284,6 +292,7 @@
 
   <button class="btn" onclick="saveEntry()">Save my touch base</button>
   <span class="hint" style="margin-left:10px">Saving again for the same week updates your entry.</span>
+  </div><!-- /tbBody -->
 </section>
 
 <!-- ============ TEAM REVIEW ============ -->
@@ -343,6 +352,13 @@
     </div>
 
     <div class="card">
+      <h3>Consultant PINs</h3>
+      <p class="hint" style="margin-bottom:10px">Each consultant enters their PIN once per session to open their own touch base and track record. You (Manager mode) bypass all of them. Leave a PIN blank to remove the gate for that consultant.</p>
+      <div class="row" id="pinGrid"></div>
+      <div style="margin-top:12px"><button class="btn ghost small" onclick="saveSetup()">Save PINs</button></div>
+    </div>
+
+    <div class="card">
       <h3>Team &amp; connection</h3>
       <div class="row">
         <div>
@@ -387,7 +403,8 @@ const STEPS = ['Prepare','Greet','Explore','Present','Close','Follow Up'];
 const DEFAULT_CONFIG = {
   reps:['Jeremy M.','Justin B.','Tom O.','Kevin L.','Tony P.'],
   targets:{appts:25, tglClose:55, mktClose:40, tglTicket:12500, mktTicket:11000},
-  managerPin:'1928'
+  managerPin:'1928',
+  repPins:{'Jeremy M.':'4125','Justin B.':'6832','Tom O.':'6967','Kevin L.':'8645','Tony P.':'8895'}
 };
 const LS_SETTINGS='leslie_tb_settings_v1';
 const LS_CACHE='leslie_tb_cache_v1';
@@ -398,7 +415,27 @@ let state = JSON.parse(localStorage.getItem(LS_CACHE)||'null') || {config:struct
 if(!state.config) state.config = structuredClone(DEFAULT_CONFIG);
 if(!state.config.targets) state.config.targets = structuredClone(DEFAULT_CONFIG.targets);
 if(!state.config.reps || !state.config.reps.length) state.config.reps = structuredClone(DEFAULT_CONFIG.reps);
+if(!state.config.repPins) state.config.repPins = structuredClone(DEFAULT_CONFIG.repPins);
 let managerOn = sessionStorage.getItem('leslie_tb_mgr')==='1';
+let repOn = sessionStorage.getItem('leslie_tb_rep') || null;
+
+/* =================== consultant PIN auth =================== */
+function repPin(rep){
+  const p=(state.config.repPins||{})[rep];
+  const s=p==null?'':String(p).trim();
+  return s||null;
+}
+function repAuthed(rep){ return managerOn || repOn===rep || !repPin(rep); }
+function unlockRep(rep){
+  const pin=prompt('Enter the PIN for '+rep+':');
+  if(pin===null) return false;
+  if(pin.trim()===repPin(rep)){
+    repOn=rep; sessionStorage.setItem('leslie_tb_rep',rep);
+    toast('Unlocked — signed in as '+rep);
+    return true;
+  }
+  toast('Incorrect PIN'); return false;
+}
 let stepScores = {}; let priorResult = null;
 
 /* =================== utils =================== */
@@ -477,7 +514,7 @@ function toggleManager(){
     else if(pin!==null){ toast('Incorrect PIN'); }
   }
   $('mgrBtn').classList.toggle('on',managerOn);
-  renderPaceView(); renderReview();
+  renderPaceView(); renderReview(); loadForm(); renderTrack();
 }
 
 /* =================== my touch base =================== */
@@ -546,6 +583,14 @@ function setPrior(r){
 }
 
 function loadForm(){
+  const gRep=$('tbRep').value;
+  if(!repAuthed(gRep)){
+    $('tbBody').style.display='none';
+    $('tbLock').style.display='';
+    $('tbLockMsg').textContent='This touch base belongs to '+gRep+'. Enter '+gRep+"'s PIN to open it"+(repOn?(' — you\u2019re currently signed in as '+repOn+'.'):'.');
+    return;
+  }
+  $('tbBody').style.display=''; $('tbLock').style.display='none';
   renderPaceStrip(); buildOppSelectors(); renderPrior();
   const e=entryFor($('tbRep').value,$('tbWeek').value);
   stepScores = e?.steps ? {...e.steps} : {};
@@ -634,8 +679,12 @@ async function saveMgrNote(id){
 /* =================== track record =================== */
 function renderTrack(){
   const rep=$('trRep').value;
-  const rows=state.entries.filter(e=>e.rep===rep).sort((a,b)=>a.week<b.week?1:-1);
   const t=$('trTable');
+  if(!repAuthed(rep)){
+    t.innerHTML='<tr><td class="empty" style="border:none">&#128274; '+rep+'\u2019s track record is PIN-protected. <button class="btn ghost small" style="margin-left:10px" onclick="if(unlockRep($(\'trRep\').value)){renderTrack();}">Enter PIN</button></td></tr>';
+    return;
+  }
+  const rows=state.entries.filter(e=>e.rep===rep).sort((a,b)=>a.week<b.week?1:-1);
   if(!rows.length){ t.innerHTML='<tr><td class="empty" style="border:none">No entries yet for '+rep+'.</td></tr>'; return; }
   let html=`<tr><th>Week</th>${KPIS.map(k=>`<th>${k.label}</th>`).join('')}<th>Lowest Step</th><th>Opportunity</th><th>Action Taken</th><th>Result</th></tr>`;
   rows.forEach(e=>{
@@ -654,6 +703,7 @@ function renderTrack(){
 }
 function exportCSV(){
   const rep=$('trRep').value;
+  if(!repAuthed(rep)){ toast('Enter '+rep+'\u2019s PIN first'); return; }
   const rows=state.entries.filter(e=>e.rep===rep).sort((a,b)=>a.week<b.week?-1:1);
   const head=['Week','Consultant',...KPIS.map(k=>k.label),...STEPS.map(s=>'Step: '+s),'Opportunity KPI','Opportunity','Action','When','Measure','Checkpoint','Needs','PriorResult','PriorNote','ManagerNotes'];
   const lines=[head.join(',')];
@@ -708,10 +758,17 @@ function renderSetup(){
   $('cfgEndpoint').value=settings.endpoint||'';
   $('cfgCode').value=settings.teamCode||'';
   $('cfgPin').value=state.config.managerPin||'';
+  $('pinGrid').innerHTML=state.config.reps.map((r,i)=>`<div>
+      <label for="repPin${i}">${r}</label>
+      <input type="text" id="repPin${i}" data-rep="${r}" class="rep-pin" inputmode="numeric" maxlength="6" value="${(state.config.repPins||{})[r]||''}" placeholder="No PIN (open)">
+    </div>`).join('');
 }
 async function saveSetup(){
   state.config.reps=$('cfgReps').value.split(',').map(s=>s.trim()).filter(Boolean);
   state.config.managerPin=$('cfgPin').value.trim()||DEFAULT_CONFIG.managerPin;
+  const pins={};
+  document.querySelectorAll('.rep-pin').forEach(inp=>{ const v=inp.value.trim(); if(v) pins[inp.dataset.rep]=v; });
+  state.config.repPins=pins;
   settings.endpoint=$('cfgEndpoint').value.trim();
   settings.teamCode=$('cfgCode').value.trim();
   localStorage.setItem(LS_SETTINGS,JSON.stringify(settings));
@@ -732,7 +789,9 @@ function refreshAll(){
   const mon=mondayOf(today);
   $('tbWeek').value=mon; $('revWeek').value=mon; $('paceMonth').value=today;
   $('mgrBtn').classList.toggle('on',managerOn);
-  fillRepSelects(); loadForm();
+  fillRepSelects();
+  if(repOn && state.config.reps.includes(repOn)){ $('tbRep').value=repOn; $('trRep').value=repOn; }
+  loadForm();
   loadRemote();
 })();
 </script>
