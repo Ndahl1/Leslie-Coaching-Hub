@@ -483,7 +483,7 @@ async function loadRemote(){
     if(j.error) throw new Error(j.error);
     state={config:{...structuredClone(DEFAULT_CONFIG),...(j.config||{})}, pace:j.pace||{}, entries:j.entries||[]};
     cache(); setSync('ok'); refreshAll();
-  }catch(e){ setSync('err'); toast('Sync failed — working from local copy'); }
+  }catch(e){ setSync('err'); toast('Sync failed: '+(e.message||'network error')+' — working from local copy'); }
 }
 function setSync(s){
   const d=$('syncDot'),t=$('syncText');
@@ -493,7 +493,7 @@ function setSync(s){
 async function push(action,data){
   if(!settings.endpoint){cache();return;}
   try{ await api({action,...data}); setSync('ok'); }
-  catch(e){ setSync('err'); toast('Saved locally — sync failed'); }
+  catch(e){ setSync('err'); toast('Sync failed: '+(e.message||'network error')+' — saved locally'); }
   cache();
 }
 
