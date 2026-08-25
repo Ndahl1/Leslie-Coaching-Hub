@@ -130,6 +130,39 @@
   .rev-sec .eyebrow{margin-bottom:2px}
   .rev-sec p{font-size:.88rem;white-space:pre-wrap}
   .needs-flag{background:#FFF8E9;border:1px solid var(--tan);border-radius:8px;padding:8px 10px;margin-top:10px}
+  /* ---------- post-call debrief ---------- */
+  .focus-card{background:var(--tan-soft);border:1.5px solid var(--tan)}
+  .focus-quote{font-size:1.02rem;font-weight:700;line-height:1.4;margin:2px 0 6px}
+  .focus-when{font-size:.82rem;color:var(--maroon)}
+  .tally{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  .tdot{width:16px;height:16px;border-radius:50%;border:2px solid var(--sage-deep);background:#fff}
+  .tdot.hit{background:var(--sage)}
+  .tdot.miss{border-color:var(--terracotta)}
+  .tdot.miss::after{content:'';display:block;width:8px;height:2px;background:var(--terracotta);margin:5px auto}
+  .tally-label{font-size:.8rem;font-weight:800;color:var(--sage-deep);margin-left:4px}
+  .dseg{display:grid;gap:8px;margin-top:2px}
+  .dseg.c3{grid-template-columns:1fr 1fr 1fr}
+  .dseg.c2{grid-template-columns:1fr 1fr}
+  .dseg button{padding:14px 6px;font-size:.95rem;font-weight:800;border-radius:12px;border:1.5px solid var(--line);
+    background:#fff;color:var(--ink);cursor:pointer;font-family:inherit;min-height:52px}
+  .dseg button.on.good{background:var(--sage);border-color:var(--sage-deep);color:#fff}
+  .dseg button.on.bad{background:var(--terracotta);border-color:var(--maroon);color:#fff}
+  .dseg button.on.mid{background:var(--tan);border-color:var(--maroon);color:var(--ink)}
+  .dseg button.on.sold{background:var(--red);border-color:var(--maroon);color:#fff}
+  .dchips{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+  .dchips button{padding:9px 13px;border-radius:18px;border:1.5px solid var(--line);background:#fff;
+    font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink)}
+  .dchips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .statline{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;font-weight:700;color:var(--maroon)}
+  .statline b{color:var(--ink);font-size:1rem}
+  .nudge{background:#FFF3EE;border:1.5px solid var(--terracotta);border-radius:10px;padding:10px 12px;
+    font-size:.85rem;font-weight:600;margin-top:10px;color:var(--maroon)}
+  .hist-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:.86rem}
+  .hist-row:last-child{border-bottom:none}
+  .dpill{font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:12px}
+  .dpill.sold{background:var(--red);color:#fff}
+  .dpill.pending{background:var(--tan);color:var(--ink)}
+  .dpill.nosale{background:var(--terracotta);color:#fff}
   .result-chip{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:10px;color:#fff}
   .result-chip.worked{background:var(--sage-deep)} .result-chip.partial{background:var(--terracotta)} .result-chip.didnt{background:var(--red)}
   /* ---------- tables ---------- */
@@ -175,6 +208,7 @@
 <nav>
   <div class="nav-inner">
     <button class="active" data-v="mytb" onclick="showView('mytb')">My Touch Base</button>
+    <button data-v="debrief" onclick="showView('debrief')">Debrief</button>
     <button data-v="review" onclick="showView('review')">Team Review</button>
     <button data-v="track" onclick="showView('track')">Track Record</button>
     <button data-v="pace" onclick="showView('pace')">Pace Data &amp; Setup</button>
@@ -303,6 +337,98 @@
 </section>
 
 <!-- ============ TEAM REVIEW ============ -->
+<section class="view" id="view-debrief">
+  <h2>Post-Call Debrief</h2>
+  <p class="lead">60 seconds in the truck, while it's fresh. Every call you log rolls into your Monday touch base — and the Wednesday checkpoint writes itself.</p>
+
+  <div class="card">
+    <label for="dbRep">Consultant</label>
+    <select id="dbRep" onchange="renderDebrief()"></select>
+  </div>
+
+  <div id="dbLock" class="card" style="display:none">
+    <p id="dbLockMsg">&#128274;</p>
+    <button class="btn ghost small" style="margin-top:8px" onclick="if(unlockRep($('dbRep').value)){renderDebrief();}">Enter PIN</button>
+  </div>
+
+  <div id="dbBody">
+    <div class="card focus-card" id="focusCard" style="display:none">
+      <div class="eyebrow">This week I'm working on</div>
+      <div class="focus-quote" id="focusQuote"></div>
+      <div class="focus-when" id="focusWhen"></div>
+      <div class="tally" id="focusTally"></div>
+    </div>
+    <div class="card" id="noPlanCard" style="display:none">
+      <div class="eyebrow">No touch base yet this week</div>
+      <p class="hint" style="margin-top:2px">Submit Monday's touch base and your focus behavior will show up here. Debriefs still count.</p>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">This call</div>
+      <label for="dbCust">Customer <span class="hint">(first name is plenty)</span></label>
+      <input type="text" id="dbCust" autocomplete="off" placeholder="e.g., Linda">
+
+      <label>How did it end?</label>
+      <div class="dseg c3">
+        <button data-cls="sold" onclick="dbPick('outcome','sold',this)">Sold</button>
+        <button data-cls="mid" onclick="dbPick('outcome','pending',this)">Pending</button>
+        <button data-cls="bad" onclick="dbPick('outcome','nosale',this)">No sale</button>
+      </div>
+
+      <div id="qFocus" style="display:none">
+        <label id="focusQLabel">Did you run your focus behavior on this call?</label>
+        <div class="dseg c2">
+          <button data-cls="good" onclick="dbPick('focus','yes',this)">Ran it</button>
+          <button data-cls="bad" onclick="dbPick('focus','no',this)">Skipped it</button>
+        </div>
+      </div>
+
+      <label>Restate-to-nod: did you restate their top concern in <i>their</i> words — and get the nod — before presenting?</label>
+      <div class="dseg c2">
+        <button data-cls="good" onclick="dbPick('nod','yes',this)">Got the nod</button>
+        <button data-cls="bad" onclick="dbPick('nod','no',this)">Didn't</button>
+      </div>
+
+      <label for="dbWords">One thing they said — their exact words</label>
+      <textarea id="dbWords" placeholder='e.g., "The upstairs bedroom is an oven by 3pm." That line opens your next presentation.'></textarea>
+
+      <div id="soldWrap" style="display:none">
+        <label for="dbAmt">Sale amount ($)</label>
+        <input type="number" id="dbAmt" inputmode="numeric" placeholder="e.g., 15250">
+        <label for="dbOpt">Option they chose</label>
+        <input type="text" id="dbOpt" placeholder="e.g., 5-Star Elite">
+      </div>
+
+      <div id="unsoldWrap" style="display:none">
+        <label>High Authority / Zero Ticket call</label>
+        <div class="dseg c3">
+          <button data-cls="good" onclick="dbPick('hazt','made',this)">Made</button>
+          <button data-cls="mid" onclick="dbPick('hazt','sched',this)">Scheduled</button>
+          <button data-cls="bad" onclick="dbPick('hazt','none',this)">Not yet</button>
+        </div>
+        <div class="dchips" id="haztWho" style="display:none">
+          <button onclick="dbChip(this)">Nels</button>
+          <button onclick="dbChip(this)">Dennis</button>
+          <button onclick="dbChip(this)">Gabe</button>
+          <button onclick="dbChip(this)">Kristina</button>
+        </div>
+        <div class="nudge" id="haztNudge" style="display:none">An unsold call without an HA/ZT call is a skipped step — it's the fastest money in the building. Who's making it, and when?</div>
+        <label for="dbHold">What's holding them back — their words</label>
+        <textarea id="dbHold" placeholder='e.g., "We want to see one more quote."'></textarea>
+      </div>
+
+      <button class="btn" style="margin-top:12px" onclick="dbSave()">Save this call</button>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">My week so far</div>
+      <div class="statline" id="weekStats">No calls logged yet this week.</div>
+      <div id="histList" style="margin-top:8px"></div>
+      <button class="btn ghost small" style="margin-top:12px" onclick="dbCheckpoint()">Text Nels my checkpoint</button>
+    </div>
+  </div>
+</section>
+
 <section class="view" id="view-review">
   <h2>Team Review — Monday board</h2>
   <p class="lead">Everyone's scoreboard, plan, and asks for the selected week. Run the touch bases straight off this screen.</p>
@@ -523,6 +649,7 @@ function showView(v){
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.v===v));
   $('view-'+v).classList.add('active');
+  if(v==='debrief') renderDebrief();
   if(v==='review') renderReview();
   if(v==='track') renderTrack();
   if(v==='pace') renderPaceView();
@@ -668,7 +795,8 @@ async function saveEntry(){
     prior:{result:priorResult, note:$('priorNote').value.trim()},
     managerNotes:(entryFor(rep,week)||{}).managerNotes||'',
     skillPractice:(entryFor(rep,week)||{}).skillPractice||'',
-    ack:(entryFor(rep,week)||{}).ack||null
+    ack:(entryFor(rep,week)||{}).ack||null,
+    debriefs:(entryFor(rep,week)||{}).debriefs||[]
   };
   const i=state.entries.findIndex(e=>e.id===entry.id);
   if(i>=0) state.entries[i]=entry; else state.entries.push(entry);
@@ -707,6 +835,7 @@ function renderReview(){
       <div class="step-meter">${segs}</div>
       ${pr?`<div class="rev-sec"><div class="eyebrow">Last week's action</div>${prChip} <span style="font-size:.85rem">${e.prior?.note||''}</span></div>`:''}
       <div class="rev-sec"><div class="eyebrow">Wins</div><p>${e.wins||'—'}</p></div>
+      ${(e.debriefs&&e.debriefs.length)?(()=>{const D=e.debriefs;const fc=D.filter(c=>c.focus!==null&&c.focus!==undefined);const hits=fc.filter(c=>c.focus).length;const sold=D.filter(c=>c.outcome==='sold');const uns=D.filter(c=>c.outcome!=='sold');const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;const nods=D.filter(c=>c.nod).length;return `<div class="rev-sec"><div class="eyebrow">From the field (post-call debriefs)</div><p style="font-size:.88rem"><b>${D.length}</b> calls · <b>${sold.length}</b> sold${fc.length?` · Focus <b>${hits}/${fc.length}</b>`:''} · Nod <b>${nods}/${D.length}</b> · HA/ZT <b>${cov}/${uns.length}</b></p></div>`;})():''}
       ${e.growth?`<div class="rev-sec"><div class="eyebrow">Growth</div><p>${e.growth}</p></div>`:''}
       <div class="rev-sec"><div class="eyebrow">Opportunity — ${(KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'—'} · ${e.opp?.step||''}</div><p>${e.opp?.text||'—'}</p></div>
       <div class="rev-sec"><div class="eyebrow">This week's plan</div>
@@ -832,19 +961,142 @@ async function saveSetup(){
 /* =================== init =================== */
 function fillRepSelects(){
   const opts=state.config.reps.map(r=>`<option>${r}</option>`).join('');
-  ['tbRep','trRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
+  ['tbRep','trRep','dbRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
 }
 function refreshAll(){
-  fillRepSelects(); loadForm(); renderReview(); renderTrack(); if(managerOn) renderPaceView();
+  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); if(managerOn) renderPaceView();
 }
+/* =================== post-call debrief =================== */
+let dbPicks={outcome:null,focus:null,nod:null,hazt:null}, dbWho='';
+function thisWeek(){ return mondayOf(new Date().toISOString().slice(0,10)); }
+function dbCalls(rep){ return (entryFor(rep,thisWeek())?.debriefs)||[]; }
+function dbPick(key,val,btn){
+  dbPicks[key]=val;
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.className='');
+  btn.className='on '+btn.dataset.cls;
+  if(key==='outcome'){
+    $('soldWrap').style.display = val==='sold'?'':'none';
+    $('unsoldWrap').style.display = val==='sold'?'none':'';
+  }
+  if(key==='hazt'){
+    $('haztWho').style.display = (val==='made'||val==='sched')?'flex':'none';
+    $('haztNudge').style.display = val==='none'?'':'none';
+  }
+}
+function dbChip(btn){
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); dbWho=btn.textContent;
+}
+function dbReset(){
+  dbPicks={outcome:null,focus:null,nod:null,hazt:null}; dbWho='';
+  ['dbCust','dbWords','dbAmt','dbOpt','dbHold'].forEach(id=>$(id).value='');
+  document.querySelectorAll('#view-debrief .dseg button').forEach(b=>b.className='');
+  document.querySelectorAll('#haztWho button').forEach(b=>b.classList.remove('on'));
+  $('soldWrap').style.display='none'; $('unsoldWrap').style.display='none';
+  $('haztWho').style.display='none'; $('haztNudge').style.display='none';
+}
+async function dbSave(){
+  const rep=$('dbRep').value, wk=thisWeek();
+  if(!repAuthed(rep)){ if(!unlockRep(rep)) return; }
+  if(!dbPicks.outcome){toast('How did the call end?');return;}
+  const plan=entryFor(rep,wk)?.plan;
+  if(plan?.behavior && !dbPicks.focus){toast('Did you run your focus behavior?');return;}
+  if(!dbPicks.nod){toast('Restate-to-nod — yes or no?');return;}
+  if(dbPicks.outcome!=='sold' && !dbPicks.hazt){toast('HA/ZT call — made, scheduled, or not yet?');return;}
+  const call={
+    ts:Date.now(), rep, week:wk,
+    customer:$('dbCust').value.trim(),
+    outcome:dbPicks.outcome,
+    focus:plan?.behavior ? (dbPicks.focus==='yes') : null,
+    nod:dbPicks.nod==='yes',
+    words:$('dbWords').value.trim(),
+    amount:dbPicks.outcome==='sold'?($('dbAmt').value?Number($('dbAmt').value):null):null,
+    option:dbPicks.outcome==='sold'?$('dbOpt').value.trim():'',
+    hazt:dbPicks.outcome!=='sold'?dbPicks.hazt:null,
+    haztWho:dbPicks.outcome!=='sold'?dbWho:'',
+    holdback:dbPicks.outcome!=='sold'?$('dbHold').value.trim():''
+  };
+  let e=entryFor(rep,wk);
+  if(!e){ e={id:rep+'|'+wk, rep, week:wk, ts:Date.now(), kpis:{}, steps:{}, debriefs:[]}; state.entries.push(e); }
+  e.debriefs=e.debriefs||[]; e.debriefs.push(call);
+  await push('saveEntry',{entry:e});
+  toast('Saved — nice work, next one');
+  dbReset(); renderDebrief();
+  window.scrollTo({top:0});
+}
+function renderDebrief(){
+  const rep=$('dbRep').value;
+  if(!repAuthed(rep)){
+    $('dbBody').style.display='none'; $('dbLock').style.display='';
+    $('dbLockMsg').textContent='\uD83D\uDD12 This debrief log belongs to '+rep+'. Enter '+rep+"'s PIN to open it.";
+    return;
+  }
+  $('dbBody').style.display=''; $('dbLock').style.display='none';
+  const e=entryFor(rep,thisWeek()), plan=e?.plan;
+  if(plan?.behavior){
+    $('focusCard').style.display=''; $('noPlanCard').style.display='none';
+    $('focusQuote').textContent='\u201C'+plan.behavior+'\u201D';
+    $('focusWhen').textContent = plan.when? ('When: '+plan.when) : '';
+    $('focusQLabel').textContent='Did you run it on this call?';
+    $('qFocus').style.display='';
+    const fc=dbCalls(rep).filter(c=>c.focus!==null&&c.focus!==undefined);
+    const hits=fc.filter(c=>c.focus).length;
+    $('focusTally').innerHTML = fc.map(c=>'<span class="tdot '+(c.focus?'hit':'miss')+'"></span>').join('')
+      + (fc.length?('<span class="tally-label">'+hits+' of '+fc.length+' calls this week</span>')
+                  :'<span class="tally-label">First call of the week — go get it</span>');
+  }else{
+    $('focusCard').style.display='none'; $('noPlanCard').style.display='';
+    $('qFocus').style.display='none';
+  }
+  const calls=dbCalls(rep);
+  if(!calls.length){ $('weekStats').textContent='No calls logged yet this week.'; $('histList').innerHTML=''; return; }
+  const sold=calls.filter(c=>c.outcome==='sold');
+  const uns=calls.filter(c=>c.outcome!=='sold');
+  const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;
+  const nods=calls.filter(c=>c.nod).length;
+  const rev=sold.reduce((s,c)=>s+(c.amount||0),0);
+  $('weekStats').innerHTML=
+    '<span><b>'+calls.length+'</b> calls</span>'+
+    '<span><b>'+sold.length+'</b> sold'+(rev?(' \u00B7 $'+rev.toLocaleString()):'')+'</span>'+
+    '<span>Nod <b>'+nods+'/'+calls.length+'</b></span>'+
+    '<span>HA/ZT <b>'+cov+'/'+uns.length+'</b></span>';
+  $('histList').innerHTML=calls.slice().reverse().map(c=>
+    '<div class="hist-row"><span>'+(c.customer||'\u2014')+' <span class="hint">'+new Date(c.ts).toLocaleDateString(undefined,{weekday:'short'})+'</span></span>'+
+    '<span class="dpill '+(c.outcome==='sold'?'sold':c.outcome==='pending'?'pending':'nosale')+'">'+
+    (c.outcome==='sold'?('SOLD'+(c.amount?(' $'+c.amount.toLocaleString()):'')):c.outcome==='pending'?'PENDING':'NO SALE')+'</span></div>'
+  ).join('');
+}
+function dbCheckpoint(){
+  const rep=$('dbRep').value;
+  if(!repAuthed(rep)){ if(!unlockRep(rep)) return; }
+  const plan=entryFor(rep,thisWeek())?.plan;
+  const calls=dbCalls(rep);
+  const fc=calls.filter(c=>c.focus!==null&&c.focus!==undefined);
+  const hits=fc.filter(c=>c.focus).length;
+  const sold=calls.filter(c=>c.outcome==='sold');
+  const uns=calls.filter(c=>c.outcome!=='sold');
+  const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;
+  const nods=calls.filter(c=>c.nod).length;
+  const msg=[
+    'Checkpoint \u2014 '+rep+', week of '+thisWeek(),
+    plan?.behavior?('Focus: "'+plan.behavior+'" \u2014 ran it '+hits+' of '+fc.length+' calls'):null,
+    'Restate-to-nod: '+nods+'/'+calls.length,
+    'Calls: '+calls.length+' \u00B7 Sold: '+sold.length,
+    'HA/ZT on unsold: '+cov+'/'+uns.length
+  ].filter(Boolean).join('\n');
+  if(navigator.share){ navigator.share({text:msg}).catch(()=>{}); }
+  else{ navigator.clipboard.writeText(msg).then(()=>toast('Checkpoint copied — paste it into a text to Nels')); }
+}
+
 (function init(){
   const today=new Date().toISOString().slice(0,10);
   const mon=mondayOf(today);
   $('tbWeek').value=mon; $('revWeek').value=mon; $('paceMonth').value=today;
   $('mgrBtn').classList.toggle('on',managerOn);
   fillRepSelects();
-  if(repOn && state.config.reps.includes(repOn)){ $('tbRep').value=repOn; $('trRep').value=repOn; }
+  if(repOn && state.config.reps.includes(repOn)){ $('tbRep').value=repOn; $('trRep').value=repOn; $('dbRep').value=repOn; }
   loadForm();
+  if(location.hash==='#debrief') showView('debrief');
   loadRemote();
 })();
 </script>
