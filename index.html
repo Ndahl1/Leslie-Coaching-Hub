@@ -241,6 +241,8 @@
     <h3><span class="stepnum">4</span> Wins</h3>
     <label for="tbWins">What worked last week — and what specifically did you do to make it work?</label>
     <textarea id="tbWins" placeholder='"I built rapport" doesn&#39;t count. "I restated her top concern about the upstairs bedroom before presenting" does.'></textarea>
+    <label for="tbGrowth" style="margin-top:10px">One thing you did to get better this week <span class="hint">(optional)</span></label>
+    <textarea id="tbGrowth" style="min-height:48px" placeholder="A trainer run, a drill, a doc you studied, a skill you practiced — growth counts even when the week didn't."></textarea>
   </div>
 
   <div class="card">
@@ -288,6 +290,11 @@
   <div class="card">
     <h3><span class="stepnum">7</span> What I need from Nels</h3>
     <textarea id="tbNeeds" placeholder="Roleplay time, pricing help, a ride-along, marketing support, an answer from leadership — say it here so it gets handled Monday."></textarea>
+  </div>
+
+  <div class="card" id="mgrReviewCard" style="display:none">
+    <h3>From your one-on-one — review &amp; agree</h3>
+    <div id="mgrReviewBody"></div>
   </div>
 
   <button class="btn" onclick="saveEntry()">Save my touch base</button>
@@ -618,9 +625,30 @@ function loadForm(){
   $('apMeasure').value=e?.plan?.measure||'';
   $('apCheck').value=e?.plan?.checkpoint||'';
   $('tbNeeds').value=e?.needs||'';
+  $('tbGrowth').value=e?.growth||'';
   $('priorNote').value=e?.prior?.note||'';
   priorResult=e?.prior?.result||null;
   if(priorResult) setPrior(priorResult); else document.querySelectorAll('#priorChoice button').forEach(b=>b.className='');
+  renderMgrReview(e);
+}
+function renderMgrReview(e){
+  const card=$('mgrReviewCard');
+  if(!e || (!e.managerNotes && !e.skillPractice)){ card.style.display='none'; return; }
+  card.style.display='';
+  $('mgrReviewBody').innerHTML=
+    (e.managerNotes?`<div class="eyebrow">Manager notes</div><p style="white-space:pre-wrap">${e.managerNotes}</p>`:'')+
+    (e.skillPractice?`<div class="eyebrow" style="margin-top:8px">Skill practice — what we ran live</div><p style="white-space:pre-wrap">${e.skillPractice}</p>`:'')+
+    (e.ack
+      ?`<div class="needs-flag" style="margin-top:10px">&#10004; Reviewed &amp; agreed — ${new Date(e.ack.ts).toLocaleDateString()}</div>`
+      :`<button class="btn small" style="margin-top:10px" onclick="ackEntry()">I've reviewed this and we're agreed</button>`);
+}
+async function ackEntry(){
+  const rep=$('tbRep').value, week=$('tbWeek').value;
+  const e=entryFor(rep,week); if(!e) return;
+  e.ack={by:rep, ts:Date.now()};
+  await push('saveEntry',{entry:e});
+  toast('Agreement recorded');
+  renderMgrReview(e);
 }
 
 async function saveEntry(){
@@ -636,8 +664,11 @@ async function saveEntry(){
     opp:{kpi:$('oppKpi').value, step:$('oppStep').value, text:$('oppText').value.trim()},
     plan:{behavior:$('apBehavior').value.trim(), when:$('apWhen').value.trim(), measure:$('apMeasure').value.trim(), checkpoint:$('apCheck').value.trim()},
     needs:$('tbNeeds').value.trim(),
+    growth:$('tbGrowth').value.trim(),
     prior:{result:priorResult, note:$('priorNote').value.trim()},
-    managerNotes:(entryFor(rep,week)||{}).managerNotes||''
+    managerNotes:(entryFor(rep,week)||{}).managerNotes||'',
+    skillPractice:(entryFor(rep,week)||{}).skillPractice||'',
+    ack:(entryFor(rep,week)||{}).ack||null
   };
   const i=state.entries.findIndex(e=>e.id===entry.id);
   if(i>=0) state.entries[i]=entry; else state.entries.push(entry);
@@ -665,15 +696,18 @@ function renderReview(){
     const mgrBlock = managerOn
       ? `<div class="rev-sec"><div class="eyebrow">Manager notes</div>
           <textarea data-mn="${e.id}" style="min-height:56px">${e.managerNotes||''}</textarea>
-          <button class="btn ghost small" style="margin-top:6px" onclick="saveMgrNote('${e.id}')">Save note</button></div>`
-      : (e.managerNotes?`<div class="rev-sec"><div class="eyebrow">Manager notes</div><p>${e.managerNotes}</p></div>`:'');
+          <div class="eyebrow" style="margin-top:8px">Skill practice — what we ran live + how it landed</div>
+          <textarea data-sp="${e.id}" style="min-height:44px" placeholder="e.g., Ran the restate-to-nod twice; second rep landed — pacing still rushed.">${e.skillPractice||''}</textarea>
+          <button class="btn ghost small" style="margin-top:6px" onclick="saveMgrNote('${e.id}')">Save manager fields</button></div>`
+      : ((e.managerNotes||e.skillPractice)?`<div class="rev-sec">${e.managerNotes?`<div class="eyebrow">Manager notes</div><p>${e.managerNotes}</p>`:''}${e.skillPractice?`<div class="eyebrow">Skill practice</div><p>${e.skillPractice}</p>`:''}</div>`:'');
     grid.innerHTML+=`<div class="rev-card">
-      <h4>${rep}</h4><div class="wk">Week of ${e.week}</div>
+      <h4>${rep}</h4><div class="wk">Week of ${e.week} ${e.ack?'<span class="result-chip worked" title="Consultant reviewed the manager fields and agreed">Agreed &#10004;</span>':''}</div>
       <div class="mini-kpis">${kchips}</div>
       <div class="eyebrow">Sales system self-check</div>
       <div class="step-meter">${segs}</div>
       ${pr?`<div class="rev-sec"><div class="eyebrow">Last week's action</div>${prChip} <span style="font-size:.85rem">${e.prior?.note||''}</span></div>`:''}
       <div class="rev-sec"><div class="eyebrow">Wins</div><p>${e.wins||'—'}</p></div>
+      ${e.growth?`<div class="rev-sec"><div class="eyebrow">Growth</div><p>${e.growth}</p></div>`:''}
       <div class="rev-sec"><div class="eyebrow">Opportunity — ${(KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'—'} · ${e.opp?.step||''}</div><p>${e.opp?.text||'—'}</p></div>
       <div class="rev-sec"><div class="eyebrow">This week's plan</div>
         <p><b>Behavior:</b> ${e.plan?.behavior||'—'}\n<b>When:</b> ${e.plan?.when||'—'}\n<b>Measure:</b> ${e.plan?.measure||'—'}\n<b>Checkpoint:</b> ${e.plan?.checkpoint||'—'}</p></div>
@@ -684,10 +718,15 @@ function renderReview(){
 }
 async function saveMgrNote(id){
   const ta=document.querySelector(`textarea[data-mn="${CSS.escape(id)}"]`);
+  const sp=document.querySelector(`textarea[data-sp="${CSS.escape(id)}"]`);
   const e=state.entries.find(x=>x.id===id); if(!e) return;
-  e.managerNotes=ta.value.trim();
+  const newNotes=ta.value.trim();
+  const newSp=sp?sp.value.trim():(e.skillPractice||'');
+  if(e.ack && (newNotes!==(e.managerNotes||'') || newSp!==(e.skillPractice||''))) e.ack=null; // edited after agreement — needs a fresh agree
+  e.managerNotes=newNotes; e.skillPractice=newSp;
   await push('saveEntry',{entry:e});
-  toast('Note saved');
+  toast('Manager fields saved');
+  renderReview();
 }
 
 /* =================== track record =================== */
@@ -719,11 +758,11 @@ function exportCSV(){
   const rep=$('trRep').value;
   if(!repAuthed(rep)){ toast('Enter '+rep+'\u2019s PIN first'); return; }
   const rows=state.entries.filter(e=>e.rep===rep).sort((a,b)=>a.week<b.week?-1:1);
-  const head=['Week','Consultant',...KPIS.map(k=>k.label),...STEPS.map(s=>'Step: '+s),'Opportunity KPI','Opportunity','Action','When','Measure','Checkpoint','Needs','PriorResult','PriorNote','ManagerNotes'];
+  const head=['Week','Consultant',...KPIS.map(k=>k.label),...STEPS.map(s=>'Step: '+s),'Opportunity KPI','Opportunity','Action','When','Measure','Checkpoint','Needs','PriorResult','PriorNote','ManagerNotes','Growth','SkillPractice','Agreed'];
   const lines=[head.join(',')];
   rows.forEach(e=>{
     const cells=[e.week,e.rep,...KPIS.map(k=>e.kpis?.[k.key]??''),...STEPS.map(s=>e.steps?.[s]??''),
-      (KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'',e.opp?.text||'',e.plan?.behavior||'',e.plan?.when||'',e.plan?.measure||'',e.plan?.checkpoint||'',e.needs||'',e.prior?.result||'',e.prior?.note||'',e.managerNotes||''];
+      (KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'',e.opp?.text||'',e.plan?.behavior||'',e.plan?.when||'',e.plan?.measure||'',e.plan?.checkpoint||'',e.needs||'',e.prior?.result||'',e.prior?.note||'',e.managerNotes||'',e.growth||'',e.skillPractice||'',e.ack?new Date(e.ack.ts).toISOString().slice(0,10):''];
     lines.push(cells.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(','));
   });
   const blob=new Blob([lines.join('\n')],{type:'text/csv'});
