@@ -186,8 +186,30 @@
   .seg-choice button.sel.worked{background:var(--sage-deep);border-color:var(--sage-deep);color:#fff}
   .seg-choice button.sel.partial{background:var(--terracotta);border-color:var(--terracotta);color:#fff}
   .seg-choice button.sel.didnt{background:var(--red);border-color:var(--red);color:#fff}
-  @media (prefers-reduced-motion: reduce){ .toast{transition:none} }
-  @media (max-width:640px){ .hd-inner{align-items:flex-start} }
+  /* ---------- call coach ---------- */
+  .cc-timer{font-weight:800;font-size:1.05rem;background:var(--tan-soft);border:1px solid var(--tan);border-radius:20px;padding:4px 14px;color:var(--maroon)}
+  .cc-timer.hot{background:var(--red);border-color:var(--red);color:#fff}
+  .cc-check{display:flex;align-items:flex-start;gap:10px;width:100%;background:transparent;border:none;text-align:left;padding:9px 6px;border-radius:8px;font:inherit;font-size:.92rem;color:var(--ink);cursor:pointer}
+  .cc-check:hover{background:var(--tan-soft)}
+  .cc-check .box{flex:none;width:24px;height:24px;border:2px solid var(--muted);border-radius:6px;display:grid;place-items:center;color:#fff;font-size:.85rem;font-weight:800;margin-top:1px}
+  .cc-check.on .box{background:var(--sage-deep);border-color:var(--sage-deep)}
+  .cc-check.miss .box{background:var(--terracotta);border-color:var(--terracotta)}
+  .cc-check .lbl b{color:var(--maroon)}
+  .cc-check .lbl small{display:block;color:var(--muted);font-size:.76rem;margin-top:1px}
+  .cc-script{background:var(--tan-soft);border:1px solid var(--tan);border-left:5px solid var(--terracotta);border-radius:8px;padding:10px 12px;margin:8px 0;font-size:.9rem}
+  .cc-script .tag{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--maroon);display:block;margin-bottom:3px}
+  .cc-script.deep{border-left-color:var(--maroon)}
+  .cc-spokes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:6px}
+  .cc-spokes button{background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:10px 8px;font:inherit;font-size:.82rem;font-weight:700;color:var(--maroon);cursor:pointer;text-align:center}
+  .cc-spokes button.sel{background:var(--maroon);border-color:var(--maroon);color:#fff}
+  .cc-play{display:none}
+  .cc-play.on{display:block}
+  .cc-calcout{font-size:.86rem;background:#E4EFEA;border-left:4px solid var(--sage-deep);border-radius:8px;padding:9px 12px;color:var(--sage-deep);margin-top:8px;font-weight:600}
+  .cc-calcout.warn{background:#F8E3D8;border-left-color:var(--terracotta);color:var(--maroon)}
+  .cc-queue-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.88rem;flex-wrap:wrap}
+  .cc-queue-row:last-child{border-bottom:none}
+  .cc-queue-row .q-words{color:var(--muted);font-size:.8rem;font-style:italic}
+  .cc-out pre{white-space:pre-wrap;font:inherit;font-size:.85rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;max-height:320px;overflow:auto}
 </style>
 </head>
 <body>
@@ -211,6 +233,7 @@
     <button data-v="debrief" onclick="showView('debrief')">Debrief</button>
     <button data-v="review" onclick="showView('review')">Team Review</button>
     <button data-v="track" onclick="showView('track')">Track Record</button>
+    <button data-v="coach" onclick="showView('coach')">Call Coach</button>
     <button data-v="pace" onclick="showView('pace')">Pace Data &amp; Setup</button>
   </div>
 </nav>
@@ -457,6 +480,155 @@
   <div class="tbl-wrap"><table id="trTable"></table></div>
 </section>
 
+<!-- ============ CALL COACH ============ -->
+<section class="view" id="view-coach">
+  <div id="coachLocked" class="locked">Manager access required. Use the <b>Manager</b> button in the header.</div>
+  <div id="coachOpen" style="display:none">
+    <h2>Call Coach — live HA / ZT companion</h2>
+    <p class="lead">Same playbook as the Trainer, built for the moment the phone rings. Everything you tap becomes a coached-call record on the consultant's week — and unsold debriefs waiting for coverage queue up below.</p>
+
+    <div class="card" id="ccQueueCard">
+      <h3>Waiting for coverage — unsold calls without an HA/ZT made</h3>
+      <div id="ccQueue"></div>
+    </div>
+
+    <div class="card" id="ccSetup">
+      <div class="row">
+        <div>
+          <label>Which call is this?</label>
+          <div class="seg-choice">
+            <button id="ccModeHA" class="sel worked" onclick="ccSetMode('ha')">High Authority — consultant is the voice</button>
+            <button id="ccModeZT" onclick="ccSetMode('zt')">Zero Ticket — I'm the voice</button>
+          </div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div>
+          <label for="ccRep">Consultant</label>
+          <select id="ccRep"></select>
+        </div>
+        <div>
+          <label for="ccCust">Customer</label>
+          <input type="text" id="ccCust" placeholder="e.g., Mary J., Oak Park">
+        </div>
+        <div style="align-self:flex-end">
+          <button class="btn" onclick="ccStart()">Answer the call</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="ccLive" style="display:none">
+      <div class="bar" style="justify-content:space-between">
+        <span class="cc-timer" id="ccTimer">0:00</span>
+        <span class="hint" id="ccWho"></span>
+      </div>
+
+      <!-- ---- HA live panels ---- -->
+      <div id="ccHA" style="display:none">
+        <div class="card">
+          <h3>The 7 steps — tap each one the consultant lands</h3>
+          <p class="hint" style="margin-bottom:6px">Tap once = landed clean. Twice = missed or weak (becomes the coaching note). Again to clear.</p>
+          <button class="cc-check" data-k="open" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>1. Open</b><small>"Hey Nels, you got a minute?"</small></span></button>
+          <button class="cc-check" data-k="why" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>2. Why she needs it — HER words</b><small>Comfort-survey language, not spec talk</small></span></button>
+          <button class="cc-check" data-k="quote" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>3. What was quoted, for how much</b></span></button>
+          <button class="cc-check" data-k="cant" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>4. Why she can't — SPECIFIC</b><small>"Daughter's tuition," not "money's tight"</small></span></button>
+          <button class="cc-check" data-k="will" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>5. Her number + date + easier than normal</b><small>Did they sell YOU on why the job is easier?</small></span></button>
+          <button class="cc-check" data-k="ask" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>6. The ask — then silence</b><small>Talking after the ask is the note</small></span></button>
+          <button class="cc-check" data-k="close" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>7. Closed it out + thanked you</b></span></button>
+          <button class="cc-check" data-k="frame" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>Frame held</b><small>Never said "I'm here with my customer"</small></span></button>
+        </div>
+        <div class="card">
+          <h3>Qualify before you answer</h3>
+          <div class="cc-script"><span class="tag">Ask it</span>"Tell me about the install — any issues I should know about?"</div>
+          <div class="cc-script"><span class="tag">Ask it</span>"What's the price difference from what you quoted?"</div>
+          <div class="row">
+            <div><label for="ccQuote">Quoted $</label><input type="number" id="ccQuote" oninput="ccMath()"></div>
+            <div><label for="ccAsk">They're asking $</label><input type="number" id="ccAsk" oninput="ccMath()"></div>
+          </div>
+          <div class="cc-calcout" id="ccMathOut">Enter both numbers — I'll show the gap and a counter.</div>
+          <div class="cc-script deep" style="margin-top:12px"><span class="tag">Grant</span>"[Name], you've been doing this a long time and I respect your opinion. If you truly feel it's easier than normal and the company would be okay at that price, go take care of her — <b>and tell her thank you for me.</b>"</div>
+          <div class="cc-script deep"><span class="tag">Counter</span>"…what I like most about you is you always want to help the customer. But you've been doing this a long time — <b>if you priced it at $[quote], it's a $[quote] job.</b> I'll work with them and do $[counter]. Go take care of her, and tell her thank you for me."</div>
+          <button class="cc-check" data-k="qualified" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>I qualified before deciding</b></span></button>
+          <button class="cc-check" data-k="curtain" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>I stayed behind the curtain</b><small>Never spoke to the customer directly</small></span></button>
+          <button class="cc-check" data-k="thanks" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>"Tell her thank you for me"</b></span></button>
+        </div>
+      </div>
+
+      <!-- ---- ZT live panels ---- -->
+      <div id="ccZT" style="display:none">
+        <div class="card">
+          <h3>The brief — five parts, tap what you got</h3>
+          <p class="hint" style="margin-bottom:6px">Anything not green before you take the customer — ask for it. Especially #5.</p>
+          <button class="cc-check" data-k="b_who" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>1. Who they are</b></span></button>
+          <button class="cc-check" data-k="b_survey" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>2. What the survey surfaced — their words</b></span></button>
+          <button class="cc-check" data-k="b_options" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>3. Options presented &amp; investment</b></span></button>
+          <button class="cc-check" data-k="b_stated" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>4. Stated objection</b></span></button>
+          <button class="cc-check" data-k="b_real" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>5. What they think the REAL objection is</b><small>Missing? "What do you think is really stopping them?"</small></span></button>
+          <label for="ccBriefNotes" style="margin-top:8px">Brief notes (their words, prices, the tell)</label>
+          <textarea id="ccBriefNotes" placeholder="21-yr furnace · upstairs freezes · B $18,000 · says 'too much right now' · real: tuition"></textarea>
+        </div>
+        <div class="card">
+          <h3>Run the Wheel</h3>
+          <div class="cc-script"><span class="tag">1 · Open warm</span>"Mr. and Mrs. ___, this is Nels, the sales manager at Leslie. I never let a consultant leave without checking in personally — <b>did we take good care of you today?</b>"</div>
+          <button class="cc-check" data-k="open_warm" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>Opened warm</b></span></button>
+          <div class="cc-script"><span class="tag">2 · Acknowledge · Empathize · By-Pass</span>"I can absolutely understand that. If I were in your shoes I'd feel the same way. Let's suppose you did make a decision today — <b>which option would you choose?</b>"</div>
+          <div class="cc-script"><span class="tag">Isolate the logical</span>"My job is to inform you so you can make the best decision for your situation. If you don't mind me asking — <b>what questions are you still thinking about?</b>"</div>
+          <button class="cc-check" data-k="sorted" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>Sorted &amp; isolated</b><small>Ack &gt; Empathize came BEFORE any solving</small></span></button>
+          <label style="margin-top:8px">3 · Name the spoke — tap it, get the play</label>
+          <div class="cc-spokes">
+            <button data-s="whyso" onclick="ccSpoke(this)">Price — "Why so much?"</button>
+            <button data-s="cheaper" onclick="ccSpoke(this)">Price — "Cheaper elsewhere"</button>
+            <button data-s="toomuch" onclick="ccSpoke(this)">Price — "Costs too much"</button>
+            <button data-s="repair" onclick="ccSpoke(this)">Solution — "Just repair it"</button>
+            <button data-s="spouse" onclick="ccSpoke(this)">Person — "Spouse isn't here"</button>
+            <button data-s="moving" onclick="ccSpoke(this)">Time — "We're moving"</button>
+          </div>
+          <div class="cc-play" id="ccp-whyso"><div class="cc-script deep"><span class="tag">50 / 40 / 10</span>"Half is materials and labor. About 40% is what it takes to be in business — the trucks, the training, the people who answer at 2 AM. The last 10% is what we keep if everything goes perfect. <b>Can you see how our pricing is transparent and fair? Should we go ahead?</b>"</div></div>
+          <div class="cc-play" id="ccp-cheaper"><div class="cc-script deep"><span class="tag">Inverted wheel</span>"Every project is Time, People, Company, and System. The System never changes — same equipment. So the only way to cut the price is to shrink the circle. <b>What distinguishing factor lets them charge less for this project?</b>"</div></div>
+          <div class="cc-play" id="ccp-toomuch"><div class="cc-script deep"><span class="tag">Next Availability Install Program</span>"When we have a gap in the install schedule, filling it earns you a discount. <b>What would the number have to be?</b>" <i>(No number → step down $200–300 at a time.)</i></div></div>
+          <div class="cc-play" id="ccp-repair"><div class="cc-script deep"><span class="tag">5-year math — go slow, write it down</span>"Over five years: the repairs you'll keep making, plus what the old system overpays in energy, plus the replacement you'll end up buying anyway — against replacing today under full warranty. <b>Can you see how it actually saves you to replace today?</b>"</div></div>
+          <div class="cc-play" id="ccp-spouse"><div class="cc-script deep"><span class="tag">Like / dislike → suppose</span>"What did you like about option B? What do you think [spouse] would say? <b>Suppose [spouse] is on board — which option?</b>" <i>Then: call them now → swing back tonight → book the second appointment.</i></div></div>
+          <div class="cc-play" id="ccp-moving"><div class="cc-script deep"><span class="tag">Home inspector story</span>"Any system over 10–12 years gets flagged in the inspection, and buyers negotiate ten, twelve thousand off. You're buying the system either way — <b>the only question is whether you get to use it.</b>"</div></div>
+          <button class="cc-check" data-k="spoke_run" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>Ran the right spoke play</b></span></button>
+          <div class="cc-script"><span class="tag">4 · The ask — a question, not a statement</span>"<b>Should we go ahead and provide this service for you then?</b>"</div>
+          <button class="cc-check" data-k="asked" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>Asked for the business</b></span></button>
+          <div class="cc-script"><span class="tag">Still no — protect &amp; date it</span>"Completely understand — you two talk it over. I'm going to have [consultant] check back with you <b>Thursday evening</b> — does that work? And the quote is locked until then."</div>
+          <button class="cc-check" data-k="dated" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>Dated next step set</b><small>A day, not "sometime"</small></span></button>
+        </div>
+        <div class="card">
+          <h3>Close the loop — 30 seconds, ONE note</h3>
+          <label for="ccNote">The one coaching note for the consultant</label>
+          <textarea id="ccNote" placeholder="One thing. Not five. e.g. 'Real objection was tuition — the brief said budget. Dig one layer deeper in Explore.'"></textarea>
+          <button class="cc-check" data-k="st_debrief" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>Consultant committed: ServiceTitan debrief today</b></span></button>
+          <button class="cc-check" data-k="fu72" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>Follow-up owned, inside 48–72 hours</b></span></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Outcome</h3>
+        <div class="dseg c3">
+          <button data-cls="sold" onclick="ccOutcome('sold',this)">SOLD — got the yes</button>
+          <button data-cls="mid" onclick="ccOutcome('next',this)">Dated next step</button>
+          <button data-cls="bad" onclick="ccOutcome('no',this)">No — relationship protected</button>
+        </div>
+        <div id="ccHANote" style="display:none;margin-top:10px">
+          <label for="ccNoteHA">The one coaching note (optional — worst miss auto-fills if blank)</label>
+          <textarea id="ccNoteHA" style="min-height:48px"></textarea>
+        </div>
+        <button class="btn" style="margin-top:12px" onclick="ccEnd()">End call → save to the hub</button>
+        <button class="btn ghost" style="margin-top:12px" onclick="if(confirm('Discard this call?'))ccReset()">Discard</button>
+      </div>
+
+      <div class="card cc-out" id="ccOutCard" style="display:none">
+        <h3>Coached-call record — saved to <span id="ccSavedRep"></span>'s week</h3>
+        <pre id="ccOutText"></pre>
+        <button class="btn ghost small" style="margin-top:10px" onclick="ccCopy()">Copy for Teams / ServiceTitan</button>
+        <button class="btn small" style="margin-top:10px" onclick="ccReset()">New call</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ PACE DATA / SETUP ============ -->
 <section class="view" id="view-pace">
   <div id="paceLocked" class="locked">Manager access required. Use the <b>Manager</b> button in the header.</div>
@@ -652,6 +824,7 @@ function showView(v){
   if(v==='debrief') renderDebrief();
   if(v==='review') renderReview();
   if(v==='track') renderTrack();
+  if(v==='coach') renderCoach();
   if(v==='pace') renderPaceView();
 }
 function toggleManager(){
@@ -662,7 +835,7 @@ function toggleManager(){
     else if(pin!==null){ toast('Incorrect PIN'); }
   }
   $('mgrBtn').classList.toggle('on',managerOn);
-  renderPaceView(); renderReview(); loadForm(); renderTrack();
+  renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach();
 }
 
 /* =================== my touch base =================== */
@@ -796,7 +969,8 @@ async function saveEntry(){
     managerNotes:(entryFor(rep,week)||{}).managerNotes||'',
     skillPractice:(entryFor(rep,week)||{}).skillPractice||'',
     ack:(entryFor(rep,week)||{}).ack||null,
-    debriefs:(entryFor(rep,week)||{}).debriefs||[]
+    debriefs:(entryFor(rep,week)||{}).debriefs||[],
+    coachCalls:(entryFor(rep,week)||{}).coachCalls||[]
   };
   const i=state.entries.findIndex(e=>e.id===entry.id);
   if(i>=0) state.entries[i]=entry; else state.entries.push(entry);
@@ -835,7 +1009,7 @@ function renderReview(){
       <div class="step-meter">${segs}</div>
       ${pr?`<div class="rev-sec"><div class="eyebrow">Last week's action</div>${prChip} <span style="font-size:.85rem">${e.prior?.note||''}</span></div>`:''}
       <div class="rev-sec"><div class="eyebrow">Wins</div><p>${e.wins||'—'}</p></div>
-      ${(e.debriefs&&e.debriefs.length)?(()=>{const D=e.debriefs;const fc=D.filter(c=>c.focus!==null&&c.focus!==undefined);const hits=fc.filter(c=>c.focus).length;const sold=D.filter(c=>c.outcome==='sold');const uns=D.filter(c=>c.outcome!=='sold');const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;const nods=D.filter(c=>c.nod).length;return `<div class="rev-sec"><div class="eyebrow">From the field (post-call debriefs)</div><p style="font-size:.88rem"><b>${D.length}</b> calls · <b>${sold.length}</b> sold${fc.length?` · Focus <b>${hits}/${fc.length}</b>`:''} · Nod <b>${nods}/${D.length}</b> · HA/ZT <b>${cov}/${uns.length}</b></p></div>`;})():''}
+      ${(e.debriefs&&e.debriefs.length)||((e.coachCalls||[]).length)?(()=>{const D=e.debriefs||[];const fc=D.filter(c=>c.focus!==null&&c.focus!==undefined);const hits=fc.filter(c=>c.focus).length;const sold=D.filter(c=>c.outcome==='sold');const uns=D.filter(c=>c.outcome!=='sold');const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;const nods=D.filter(c=>c.nod).length;const CC=(e.coachCalls||[]);const ccSold=CC.filter(c=>c.outcome==='sold').length;return `<div class="rev-sec"><div class="eyebrow">From the field (post-call debriefs)</div><p style="font-size:.88rem">${D.length?`<b>${D.length}</b> calls · <b>${sold.length}</b> sold${fc.length?` · Focus <b>${hits}/${fc.length}</b>`:''} · Nod <b>${nods}/${D.length}</b> · HA/ZT <b>${cov}/${uns.length}</b>`:''}${CC.length?`${D.length?'<br>':''}Coached HA/ZT calls: <b>${CC.length}</b>${ccSold?` · <b>${ccSold}</b> saved on the phone`:''}`:''}</p></div>`;})():''}
       ${e.growth?`<div class="rev-sec"><div class="eyebrow">Growth</div><p>${e.growth}</p></div>`:''}
       <div class="rev-sec"><div class="eyebrow">Opportunity — ${(KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'—'} · ${e.opp?.step||''}</div><p>${e.opp?.text||'—'}</p></div>
       <div class="rev-sec"><div class="eyebrow">This week's plan</div>
@@ -887,15 +1061,170 @@ function exportCSV(){
   const rep=$('trRep').value;
   if(!repAuthed(rep)){ toast('Enter '+rep+'\u2019s PIN first'); return; }
   const rows=state.entries.filter(e=>e.rep===rep).sort((a,b)=>a.week<b.week?-1:1);
-  const head=['Week','Consultant',...KPIS.map(k=>k.label),...STEPS.map(s=>'Step: '+s),'Opportunity KPI','Opportunity','Action','When','Measure','Checkpoint','Needs','PriorResult','PriorNote','ManagerNotes','Growth','SkillPractice','Agreed'];
+  const head=['Week','Consultant',...KPIS.map(k=>k.label),...STEPS.map(s=>'Step: '+s),'Opportunity KPI','Opportunity','Action','When','Measure','Checkpoint','Needs','PriorResult','PriorNote','ManagerNotes','Growth','SkillPractice','Agreed','CoachedCalls'];
   const lines=[head.join(',')];
   rows.forEach(e=>{
     const cells=[e.week,e.rep,...KPIS.map(k=>e.kpis?.[k.key]??''),...STEPS.map(s=>e.steps?.[s]??''),
-      (KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'',e.opp?.text||'',e.plan?.behavior||'',e.plan?.when||'',e.plan?.measure||'',e.plan?.checkpoint||'',e.needs||'',e.prior?.result||'',e.prior?.note||'',e.managerNotes||'',e.growth||'',e.skillPractice||'',e.ack?new Date(e.ack.ts).toISOString().slice(0,10):''];
+      (KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'',e.opp?.text||'',e.plan?.behavior||'',e.plan?.when||'',e.plan?.measure||'',e.plan?.checkpoint||'',e.needs||'',e.prior?.result||'',e.prior?.note||'',e.managerNotes||'',e.growth||'',e.skillPractice||'',e.ack?new Date(e.ack.ts).toISOString().slice(0,10):'',(e.coachCalls||[]).length];
     lines.push(cells.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(','));
   });
   const blob=new Blob([lines.join('\n')],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=rep.replace(/\W+/g,'_')+'_touchbase_track_record.csv';a.click();
+}
+
+/* =================== call coach =================== */
+const CC_HA=[['open','1. Open'],['why','2. Her words'],['quote','3. The quote'],['cant','4. Specific reason'],['will','5. Number + date + easier'],['ask','6. Ask + silence'],['close','7. Closed it out'],['frame','Frame held'],['qualified','Mgr: qualified first'],['curtain','Mgr: behind the curtain'],['thanks','Mgr: sent thanks']];
+const CC_ZT=[['b_who','Brief: who'],['b_survey','Brief: their words'],['b_options','Brief: options & $'],['b_stated','Brief: stated objection'],['b_real','Brief: REAL objection'],['open_warm','Opened warm'],['sorted','Sorted & isolated'],['spoke_run','Right spoke run'],['asked','Asked for it'],['dated','Dated next step'],['st_debrief','ST debrief today'],['fu72','Follow-up ≤72h']];
+const CC_SPOKES={whyso:'Right Price — "why so much"',cheaper:'Right Price — "cheaper elsewhere"',toomuch:'Right Price — "costs too much"',repair:'Right Solution — repair vs replace',spouse:'Right Person — absent decision-maker',moving:'Right Time — moving'};
+let cc={mode:'ha',marks:{},spoke:null,outcome:null,t0:null,tick:null,queueRef:null,lastText:''};
+
+function renderCoach(){
+  $('coachLocked').style.display=managerOn?'none':'';
+  $('coachOpen').style.display=managerOn?'':'none';
+  if(!managerOn) return;
+  const opts=state.config.reps.map(r=>`<option>${r}</option>`).join('');
+  const cur=$('ccRep').value; $('ccRep').innerHTML=opts; if(cur&&state.config.reps.includes(cur))$('ccRep').value=cur;
+  ccRenderQueue();
+}
+function ccRenderQueue(){
+  const wk=thisWeek(), pw=prevWeek(wk);
+  const items=[];
+  state.entries.filter(e=>e.week===wk||e.week===pw).forEach(e=>{
+    (e.debriefs||[]).forEach((c,idx)=>{
+      if(c.outcome!=='sold' && c.hazt!=='made') items.push({rep:e.rep, week:e.week, idx, c});
+    });
+  });
+  if(!items.length){ $('ccQueue').innerHTML='<div class="empty" style="padding:14px">Nothing waiting — every unsold call has an HA/ZT made. That\u2019s the standard.</div>'; return; }
+  $('ccQueue').innerHTML=items.sort((a,b)=>b.c.ts-a.c.ts).map((it,i)=>
+    `<div class="cc-queue-row">
+      <span><b>${it.c.customer||'(no name)'}</b> · ${it.rep} <span class="dpill ${it.c.outcome==='pending'?'pending':'nosale'}">${it.c.outcome==='pending'?'PENDING':'NO SALE'}</span> <span class="dpill" style="background:${it.c.hazt==='sched'?'var(--tan)':'var(--terracotta)'};color:${it.c.hazt==='sched'?'var(--ink)':'#fff'}">${it.c.hazt==='sched'?('SCHEDULED'+(it.c.haztWho?(' · '+it.c.haztWho):'')):'NOT YET'}</span>
+      ${it.c.holdback?`<div class="q-words">\u201C${it.c.holdback}\u201D</div>`:''}</span>
+      <button class="btn ghost small" onclick='ccFromQueue(${JSON.stringify(JSON.stringify({rep:it.rep,week:it.week,idx:it.idx,customer:it.c.customer||"",holdback:it.c.holdback||""}))})'>Start this call</button>
+    </div>`).join('');
+}
+function ccFromQueue(payload){
+  const q=JSON.parse(JSON.parse(payload));
+  cc.queueRef={rep:q.rep, week:q.week, idx:q.idx};
+  $('ccRep').value=q.rep; $('ccCust').value=q.customer;
+  ccSetMode('zt');
+  if(q.holdback) $('ccBriefNotes').value='Stated holdback: "'+q.holdback+'"';
+  ccStart();
+}
+function ccSetMode(m){
+  cc.mode=m;
+  $('ccModeHA').className=m==='ha'?'sel worked':'';
+  $('ccModeZT').className=m==='zt'?'sel worked':'';
+}
+function ccStart(){
+  if(!$('ccRep').value){toast('Pick a consultant');return;}
+  cc.marks={}; cc.spoke=null; cc.outcome=null;
+  document.querySelectorAll('#ccLive .cc-check').forEach(b=>{b.className='cc-check';b.querySelector('.box').textContent='';});
+  document.querySelectorAll('#ccLive .cc-spokes button').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('#ccLive .cc-play').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('#ccLive .dseg button').forEach(b=>b.className='');
+  $('ccOutCard').style.display='none';
+  $('ccSetup').style.display='none'; $('ccQueueCard').style.display='none';
+  $('ccLive').style.display='';
+  $('ccHA').style.display=cc.mode==='ha'?'':'none';
+  $('ccZT').style.display=cc.mode==='zt'?'':'none';
+  $('ccHANote').style.display=cc.mode==='ha'?'':'none';
+  $('ccWho').textContent=$('ccRep').value+' · '+($('ccCust').value.trim()||'(customer)')+' · '+(cc.mode==='ha'?'High Authority':'Zero Ticket');
+  cc.t0=Date.now();
+  clearInterval(cc.tick);
+  cc.tick=setInterval(()=>{
+    const s=Math.floor((Date.now()-cc.t0)/1000);
+    $('ccTimer').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+    if(cc.mode==='zt'&&s>600) $('ccTimer').classList.add('hot');
+  },1000);
+  window.scrollTo({top:0});
+}
+function ccCyc(el){
+  const k=el.dataset.k;
+  if(el.classList.contains('on')){ el.classList.remove('on'); el.classList.add('miss'); el.querySelector('.box').textContent='\u2715'; cc.marks[k]='miss'; }
+  else if(el.classList.contains('miss')){ el.classList.remove('miss'); el.querySelector('.box').textContent=''; delete cc.marks[k]; }
+  else{ el.classList.add('on'); el.querySelector('.box').textContent='\u2713'; cc.marks[k]='hit'; }
+}
+function ccSpoke(el){
+  document.querySelectorAll('#ccLive .cc-spokes button').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('#ccLive .cc-play').forEach(p=>p.classList.remove('on'));
+  el.classList.add('sel'); cc.spoke=el.dataset.s; $('ccp-'+cc.spoke).classList.add('on');
+}
+function ccOutcome(o,btn){
+  cc.outcome=o;
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.className='');
+  btn.className='on '+btn.dataset.cls;
+}
+function ccMath(){
+  const q=parseFloat($('ccQuote').value), a=parseFloat($('ccAsk').value), out=$('ccMathOut');
+  if(!q||!a){ out.className='cc-calcout'; out.textContent='Enter both numbers — I\u2019ll show the gap and a counter.'; return; }
+  const gap=q-a, pct=(gap/q*100), counter=Math.round((q-gap/2)/100)*100;
+  if(pct<=0){ out.className='cc-calcout'; out.innerHTML='Ask is at or above quote — nothing to concede. <b>Grant it.</b>'; }
+  else if(pct<=8){ out.className='cc-calcout'; out.innerHTML='Gap: <b>$'+gap.toLocaleString()+'</b> ('+pct.toFixed(1)+'% off). Inside the lane — <b>grant if the install is truly easier than normal.</b>'; }
+  else{ out.className='cc-calcout warn'; out.innerHTML='Gap: <b>$'+gap.toLocaleString()+'</b> ('+pct.toFixed(1)+'% off) — big swing. <b>Counter at $'+counter.toLocaleString()+':</b> \u201Cif you priced it at $'+q.toLocaleString()+', it\u2019s a $'+q.toLocaleString()+' job.\u201D'; }
+}
+async function ccEnd(){
+  clearInterval(cc.tick);
+  const rep=$('ccRep').value, wk=thisWeek(), dur=$('ccTimer').textContent;
+  const rows=cc.mode==='ha'?CC_HA:CC_ZT;
+  const hits=rows.filter(([k])=>cc.marks[k]==='hit').map(([,n])=>n);
+  const miss=rows.filter(([k])=>cc.marks[k]==='miss').map(([,n])=>n);
+  const oTxt={sold:'SOLD — customer said yes on the call',next:'Dated next step set',no:'No — relationship protected'}[cc.outcome]||'(outcome not tagged)';
+  let note = cc.mode==='zt' ? $('ccNote').value.trim() : $('ccNoteHA').value.trim();
+  if(!note && miss.length) note=miss[0]+' — drill it in the Trainer before Friday.';
+  const q=parseFloat($('ccQuote').value)||null, a=parseFloat($('ccAsk').value)||null;
+  const call={
+    ts:Date.now(), rep, week:wk, mode:cc.mode,
+    customer:$('ccCust').value.trim(),
+    durationSec:Math.floor((Date.now()-cc.t0)/1000),
+    outcome:cc.outcome,
+    spoke:cc.mode==='zt'?cc.spoke:null,
+    quoted:cc.mode==='ha'?q:null, asked:cc.mode==='ha'?a:null,
+    hits:rows.filter(([k])=>cc.marks[k]==='hit').map(([k])=>k),
+    misses:rows.filter(([k])=>cc.marks[k]==='miss').map(([k])=>k),
+    briefNotes:cc.mode==='zt'?$('ccBriefNotes').value.trim():'',
+    coachNote:note, coach:'Manager'
+  };
+  let e=entryFor(rep,wk);
+  if(!e){ e={id:rep+'|'+wk, rep, week:wk, ts:Date.now(), kpis:{}, steps:{}, debriefs:[], coachCalls:[]}; state.entries.push(e); }
+  e.coachCalls=e.coachCalls||[]; e.coachCalls.push(call);
+  if(cc.queueRef){
+    const qe=entryFor(cc.queueRef.rep, cc.queueRef.week);
+    const dc=qe && (qe.debriefs||[])[cc.queueRef.idx];
+    if(dc){ dc.hazt='made'; dc.haztWho=dc.haztWho||'Nels'; if(qe!==e) await push('saveEntry',{entry:qe}); }
+    cc.queueRef=null;
+  }
+  await push('saveEntry',{entry:e});
+  const L=[];
+  L.push((cc.mode==='ha'?'HIGH AUTHORITY CALL':'ZERO TICKET CALL')+' — LIVE COACH DEBRIEF');
+  L.push('Consultant: '+rep+'  |  Customer: '+(call.customer||'—'));
+  L.push('Date: '+new Date().toLocaleString()+'  |  Call length: '+dur);
+  L.push('Outcome: '+oTxt);
+  if(cc.mode==='ha'&&q&&a) L.push('Numbers: quoted $'+q.toLocaleString()+' · asked $'+a.toLocaleString());
+  if(cc.mode==='zt'&&cc.spoke) L.push('Objection spoke: '+CC_SPOKES[cc.spoke]);
+  L.push('');
+  L.push('LANDED CLEAN: '+(hits.join(' · ')||'—'));
+  L.push('MISSED / WEAK: '+(miss.join(' · ')||'—'));
+  if(call.briefNotes) L.push('\nBRIEF NOTES: '+call.briefNotes);
+  if(note) L.push('THE ONE COACHING NOTE: '+note);
+  L.push('\nFive-part standard: ST Lost Appointment Debrief TODAY · follow-up inside 48–72h · zero tickets are open deals.');
+  cc.lastText=L.join('\n');
+  $('ccOutText').textContent=cc.lastText;
+  $('ccSavedRep').textContent=rep;
+  $('ccOutCard').style.display='';
+  toast('Coached call saved to '+rep+'\u2019s week');
+  $('ccOutCard').scrollIntoView({behavior:'smooth'});
+}
+async function ccCopy(){
+  try{ await navigator.clipboard.writeText(cc.lastText); toast('Copied — paste into Teams or the ServiceTitan debrief'); }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=cc.lastText; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Copied'); }
+}
+function ccReset(){
+  clearInterval(cc.tick); cc={mode:cc.mode,marks:{},spoke:null,outcome:null,t0:null,tick:null,queueRef:null,lastText:''};
+  $('ccLive').style.display='none'; $('ccSetup').style.display=''; $('ccQueueCard').style.display='';
+  $('ccTimer').textContent='0:00'; $('ccTimer').classList.remove('hot');
+  ['ccCust','ccQuote','ccAsk','ccBriefNotes','ccNote','ccNoteHA'].forEach(id=>$(id).value='');
+  $('ccMathOut').className='cc-calcout'; $('ccMathOut').textContent='Enter both numbers — I\u2019ll show the gap and a counter.';
+  ccRenderQueue();
 }
 
 /* =================== pace / setup =================== */
@@ -964,7 +1293,7 @@ function fillRepSelects(){
   ['tbRep','trRep','dbRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
 }
 function refreshAll(){
-  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); if(managerOn) renderPaceView();
+  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); if(managerOn) renderPaceView();
 }
 /* =================== post-call debrief =================== */
 let dbPicks={outcome:null,focus:null,nod:null,hazt:null}, dbWho='';
