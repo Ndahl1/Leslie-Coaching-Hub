@@ -210,6 +210,18 @@
   .cc-queue-row:last-child{border-bottom:none}
   .q-words{color:var(--muted);font-size:.8rem;font-style:italic;margin-top:3px}
   .cc-out pre{white-space:pre-wrap;font:inherit;font-size:.85rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;max-height:320px;overflow:auto}
+  /* ---------- coach log ---------- */
+  details.cl-call{border-bottom:1px solid var(--line)}
+  details.cl-call:last-child{border-bottom:none}
+  details.cl-call summary{list-style:none;cursor:pointer;padding:10px 2px;font-size:.88rem;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  details.cl-call summary::-webkit-details-marker{display:none}
+  details.cl-call summary:hover{background:var(--tan-soft)}
+  details.cl-call[open] summary{background:var(--tan-soft);border-radius:8px 8px 0 0}
+  .cl-body{background:#FDFBF7;border:1px solid var(--line);border-top:none;border-radius:0 0 8px 8px;padding:12px;font-size:.86rem;margin-bottom:8px}
+  .cl-body .eyebrow{margin:8px 0 2px}
+  .cl-body .eyebrow:first-child{margin-top:0}
+  .cl-rollup{background:var(--tan-soft);border:1px solid var(--tan);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+  .cl-rollup .statline{margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -527,6 +539,26 @@
     <div class="card" id="ccQueueCard">
       <h3>Waiting for coverage — unsold calls without an HA/ZT made</h3>
       <div id="ccQueue"></div>
+    </div>
+
+    <div class="card" id="ccLogCard">
+      <h3>Coach Log — every coached call on record</h3>
+      <div class="bar" style="margin-bottom:10px">
+        <div>
+          <label for="clRep">Consultant</label>
+          <select id="clRep" onchange="renderCoachLog()"></select>
+        </div>
+        <div>
+          <label for="clMode">Call type</label>
+          <select id="clMode" onchange="renderCoachLog()">
+            <option value="">HA + ZT</option>
+            <option value="ha">High Authority only</option>
+            <option value="zt">Zero Ticket only</option>
+          </select>
+        </div>
+      </div>
+      <div id="clRollup"></div>
+      <div id="clList"></div>
     </div>
 
     <div class="card" id="ccSetup">
@@ -1122,7 +1154,10 @@ function renderCoach(){
   if(!managerOn) return;
   const opts=state.config.reps.map(r=>`<option>${r}</option>`).join('');
   const cur=$('ccRep').value; $('ccRep').innerHTML=opts; if(cur&&state.config.reps.includes(cur))$('ccRep').value=cur;
-  ccRenderQueue();
+  const clCur=$('clRep').value;
+  $('clRep').innerHTML='<option value="">All consultants</option>'+opts;
+  if(clCur&&state.config.reps.includes(clCur))$('clRep').value=clCur;
+  ccRenderQueue(); renderCoachLog();
 }
 function ccRenderQueue(){
   const wk=thisWeek(), pw=prevWeek(wk);
@@ -1161,7 +1196,7 @@ function ccStart(){
   document.querySelectorAll('#ccLive .cc-play').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('#ccLive .dseg button').forEach(b=>b.className='');
   $('ccOutCard').style.display='none';
-  $('ccSetup').style.display='none'; $('ccQueueCard').style.display='none';
+  $('ccSetup').style.display='none'; $('ccQueueCard').style.display='none'; $('ccLogCard').style.display='none';
   $('ccLive').style.display='';
   $('ccHA').style.display=cc.mode==='ha'?'':'none';
   $('ccZT').style.display=cc.mode==='zt'?'':'none';
@@ -1258,11 +1293,73 @@ async function ccCopy(){
 }
 function ccReset(){
   clearInterval(cc.tick); cc={mode:cc.mode,marks:{},spoke:null,outcome:null,t0:null,tick:null,queueRef:null,lastText:''};
-  $('ccLive').style.display='none'; $('ccSetup').style.display=''; $('ccQueueCard').style.display='';
+  $('ccLive').style.display='none'; $('ccSetup').style.display=''; $('ccQueueCard').style.display=''; $('ccLogCard').style.display='';
   $('ccTimer').textContent='0:00'; $('ccTimer').classList.remove('hot');
   ['ccCust','ccQuote','ccAsk','ccBriefNotes','ccNote','ccNoteHA'].forEach(id=>$(id).value='');
   $('ccMathOut').className='cc-calcout'; $('ccMathOut').textContent='Enter both numbers — I\u2019ll show the gap and a counter.';
-  ccRenderQueue();
+  ccRenderQueue(); renderCoachLog();
+}
+
+/* =================== coach log =================== */
+const CL_LABELS=(()=>{const m={};CC_HA.forEach(([k,n])=>m[k]=n);CC_ZT.forEach(([k,n])=>m[k]=n);return m;})();
+function clDur(s){ if(!s&&s!==0) return '—'; return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function clCalls(){
+  const rep=$('clRep').value, mode=$('clMode').value;
+  const all=[];
+  state.entries.forEach(e=>(e.coachCalls||[]).forEach(c=>all.push({rep:e.rep, c})));
+  return all
+    .filter(x=>(!rep||x.rep===rep)&&(!mode||x.c.mode===mode))
+    .sort((a,b)=>b.c.ts-a.c.ts);
+}
+function renderCoachLog(){
+  if(!managerOn||!$('clList')) return;
+  const items=clCalls();
+  if(!items.length){
+    $('clRollup').innerHTML='';
+    $('clList').innerHTML='<div class="empty" style="padding:14px">No coached calls on record yet'+($('clRep').value?(' for '+$('clRep').value):'')+'. Every call you finish in Call Coach lands here automatically.</div>';
+    return;
+  }
+  /* rollup */
+  const sold=items.filter(x=>x.c.outcome==='sold').length;
+  const next=items.filter(x=>x.c.outcome==='next').length;
+  const no=items.filter(x=>x.c.outcome==='no').length;
+  const ha=items.filter(x=>x.c.mode==='ha').length;
+  const durs=items.map(x=>x.c.durationSec).filter(v=>v||v===0);
+  const avg=durs.length?Math.round(durs.reduce((a,b)=>a+b,0)/durs.length):null;
+  const missCount={};
+  items.forEach(x=>(x.c.misses||[]).forEach(k=>missCount[k]=(missCount[k]||0)+1));
+  const topMiss=Object.entries(missCount).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  $('clRollup').innerHTML=`<div class="cl-rollup">
+    <div class="statline">
+      <span><b>${items.length}</b> calls (${ha} HA / ${items.length-ha} ZT)</span>
+      <span><b>${sold}</b> saved on the phone</span>
+      <span><b>${next}</b> dated next step</span>
+      <span><b>${no}</b> no</span>
+      ${avg!=null?`<span>Avg length <b>${clDur(avg)}</b></span>`:''}
+    </div>
+    ${topMiss.length?`<div style="font-size:.84rem"><b style="color:var(--maroon)">Most-missed steps:</b> ${topMiss.map(([k,n])=>`<span class="chip watch" style="margin-right:4px">${CL_LABELS[k]||k} — ${n} of ${items.length}</span>`).join('')}</div>`
+      :'<div style="font-size:.84rem;color:var(--sage-deep);font-weight:700">No missed steps tagged across these calls.</div>'}
+  </div>`;
+  /* list */
+  $('clList').innerHTML=items.map(({rep,c})=>{
+    const o=c.outcome==='sold'?'<span class="dpill sold">SAVED — SOLD</span>':c.outcome==='next'?'<span class="dpill pending">DATED NEXT STEP</span>':c.outcome==='no'?'<span class="dpill nosale">NO — PROTECTED</span>':'<span class="dpill" style="background:var(--muted);color:#fff">NOT TAGGED</span>';
+    const when=new Date(c.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+drTime(c.ts);
+    const hits=(c.hits||[]).map(k=>CL_LABELS[k]||k);
+    const miss=(c.misses||[]).map(k=>CL_LABELS[k]||k);
+    return `<details class="cl-call"><summary>
+        <span><b>${c.customer||'\u2014'}</b> · ${rep} <span class="chip">${c.mode==='ha'?'HA':'ZT'}</span> ${o}</span>
+        <span class="hint">${when} · ${clDur(c.durationSec)}</span>
+      </summary>
+      <div class="cl-body">
+        ${c.mode==='ha'&&(c.quoted||c.asked)?`<div class="eyebrow">Numbers</div><div>Quoted ${c.quoted?('$'+c.quoted.toLocaleString()):'—'} · Asked ${c.asked?('$'+c.asked.toLocaleString()):'—'}</div>`:''}
+        ${c.mode==='zt'&&c.spoke?`<div class="eyebrow">Objection spoke</div><div>${CC_SPOKES[c.spoke]||c.spoke}</div>`:''}
+        <div class="eyebrow">Landed clean</div><div>${hits.length?hits.join(' · '):'—'}</div>
+        <div class="eyebrow">Missed / weak</div><div>${miss.length?miss.join(' · '):'—'}</div>
+        ${c.briefNotes?`<div class="eyebrow">Brief notes</div><div style="white-space:pre-wrap">${c.briefNotes}</div>`:''}
+        ${c.coachNote?`<div class="eyebrow">The one coaching note</div><div style="white-space:pre-wrap">${c.coachNote}</div>`:''}
+      </div>
+    </details>`;
+  }).join('');
 }
 
 /* =================== daily recap =================== */
