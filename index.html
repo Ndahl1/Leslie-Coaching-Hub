@@ -208,7 +208,7 @@
   .cc-calcout.warn{background:#F8E3D8;border-left-color:var(--terracotta);color:var(--maroon)}
   .cc-queue-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.88rem;flex-wrap:wrap}
   .cc-queue-row:last-child{border-bottom:none}
-  .cc-queue-row .q-words{color:var(--muted);font-size:.8rem;font-style:italic}
+  .q-words{color:var(--muted);font-size:.8rem;font-style:italic;margin-top:3px}
   .cc-out pre{white-space:pre-wrap;font:inherit;font-size:.85rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;max-height:320px;overflow:auto}
 </style>
 </head>
@@ -232,6 +232,7 @@
     <button class="active" data-v="mytb" onclick="showView('mytb')">My Touch Base</button>
     <button data-v="debrief" onclick="showView('debrief')">Debrief</button>
     <button data-v="review" onclick="showView('review')">Team Review</button>
+    <button data-v="daily" onclick="showView('daily')">Daily Recap</button>
     <button data-v="track" onclick="showView('track')">Track Record</button>
     <button data-v="coach" onclick="showView('coach')">Call Coach</button>
     <button data-v="pace" onclick="showView('pace')">Pace Data &amp; Setup</button>
@@ -462,6 +463,42 @@
     </div>
   </div>
   <div class="rev-grid" id="revGrid"></div>
+</section>
+
+<!-- ============ DAILY RECAP ============ -->
+<section class="view" id="view-daily">
+  <h2>Daily Recap</h2>
+  <p class="lead">The day in one place: who debriefed, what customers said, what's still waiting for coverage, and every coached HA/ZT call. Copy it straight into Teams at end of day.</p>
+  <div class="bar">
+    <div>
+      <label for="drDate">Day</label>
+      <input type="date" id="drDate" onchange="renderDaily()">
+    </div>
+    <div style="align-self:flex-end;min-width:0">
+      <button class="btn ghost small" onclick="drShift(-1)">&#8592; Prev day</button>
+      <button class="btn ghost small" onclick="drShift(1)">Next day &#8594;</button>
+    </div>
+    <div style="align-self:flex-end;min-width:0;margin-left:auto">
+      <button class="btn small" onclick="drCopy()">Copy Daily Recap</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Debrief completion — the non-negotiable</h3>
+    <div class="pace-strip" id="drComp"></div>
+  </div>
+
+  <div class="card">
+    <h3>Coverage board — today's unsold calls</h3>
+    <div id="drCover"></div>
+  </div>
+
+  <div id="drReps"></div>
+
+  <div class="card">
+    <h3>Coached HA/ZT calls today</h3>
+    <div id="drCoach"></div>
+  </div>
 </section>
 
 <!-- ============ TRACK RECORD ============ -->
@@ -823,6 +860,7 @@ function showView(v){
   $('view-'+v).classList.add('active');
   if(v==='debrief') renderDebrief();
   if(v==='review') renderReview();
+  if(v==='daily') renderDaily();
   if(v==='track') renderTrack();
   if(v==='coach') renderCoach();
   if(v==='pace') renderPaceView();
@@ -1227,6 +1265,164 @@ function ccReset(){
   ccRenderQueue();
 }
 
+/* =================== daily recap =================== */
+function localDate(ts){const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function drTime(ts){return new Date(ts).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});}
+function drShift(n){
+  const d=new Date(($('drDate').value||new Date().toISOString().slice(0,10))+'T12:00:00');
+  d.setDate(d.getDate()+n);
+  $('drDate').value=d.toISOString().slice(0,10);
+  renderDaily();
+}
+function drData(){
+  const day=$('drDate').value||new Date().toISOString().slice(0,10);
+  const byRep={}; state.config.reps.forEach(r=>byRep[r]={debriefs:[],coach:[]});
+  state.entries.forEach(e=>{
+    (e.debriefs||[]).forEach(c=>{ if(byRep[e.rep]&&localDate(c.ts)===day) byRep[e.rep].debriefs.push(c); });
+    (e.coachCalls||[]).forEach(c=>{ if(byRep[e.rep]&&localDate(c.ts)===day) byRep[e.rep].coach.push(c); });
+  });
+  return {day,byRep};
+}
+function drNice(day){ return new Date(day+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'}); }
+function renderDaily(){
+  if(!$('drDate').value) $('drDate').value=new Date().toISOString().slice(0,10);
+  const {day,byRep}=drData();
+
+  /* completion strip */
+  $('drComp').innerHTML=state.config.reps.map(rep=>{
+    const D=byRep[rep].debriefs, n=D.length;
+    const sold=D.filter(c=>c.outcome==='sold');
+    const uns=D.filter(c=>c.outcome!=='sold');
+    const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;
+    return `<div class="kpi ${n?'ok':'sub'}">
+      <div class="k-label">${rep}</div>
+      <div class="k-val">${n}</div>
+      <div class="k-tgt">${n?(sold.length+' sold · HA/ZT '+cov+'/'+uns.length):'No debriefs logged'}</div>
+      <span class="flag">${n?'Logged':'Missing'}</span>
+    </div>`;
+  }).join('');
+
+  /* coverage board */
+  const unsAll=[];
+  state.config.reps.forEach(rep=>byRep[rep].debriefs.filter(c=>c.outcome!=='sold').forEach(c=>unsAll.push({rep,c})));
+  const ord={none:0,sched:1,made:2};
+  unsAll.sort((a,b)=>((ord[a.c.hazt||'none']??0)-(ord[b.c.hazt||'none']??0))||b.c.ts-a.c.ts);
+  if(!unsAll.length){
+    $('drCover').innerHTML='<div class="empty" style="padding:14px">No unsold calls logged today.</div>';
+  }else{
+    $('drCover').innerHTML=unsAll.map(({rep,c})=>{
+      const st=c.hazt==='made'?'<span class="dpill" style="background:var(--sage-deep);color:#fff">MADE'+(c.haztWho?(' · '+c.haztWho):'')+'</span>'
+        :c.hazt==='sched'?'<span class="dpill" style="background:var(--tan);color:var(--ink)">SCHEDULED'+(c.haztWho?(' · '+c.haztWho):'')+'</span>'
+        :'<span class="dpill" style="background:var(--red);color:#fff">NOT YET — needs an owner</span>';
+      return `<div class="cc-queue-row"><span><b>${c.customer||'(no name)'}</b> · ${rep}
+        <span class="dpill ${c.outcome==='pending'?'pending':'nosale'}">${c.outcome==='pending'?'PENDING':'NO SALE'}</span> ${st}
+        ${c.holdback?`<div class="q-words">\u201C${c.holdback}\u201D</div>`:''}</span>
+        <span class="hint">${drTime(c.ts)}</span></div>`;
+    }).join('');
+  }
+
+  /* per-consultant detail */
+  $('drReps').innerHTML=state.config.reps.filter(rep=>byRep[rep].debriefs.length).map(rep=>{
+    const D=byRep[rep].debriefs.slice().sort((a,b)=>a.ts-b.ts);
+    const sold=D.filter(c=>c.outcome==='sold');
+    const rev=sold.reduce((s,c)=>s+(c.amount||0),0);
+    const nods=D.filter(c=>c.nod).length;
+    const fc=D.filter(c=>c.focus!==null&&c.focus!==undefined);
+    const fh=fc.filter(c=>c.focus).length;
+    const rows=D.map(c=>{
+      const pill=c.outcome==='sold'?('SOLD'+(c.amount?(' $'+c.amount.toLocaleString()):'')):c.outcome==='pending'?'PENDING':'NO SALE';
+      return `<div style="padding:9px 0;border-bottom:1px solid var(--line)">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <span><b>${c.customer||'\u2014'}</b> <span class="hint">${drTime(c.ts)}</span>
+            ${c.nod?'<span class="chip ok">Nod \u2713</span>':'<span class="chip sub">No nod</span>'}
+            ${c.focus===true?'<span class="chip ok">Focus \u2713</span>':c.focus===false?'<span class="chip watch">Focus \u2717</span>':''}
+            ${c.option?'<span class="chip">'+c.option+'</span>':''}</span>
+          <span class="dpill ${c.outcome==='sold'?'sold':c.outcome==='pending'?'pending':'nosale'}">${pill}</span>
+        </div>
+        ${c.words?`<div class="q-words">\u201C${c.words}\u201D</div>`:''}
+        ${c.holdback?`<div class="q-words">Holding them back: \u201C${c.holdback}\u201D</div>`:''}
+      </div>`;
+    }).join('');
+    return `<div class="card">
+      <h3>${rep} — ${D.length} debrief${D.length===1?'':'s'}</h3>
+      <div class="statline" style="margin-bottom:6px">
+        <span><b>${sold.length}</b> sold${rev?(' \u00B7 $'+rev.toLocaleString()):''}</span>
+        <span>Nod <b>${nods}/${D.length}</b></span>
+        ${fc.length?`<span>Focus <b>${fh}/${fc.length}</b></span>`:''}
+      </div>
+      ${rows}
+    </div>`;
+  }).join('') || '<div class="card"><div class="empty" style="padding:14px">No debriefs logged for this day yet.</div></div>';
+
+  /* coached calls */
+  const cAll=[];
+  state.config.reps.forEach(rep=>byRep[rep].coach.forEach(c=>cAll.push({rep,c})));
+  cAll.sort((a,b)=>a.c.ts-b.c.ts);
+  if(!cAll.length){
+    $('drCoach').innerHTML='<div class="empty" style="padding:14px">No coached HA/ZT calls logged today.</div>';
+  }else{
+    $('drCoach').innerHTML=cAll.map(({rep,c})=>{
+      const o=c.outcome==='sold'?'<span class="dpill sold">SAVED — SOLD</span>':c.outcome==='next'?'<span class="dpill pending">DATED NEXT STEP</span>':'<span class="dpill nosale">NO — PROTECTED</span>';
+      return `<div class="cc-queue-row"><span><b>${c.customer||'\u2014'}</b> · ${rep}
+        <span class="chip">${c.mode==='ha'?'High Authority':'Zero Ticket'}</span> ${o}
+        ${c.coachNote?`<div class="q-words">Note: ${c.coachNote}</div>`:''}</span>
+        <span class="hint">${drTime(c.ts)}</span></div>`;
+    }).join('');
+  }
+}
+function drCopy(){
+  const {day,byRep}=drData();
+  const L=[];
+  L.push('DAILY SALES TEAM RECAP — '+drNice(day));
+  let tCalls=0,tSold=0,tRev=0,tNod=0,tUns=0,tCov=0;
+  const repLines=[];
+  state.config.reps.forEach(rep=>{
+    const D=byRep[rep].debriefs;
+    if(!D.length){ repLines.push('\u2022 '+rep+': NO DEBRIEFS LOGGED'); return; }
+    const sold=D.filter(c=>c.outcome==='sold');
+    const rev=sold.reduce((s,c)=>s+(c.amount||0),0);
+    const uns=D.filter(c=>c.outcome!=='sold');
+    const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;
+    const nods=D.filter(c=>c.nod).length;
+    const fc=D.filter(c=>c.focus!==null&&c.focus!==undefined);
+    const fh=fc.filter(c=>c.focus).length;
+    tCalls+=D.length; tSold+=sold.length; tRev+=rev; tNod+=nods; tUns+=uns.length; tCov+=cov;
+    repLines.push('\u2022 '+rep+': '+D.length+' logged \u00B7 '+sold.length+' sold'+(rev?(' ($'+rev.toLocaleString()+')'):'')+' \u00B7 Nod '+nods+'/'+D.length+(fc.length?(' \u00B7 Focus '+fh+'/'+fc.length):'')+' \u00B7 HA/ZT '+cov+'/'+uns.length);
+  });
+  L.push('TEAM: '+tCalls+' debriefs \u00B7 '+tSold+' sold'+(tRev?(' ($'+tRev.toLocaleString()+')'):'')+' \u00B7 Nod '+tNod+'/'+tCalls+' \u00B7 HA/ZT coverage '+tCov+'/'+tUns);
+  L.push('');
+  L.push('BY CONSULTANT');
+  L.push(...repLines);
+  const waiting=[];
+  state.config.reps.forEach(rep=>byRep[rep].debriefs.filter(c=>c.outcome!=='sold'&&c.hazt!=='made').forEach(c=>waiting.push({rep,c})));
+  L.push('');
+  L.push('STILL WAITING FOR COVERAGE');
+  if(!waiting.length) L.push('\u2022 All unsold calls covered \u2713');
+  else waiting.forEach(({rep,c})=>L.push('\u2022 '+(c.customer||'(no name)')+' ('+rep+') \u2014 '+(c.outcome==='pending'?'PENDING':'NO SALE')+' \u2014 '+(c.hazt==='sched'?('SCHEDULED'+(c.haztWho?(' \u00B7 '+c.haztWho):'')):'NOT YET')+(c.holdback?(' \u2014 \u201C'+c.holdback+'\u201D'):'')));
+  const quotes=[];
+  state.config.reps.forEach(rep=>byRep[rep].debriefs.forEach(c=>{ if(c.words) quotes.push('\u2022 \u201C'+c.words+'\u201D \u2014 '+(c.customer||'customer')+' ('+rep+')'); }));
+  if(quotes.length){ L.push(''); L.push('THEIR WORDS TODAY'); L.push(...quotes); }
+  const coach=[];
+  state.config.reps.forEach(rep=>byRep[rep].coach.forEach(c=>coach.push({rep,c})));
+  if(coach.length){
+    const ha=coach.filter(x=>x.c.mode==='ha').length, zt=coach.length-ha;
+    L.push('');
+    L.push('COACHED HA/ZT CALLS: '+coach.length+' ('+ha+' HA / '+zt+' ZT)');
+    coach.forEach(({rep,c})=>{
+      const o=c.outcome==='sold'?'SAVED \u2014 SOLD':c.outcome==='next'?'Dated next step':'No \u2014 relationship protected';
+      L.push('\u2022 '+(c.mode==='ha'?'HA':'ZT')+' \u00B7 '+(c.customer||'\u2014')+' ('+rep+') \u2014 '+o+(c.coachNote?(' \u2014 '+c.coachNote):''));
+    });
+  }
+  L.push('');
+  L.push('Logged in the Leslie Coaching Hub.');
+  const txt=L.join('\n');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>toast('Daily recap copied — paste it into Teams'));
+  }else{
+    const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Daily recap copied');
+  }
+}
+
 /* =================== pace / setup =================== */
 function renderPaceView(){
   $('paceLocked').style.display=managerOn?'none':'';
@@ -1293,7 +1489,7 @@ function fillRepSelects(){
   ['tbRep','trRep','dbRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
 }
 function refreshAll(){
-  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); if(managerOn) renderPaceView();
+  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); renderDaily(); if(managerOn) renderPaceView();
 }
 /* =================== post-call debrief =================== */
 let dbPicks={outcome:null,focus:null,nod:null,hazt:null}, dbWho='';
@@ -1420,7 +1616,7 @@ function dbCheckpoint(){
 (function init(){
   const today=new Date().toISOString().slice(0,10);
   const mon=mondayOf(today);
-  $('tbWeek').value=mon; $('revWeek').value=mon; $('paceMonth').value=today;
+  $('tbWeek').value=mon; $('revWeek').value=mon; $('paceMonth').value=today; $('drDate').value=today;
   $('mgrBtn').classList.toggle('on',managerOn);
   fillRepSelects();
   if(repOn && state.config.reps.includes(repOn)){ $('tbRep').value=repOn; $('trRep').value=repOn; $('dbRep').value=repOn; }
