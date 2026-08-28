@@ -96,6 +96,59 @@
   .kpi .k-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
   .kpi .k-val{font-size:1.7rem;font-weight:700;line-height:1.15;margin:2px 0}
   .kpi .k-tgt{font-size:.76rem;color:var(--muted)}
+  .kpi .k-ytd{margin-top:6px;padding-top:6px;border-top:1px dashed #D9D2C6;font-size:.8rem;font-weight:600;color:var(--ink)}
+  .kpi .k-ytd .yl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block}
+  .kpi .k-ytd.ok{color:var(--sage-deep)}
+  .kpi .k-ytd.watch{color:var(--terracotta)}
+  .kpi .k-ytd.sub{color:var(--red)}
+  .kpi .est{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+    background:#EFE9DD;color:var(--muted);border-radius:4px;padding:1px 4px;vertical-align:1px;cursor:help}
+  .kpi .dir{display:block;margin-top:4px;font-size:.72rem;font-weight:700}
+  .kpi .dir.up{color:var(--sage-deep)} .kpi .dir.down{color:var(--red)} .kpi .dir.flat{color:var(--muted)}
+  .pace-mode{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:4px}
+  .pace-mode button{border:0;background:#fff;padding:7px 14px;font:inherit;font-size:.82rem;font-weight:600;
+    color:var(--muted);cursor:pointer}
+  .pace-mode button.on{background:var(--sage-deep);color:#fff}
+  #paceTable input{width:100%;min-width:74px}
+  #paceTable th.grp{background:#F3EEE4;text-align:center;font-size:.7rem;letter-spacing:.08em}
+  #paceTable td.derived{font-size:.78rem;color:var(--muted);white-space:nowrap;line-height:1.5}
+  #paceTable td.derived b{color:var(--ink)}
+  #paceTable td.derived .bad{color:var(--red);font-weight:700}
+  #impText{width:100%;min-height:96px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;white-space:pre}
+  .imp-prev{margin-top:12px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .imp-prev table{width:100%;border-collapse:collapse;font-size:.82rem}
+  .imp-prev th{background:#F3EEE4;text-align:left;padding:7px 10px;font-size:.7rem;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  .imp-prev td{padding:7px 10px;border-top:1px solid var(--line)}
+  .imp-prev tr.miss td{background:#FDF4F5;color:var(--muted)}
+  .imp-badge{display:inline-block;font-size:.68rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.06em;border-radius:4px;padding:2px 6px}
+  .imp-badge.ok{background:var(--sage-deep);color:#fff}
+  .imp-badge.warn{background:var(--terracotta);color:#fff}
+  .imp-badge.skip{background:#E4DED2;color:var(--muted)}
+  .tr-band{display:flex;flex-wrap:wrap;gap:18px;align-items:center;padding:14px 16px;margin-bottom:14px;
+    background:#fff;border:1px solid var(--line);border-radius:10px}
+  .tr-stat{min-width:96px}
+  .tr-stat .n{font-size:1.45rem;font-weight:700;line-height:1.1}
+  .tr-stat .l{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  .tr-stat.good .n{color:var(--sage-deep)} .tr-stat.bad .n{color:var(--red)}
+  .tr-note{flex:1;min-width:220px;font-size:.85rem;color:var(--ink);border-left:1px solid var(--line);padding-left:16px}
+  .tr-note b{color:var(--red)}
+  #trTable tr.mon{cursor:pointer}
+  #trTable tr.mon:hover td{background:#F7F3EA}
+  #trTable tr.mon td{font-weight:600}
+  #trTable td.caret{width:22px;color:var(--muted)}
+  #trTable tr.wk td{background:#FBF8F2;font-weight:400;font-size:.85rem}
+  #trTable tr.wk td.first{padding-left:26px}
+  #trTable tr.none td{color:var(--muted);font-style:italic}
+  .commit{display:block;font-size:.85rem}
+  .commit .meta{color:var(--muted);font-size:.78rem}
+  .moved{font-weight:700;font-size:.82rem;white-space:nowrap}
+  .moved.up{color:var(--sage-deep)} .moved.down{color:var(--red)} .moved.flat{color:var(--muted)}
+  .streak{display:inline-flex;gap:3px;vertical-align:middle}
+  .streak i{width:9px;height:9px;border-radius:2px;display:inline-block;background:#E4DED2}
+  .streak i.worked{background:var(--sage-deep)} .streak i.partial{background:var(--terracotta)}
+  .streak i.didnt{background:var(--red)}
   .flag{
     display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
     padding:2px 8px;border-radius:10px;margin-top:6px;color:#fff;background:var(--muted)
@@ -208,20 +261,8 @@
   .cc-calcout.warn{background:#F8E3D8;border-left-color:var(--terracotta);color:var(--maroon)}
   .cc-queue-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.88rem;flex-wrap:wrap}
   .cc-queue-row:last-child{border-bottom:none}
-  .q-words{color:var(--muted);font-size:.8rem;font-style:italic;margin-top:3px}
+  .cc-queue-row .q-words{color:var(--muted);font-size:.8rem;font-style:italic}
   .cc-out pre{white-space:pre-wrap;font:inherit;font-size:.85rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;max-height:320px;overflow:auto}
-  /* ---------- coach log ---------- */
-  details.cl-call{border-bottom:1px solid var(--line)}
-  details.cl-call:last-child{border-bottom:none}
-  details.cl-call summary{list-style:none;cursor:pointer;padding:10px 2px;font-size:.88rem;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-  details.cl-call summary::-webkit-details-marker{display:none}
-  details.cl-call summary:hover{background:var(--tan-soft)}
-  details.cl-call[open] summary{background:var(--tan-soft);border-radius:8px 8px 0 0}
-  .cl-body{background:#FDFBF7;border:1px solid var(--line);border-top:none;border-radius:0 0 8px 8px;padding:12px;font-size:.86rem;margin-bottom:8px}
-  .cl-body .eyebrow{margin:8px 0 2px}
-  .cl-body .eyebrow:first-child{margin-top:0}
-  .cl-rollup{background:var(--tan-soft);border:1px solid var(--tan);border-radius:8px;padding:10px 12px;margin-bottom:10px}
-  .cl-rollup .statline{margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -244,7 +285,6 @@
     <button class="active" data-v="mytb" onclick="showView('mytb')">My Touch Base</button>
     <button data-v="debrief" onclick="showView('debrief')">Debrief</button>
     <button data-v="review" onclick="showView('review')">Team Review</button>
-    <button data-v="daily" onclick="showView('daily')">Daily Recap</button>
     <button data-v="track" onclick="showView('track')">Track Record</button>
     <button data-v="coach" onclick="showView('coach')">Call Coach</button>
     <button data-v="pace" onclick="showView('pace')">Pace Data &amp; Setup</button>
@@ -477,42 +517,6 @@
   <div class="rev-grid" id="revGrid"></div>
 </section>
 
-<!-- ============ DAILY RECAP ============ -->
-<section class="view" id="view-daily">
-  <h2>Daily Recap</h2>
-  <p class="lead">The day in one place: who debriefed, what customers said, what's still waiting for coverage, and every coached HA/ZT call. Copy it straight into Teams at end of day.</p>
-  <div class="bar">
-    <div>
-      <label for="drDate">Day</label>
-      <input type="date" id="drDate" onchange="renderDaily()">
-    </div>
-    <div style="align-self:flex-end;min-width:0">
-      <button class="btn ghost small" onclick="drShift(-1)">&#8592; Prev day</button>
-      <button class="btn ghost small" onclick="drShift(1)">Next day &#8594;</button>
-    </div>
-    <div style="align-self:flex-end;min-width:0;margin-left:auto">
-      <button class="btn small" onclick="drCopy()">Copy Daily Recap</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Debrief completion — the non-negotiable</h3>
-    <div class="pace-strip" id="drComp"></div>
-  </div>
-
-  <div class="card">
-    <h3>Coverage board — today's unsold calls</h3>
-    <div id="drCover"></div>
-  </div>
-
-  <div id="drReps"></div>
-
-  <div class="card">
-    <h3>Coached HA/ZT calls today</h3>
-    <div id="drCoach"></div>
-  </div>
-</section>
-
 <!-- ============ TRACK RECORD ============ -->
 <section class="view" id="view-track">
   <h2>Track Record</h2>
@@ -522,11 +526,17 @@
       <label for="trRep">Consultant</label>
       <select id="trRep" onchange="renderTrack()"></select>
     </div>
+    <div>
+      <label for="trYear">Year</label>
+      <select id="trYear" onchange="renderTrack()"></select>
+    </div>
     <div style="align-self:flex-end">
       <button class="btn ghost small" onclick="exportCSV()">Export CSV</button>
     </div>
   </div>
+  <div id="trBand"></div>
   <div class="tbl-wrap"><table id="trTable"></table></div>
+  <p class="hint" id="trHint" style="margin-top:10px"></p>
 </section>
 
 <!-- ============ CALL COACH ============ -->
@@ -539,26 +549,6 @@
     <div class="card" id="ccQueueCard">
       <h3>Waiting for coverage — unsold calls without an HA/ZT made</h3>
       <div id="ccQueue"></div>
-    </div>
-
-    <div class="card" id="ccLogCard">
-      <h3>Coach Log — every coached call on record</h3>
-      <div class="bar" style="margin-bottom:10px">
-        <div>
-          <label for="clRep">Consultant</label>
-          <select id="clRep" onchange="renderCoachLog()"></select>
-        </div>
-        <div>
-          <label for="clMode">Call type</label>
-          <select id="clMode" onchange="renderCoachLog()">
-            <option value="">HA + ZT</option>
-            <option value="ha">High Authority only</option>
-            <option value="zt">Zero Ticket only</option>
-          </select>
-        </div>
-      </div>
-      <div id="clRollup"></div>
-      <div id="clList"></div>
     </div>
 
     <div class="card" id="ccSetup">
@@ -714,8 +704,36 @@
           <div class="hint">Any date in the month works.</div>
         </div>
       </div>
+      <div class="pace-mode" id="paceMode">
+        <button id="pmRaw" onclick="setPaceMode('raw')">Raw counts (exact)</button>
+        <button id="pmRate" onclick="setPaceMode('rates')">Rates only (legacy)</button>
+      </div>
+      <div class="hint" id="paceModeHint" style="margin-bottom:10px"></div>
       <div class="tbl-wrap"><table id="paceTable"></table></div>
       <div style="margin-top:12px"><button class="btn" onclick="savePace()">Save pace data</button></div>
+    </div>
+
+    <div class="card">
+      <h3>Import from the Sales Manager Pace Report</h3>
+      <p class="hint" style="margin-bottom:10px">
+        Open the month's pace report &rarr; <b>Sales Dispatch Order</b> sheet &rarr; select the header row
+        (<i>Advisor's Name &hellip;</i>) together with the consultant rows beneath it &rarr; copy &rarr; paste below.
+        Column order does not matter; the headers are read by name. Nothing is written until you review the preview
+        and click Apply, and nothing syncs until you then click <b>Save pace data</b>.
+      </p>
+      <textarea id="impText" placeholder="Paste the copied rows here…"></textarea>
+      <div style="margin-top:10px">
+        <label for="impFile" class="hint" style="display:block;margin-bottom:6px">
+          &hellip;or load a file &mdash; a saved copy of those rows, or a multi-month backfill file:
+          <input type="file" id="impFile" accept=".json,.txt,.tsv,.csv" onchange="impLoadFile(this)" style="display:block;margin-top:4px">
+        </label>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn ghost small" onclick="parseImport()">Read what I pasted</button>
+        <button class="btn small" id="impApply" style="display:none;margin-left:8px" onclick="applyImport()">Apply to the grid</button>
+        <button class="btn ghost small" style="margin-left:8px" onclick="$('impText').value='';$('impPrev').innerHTML='';$('impApply').style.display='none'">Clear</button>
+      </div>
+      <div id="impPrev"></div>
     </div>
 
     <div class="card">
@@ -767,13 +785,29 @@
 <script>
 /* =================== constants =================== */
 const KPIS = [
-  {key:'appts',     label:'Appointments Run',    fmt:'int'},
+  {key:'appts',     label:'Appointments Run',    fmt:'int', cum:true},
   {key:'tglClose',  label:'TGL Close Rate',      fmt:'pct'},
   {key:'mktClose',  label:'Marketed Close Rate', fmt:'pct'},
   {key:'tglTicket', label:'TGL Avg Ticket',      fmt:'usd'},
   {key:'mktTicket', label:'Marketed Avg Ticket', fmt:'usd'}
 ];
 const STEPS = ['Prepare','Greet','Explore','Present','Close','Follow Up'];
+
+/* Raw monthly counts. Every rate and average ticket is DERIVED from these, so
+   month-to-date and year-to-date stay mathematically consistent. Months entered
+   before this change keep working: derivation falls back to the typed rate. */
+const RAW_FIELDS = [
+  {key:'tglAppts', label:'Appts',   grp:'TGL',      fmt:'int'},
+  {key:'tglSold',  label:'Sold',    grp:'TGL',      fmt:'int'},
+  {key:'tglRev',   label:'Revenue', grp:'TGL',      fmt:'usd'},
+  {key:'mktAppts', label:'Appts',   grp:'Marketed', fmt:'int'},
+  {key:'mktSold',  label:'Sold',    grp:'Marketed', fmt:'int'},
+  {key:'mktRev',   label:'Revenue', grp:'Marketed', fmt:'usd'}
+];
+/* The pace report also books leads under Other and Self Gen, which the hub does
+   not score separately but which still count as appointments run. Optional: left
+   blank, appointments fall back to TGL + Marketed. */
+const ALL_APPTS = {key:'appts', label:'All leads run', grp:'TOTAL', fmt:'int'};
 const DEFAULT_CONFIG = {
   reps:['Jeremy M.','Justin B.','Tom O.','Kevin L.','Tony P.'],
   targets:{appts:25, tglClose:55, mktClose:40, tglTicket:12500, mktTicket:11000},
@@ -830,15 +864,96 @@ function mondayOf(dstr){
   return d.toISOString().slice(0,10);
 }
 function monthKey(dstr){return dstr.slice(0,7);}
-function flagFor(key,val){
-  const t=state.config.targets[key];
+function flagFor(key,val,periods){
+  const base=state.config.targets[key];
+  const meta=KPIS.find(x=>x.key===key);
+  /* Counting KPIs (appointments) have a per-month target, so a year-to-date
+     total has to be judged against target x months elapsed, not the raw target. */
+  const t=(meta&&meta.cum&&periods)?base*periods:base;
   if(val==null||val===''||isNaN(val)||t==null) return {cls:'',txt:'No data'};
   val=Number(val);
   if(val>=t) return {cls:'ok',txt:'On pace'};
   if(val>=t*0.85) return {cls:'watch',txt:'Watch'};
   return {cls:'sub',txt:'Sub-standard'};
 }
-function getPace(month,rep){ return (state.pace[month]||{})[rep]||{}; }
+function num(v){
+  if(v===null||v===undefined||v==='') return null;
+  const n=Number(v);
+  return isNaN(n)?null:n;
+}
+function hasRaw(p){ return RAW_FIELDS.some(f=>num((p||{})[f.key])!=null); }
+function rawComplete(p){ return RAW_FIELDS.every(f=>num((p||{})[f.key])!=null); }
+
+/* Derive the five scoreboard KPIs from raw counts where they exist, otherwise
+   fall back to whatever rate was typed in directly (legacy months). */
+function deriveKpis(p){
+  p=p||{};
+  const g=k=>num(p[k]);
+  const ta=g('tglAppts'), ts=g('tglSold'), tr=g('tglRev');
+  const ma=g('mktAppts'), ms=g('mktSold'), mr=g('mktRev');
+  const out={};
+  /* An explicit total wins, because it includes Other and Self Gen leads. */
+  out.appts     = g('appts')!=null ? g('appts')
+                : (ta!=null||ma!=null) ? (ta||0)+(ma||0) : null;
+  out.tglClose  = (ts!=null&&ta)       ? ts/ta*100         : g('tglClose');
+  out.mktClose  = (ms!=null&&ma)       ? ms/ma*100         : g('mktClose');
+  out.tglTicket = (tr!=null&&ts)       ? tr/ts             : g('tglTicket');
+  out.mktTicket = (mr!=null&&ms)       ? mr/ms             : g('mktTicket');
+  return out;
+}
+function getPaceRaw(month,rep){ return (state.pace[month]||{})[rep]||{}; }
+function getPace(month,rep){
+  const p=getPaceRaw(month,rep);
+  return Object.assign({}, p, deriveKpis(p));
+}
+
+/* ---- year to date ----------------------------------------------------------
+   Exact when every contributing month carries raw counts: rates come from summed
+   numerators over summed denominators. If any month is legacy rates-only we fall
+   back to an appointment-weighted average and mark the result estimated, because
+   a flat average of monthly rates is simply wrong. */
+function ytdFor(year, rep, throughMonth){
+  const T={tglAppts:0,tglSold:0,tglRev:0,mktAppts:0,mktSold:0,mktRev:0};
+  const W={}; KPIS.forEach(k=>{ W[k.key]={sum:0,w:0}; });
+  let exact=true, any=false, apptsSum=0, apptsAny=false, monthsUsed=0, monthsElapsed=0;
+  for(let m=1;m<=12;m++){
+    const mk=year+'-'+String(m).padStart(2,'0');
+    if(throughMonth && mk>throughMonth) break;
+    const p=getPaceRaw(mk,rep), d=deriveKpis(p);
+    if(!KPIS.some(k=>d[k.key]!=null)) continue;
+    monthsElapsed++;
+    /* A month only counts toward year-to-date if the consultant actually ran
+       appointments in it. Someone who started in May is measured on the months
+       they worked, not penalised against a January-to-date target. A legacy
+       month with rates but no appointment count is taken at face value. */
+    const active = (d.appts!=null && d.appts>0) ||
+                   (d.appts==null && KPIS.some(k=>!k.cum && d[k.key]!=null));
+    if(!active) continue;
+    any=true; monthsUsed++;
+    if(d.appts!=null){ apptsSum+=d.appts; apptsAny=true; }
+    if(rawComplete(p)) RAW_FIELDS.forEach(f=>{ T[f.key]+=num(p[f.key]); });
+    else exact=false;
+    const w=(d.appts!=null&&d.appts>0)?d.appts:1;
+    KPIS.forEach(k=>{
+      if(k.cum) return;
+      if(d[k.key]!=null){ W[k.key].sum+=d[k.key]*w; W[k.key].w+=w; }
+    });
+  }
+  if(!any) return null;
+  const out={estimated:!exact, months:monthsUsed, monthsElapsed:monthsElapsed};
+  if(exact){
+    out.appts     = apptsAny?apptsSum:(T.tglAppts+T.mktAppts);
+    out.tglClose  = T.tglAppts ? T.tglSold/T.tglAppts*100 : null;
+    out.mktClose  = T.mktAppts ? T.mktSold/T.mktAppts*100 : null;
+    out.tglTicket = T.tglSold  ? T.tglRev/T.tglSold       : null;
+    out.mktTicket = T.mktSold  ? T.mktRev/T.mktSold       : null;
+  }else{
+    out.appts = apptsAny?apptsSum:null;
+    KPIS.forEach(k=>{ if(!k.cum) out[k.key]= W[k.key].w ? W[k.key].sum/W[k.key].w : null; });
+  }
+  return out;
+}
+function ytdForWeek(rep,week){ const mk=monthKey(week); return ytdFor(mk.slice(0,4),rep,mk); }
 function entryFor(rep,week){ return state.entries.find(e=>e.rep===rep&&e.week===week); }
 function prevWeek(week){ const d=new Date(week+'T12:00:00'); d.setDate(d.getDate()-7); return d.toISOString().slice(0,10); }
 
@@ -892,7 +1007,6 @@ function showView(v){
   $('view-'+v).classList.add('active');
   if(v==='debrief') renderDebrief();
   if(v==='review') renderReview();
-  if(v==='daily') renderDaily();
   if(v==='track') renderTrack();
   if(v==='coach') renderCoach();
   if(v==='pace') renderPaceView();
@@ -934,10 +1048,21 @@ function setStep(s,n){ stepScores[s]=n; buildStepGrid(); }
 function buildOppSelectors(){
   const rep=$('tbRep').value, week=$('tbWeek').value, mk=monthKey(week);
   const p=getPace(mk,rep);
-  const flagged=KPIS.map(k=>({...k,flag:flagFor(k.key,p[k.key])}));
-  const subs=flagged.filter(k=>k.flag.cls==='sub'), watch=flagged.filter(k=>k.flag.cls==='watch'), rest=flagged.filter(k=>k.flag.cls==='ok'||k.flag.cls==='');
-  const opt=k=>`<option value="${k.key}">${k.label}${k.flag.cls==='sub'?' — SUB-STANDARD':k.flag.cls==='watch'?' — watch':''}</option>`;
-  $('oppKpi').innerHTML=[...subs,...watch,...rest].map(opt).join('');
+  const y=ytdFor(mk.slice(0,4),rep,mk);
+  const flagged=KPIS.map(k=>{
+    const flag=flagFor(k.key,p[k.key]);
+    const yflag=y?flagFor(k.key,y[k.key],k.cum?y.months:1):{cls:''};
+    /* Chronic = below standard this month AND across the year. That is a
+       different coaching conversation from one bad month, so it sorts first. */
+    return {...k, flag, yflag, chronic: flag.cls==='sub' && yflag.cls==='sub'};
+  });
+  const rank=k=> k.chronic?0 : k.flag.cls==='sub'?1 : k.flag.cls==='watch'?2 : k.flag.cls==='ok'?3 : 4;
+  const opt=k=>`<option value="${k.key}">${k.label}${
+    k.chronic?' \u2014 CHRONIC (sub-standard this month AND YTD)'
+    : k.flag.cls==='sub'?' \u2014 SUB-STANDARD this month'
+    : k.flag.cls==='watch'?' \u2014 watch'
+    : (k.yflag.cls==='sub'?' \u2014 fine this month, sub-standard YTD':'')}</option>`;
+  $('oppKpi').innerHTML=flagged.slice().sort((a,b)=>rank(a)-rank(b)).map(opt).join('');
   $('oppStep').innerHTML=STEPS.map(s=>`<option>${s}</option>`).join('');
 }
 
@@ -945,12 +1070,35 @@ function renderPaceStrip(){
   const rep=$('tbRep').value, week=$('tbWeek').value, mk=monthKey(week);
   const p=getPace(mk,rep);
   $('paceSrc').textContent=`Pulled from the ${new Date(mk+'-15T12:00:00').toLocaleString('en-US',{month:'long',year:'numeric'})} Sales Manager Pace Report for ${rep}.`;
+  const y=ytdFor(mk.slice(0,4),rep,mk);
   $('paceStrip').innerHTML=KPIS.map(k=>{
     const f=flagFor(k.key,p[k.key]);
+    const yv=y?y[k.key]:null;
+    const yf=y?flagFor(k.key,yv,k.cum?y.months:1):{cls:''};
+    const tgt=state.config.targets[k.key];
+    let ytdLine='<div class="k-ytd"><span class="yl">Year to date</span>&mdash;</div>';
+    if(y&&yv!=null){
+      const est=y.estimated?' <span class="est" title="One or more months this year were entered as rates only, so this is an appointment-weighted estimate. Enter raw counts for every month to make it exact.">est.</span>':'';
+      const scope=k.cum?` <span class="k-tgt">of ${fmt(tgt*y.months,k.fmt)} pace</span>`:'';
+      /* "3 of 8 mo" makes it obvious when a consultant only worked part of the year. */
+      const span=(y.monthsElapsed>y.months)
+        ? `${y.months} of ${y.monthsElapsed} mo`
+        : `${y.months} mo`;
+      ytdLine=`<div class="k-ytd ${yf.cls}"><span class="yl">Year to date &middot; ${span}</span>${fmt(yv,k.fmt)}${est}${scope}</div>`;
+    }
+    let dir='';
+    if(!k.cum&&p[k.key]!=null&&yv!=null&&yv!==0){
+      const d=p[k.key]-yv, pct=d/Math.abs(yv)*100;
+      dir = Math.abs(pct)<2
+        ? '<span class="dir flat">&#8776; tracking with the year</span>'
+        : `<span class="dir ${d>0?'up':'down'}">${d>0?'&#9650;':'&#9660;'} ${fmt(Math.abs(d),k.fmt)} vs YTD</span>`;
+    }
     return `<div class="kpi ${f.cls}">
       <div class="k-label">${k.label}</div>
       <div class="k-val">${fmt(p[k.key],k.fmt)}</div>
-      <div class="k-tgt">Target: ${fmt(state.config.targets[k.key],k.fmt)}</div>
+      <div class="k-tgt">Target: ${fmt(state.config.targets[k.key],k.fmt)}${k.cum?' / mo':''}</div>
+      ${ytdLine}
+      ${dir}
       <span class="flag">${f.txt}</span>
     </div>`;
   }).join('');
@@ -1026,9 +1174,11 @@ async function saveEntry(){
   if(!rep||!week){toast('Pick a consultant and week');return;}
   const p=getPace(mk,rep);
   const snapshot={}; KPIS.forEach(k=>snapshot[k.key]=p[k.key]??null);
+  const ySnap=ytdFor(mk.slice(0,4),rep,mk);
   const entry={
     id:rep+'|'+week, rep, week, ts:Date.now(),
     kpis:snapshot,
+    ytd:ySnap,
     steps:{...stepScores},
     wins:$('tbWins').value.trim(),
     opp:{kpi:$('oppKpi').value, step:$('oppStep').value, text:$('oppText').value.trim()},
@@ -1103,34 +1253,162 @@ async function saveMgrNote(id){
 }
 
 /* =================== track record =================== */
+function weekAfter(week,n){
+  const d=new Date(week+'T12:00:00'); d.setDate(d.getDate()+7*(n||1));
+  return d.toISOString().slice(0,10);
+}
+/* A commitment made in one week is graded in the NEXT week's entry, where the
+   consultant says whether it worked. */
+function resultOf(rep,week){ return (entryFor(rep,weekAfter(week,1))||{}).prior||null; }
+
+/* Did the KPI they named actually move? Compare the month of the commitment with
+   the month four weeks on — long enough for a behaviour change to show up. */
+function kpiMove(rep,week,key){
+  if(!key) return null;
+  const a=getPace(monthKey(week),rep)[key];
+  const b=getPace(monthKey(weekAfter(week,4)),rep)[key];
+  if(a==null||b==null||isNaN(a)||isNaN(b)) return null;
+  return {from:Number(a), to:Number(b), delta:Number(b)-Number(a)};
+}
+function trackYears(rep){
+  const ys=new Set();
+  state.entries.filter(e=>e.rep===rep).forEach(e=>ys.add(e.week.slice(0,4)));
+  Object.keys(state.pace||{}).forEach(mk=>{ if((state.pace[mk]||{})[rep]) ys.add(mk.slice(0,4)); });
+  ys.add(String(new Date().getFullYear()));
+  return [...ys].sort().reverse();
+}
+function fillTrackYears(rep){
+  const sel=$('trYear'), years=trackYears(rep), cur=sel.value;
+  sel.innerHTML=years.map(y=>`<option>${y}</option>`).join('');
+  sel.value = years.includes(cur) ? cur : years[0];
+  return sel.value;
+}
+const RESULT_LABEL={worked:'Worked', partial:'Partial', didnt:"Didn't"};
+function resultChip(r){
+  return r ? `<span class="result-chip ${r}">${RESULT_LABEL[r]||r}</span>`
+           : '<span class="hint">Pending</span>';
+}
+function movedCell(mv,key){
+  if(!mv) return '<span class="hint">&mdash;</span>';
+  const k=KPIS.find(x=>x.key===key)||{fmt:'int'};
+  if(Math.abs(mv.delta)<0.05) return '<span class="moved flat">no change</span>';
+  const up=mv.delta>0;
+  return `<span class="moved ${up?'up':'down'}" title="${fmt(mv.from,k.fmt)} \u2192 ${fmt(mv.to,k.fmt)} over four weeks">`+
+         `${up?'&#9650;':'&#9660;'} ${fmt(Math.abs(mv.delta),k.fmt)}</span>`;
+}
+
+let trackOpen = {};
+function toggleTrackMonth(mk){ trackOpen[mk]=!trackOpen[mk]; renderTrack(); }
+
 function renderTrack(){
   const rep=$('trRep').value;
-  const t=$('trTable');
+  const t=$('trTable'), band=$('trBand'), hint=$('trHint');
   if(!repAuthed(rep)){
-    t.innerHTML='<tr><td class="empty" style="border:none">&#128274; '+rep+'\u2019s track record is PIN-protected. <button class="btn ghost small" style="margin-left:10px" onclick="if(unlockRep($(\'trRep\').value)){renderTrack();}">Enter PIN</button></td></tr>';
+    band.innerHTML=''; hint.textContent='';
+    t.innerHTML='<tr><td class="empty" style="border:none">&#128274; '+rep+'\u2019s track record is PIN-protected. '+
+      '<button class="btn ghost small" style="margin-left:10px" onclick="if(unlockRep($(\'trRep\').value)){renderTrack();}">Enter PIN</button></td></tr>';
     return;
   }
-  const rows=state.entries.filter(e=>e.rep===rep).sort((a,b)=>a.week<b.week?1:-1);
-  if(!rows.length){ t.innerHTML='<tr><td class="empty" style="border:none">No entries yet for '+rep+'.</td></tr>'; return; }
-  let html=`<tr><th>Week</th>${KPIS.map(k=>`<th>${k.label}</th>`).join('')}<th>Lowest Step</th><th>Opportunity</th><th>Action Taken</th><th>Result</th></tr>`;
-  rows.forEach(e=>{
-    const next=entryFor(rep, (d=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+7);return x.toISOString().slice(0,10);})(e.week));
-    const res=next?.prior?.result;
-    const resTxt=res?`<span class="result-chip ${res}">${res==='worked'?'Worked':res==='partial'?'Partial':"Didn't"}</span>`:'<span class="hint">Pending</span>';
-    const scored=STEPS.filter(s=>e.steps?.[s]);
-    let low='—';
-    if(scored.length){const m=Math.min(...scored.map(s=>e.steps[s]));low=STEPS.filter(s=>e.steps[s]===m).join(', ')+` (${m})`;}
-    html+=`<tr><td><b>${e.week}</b></td>${KPIS.map(k=>{
-      const f=flagFor(k.key,e.kpis?.[k.key]);
-      return `<td class="cell-flag ${f.cls}">${fmt(e.kpis?.[k.key],k.fmt)}</td>`;
-    }).join('')}<td>${low}</td><td>${(KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'—'}: ${e.opp?.text||''}</td><td>${e.plan?.behavior||'—'}</td><td>${resTxt} ${next?.prior?.note?`<div class="hint">${next.prior.note}</div>`:''}</td></tr>`;
+  const year=fillTrackYears(rep);
+
+  const entries=state.entries.filter(e=>e.rep===rep && e.week.slice(0,4)===year)
+                             .sort((a,b)=>a.week<b.week?-1:1);
+  const paceMonths=Object.keys(state.pace||{}).filter(mk=>mk.slice(0,4)===year && (state.pace[mk]||{})[rep]);
+  const monthKeys=[...new Set([...paceMonths, ...entries.map(e=>monthKey(e.week))])].sort().reverse();
+
+  /* ---- commitment ledger ---- */
+  const commits=entries.filter(e=>e.plan&&e.plan.behavior).map(e=>{
+    const pr=resultOf(rep,e.week);
+    return {week:e.week, entry:e, behavior:e.plan.behavior, oppKpi:e.opp&&e.opp.kpi,
+            result:pr&&pr.result||null, note:pr&&pr.note||'', move:kpiMove(rep,e.week,e.opp&&e.opp.kpi)};
+  });
+  const graded=commits.filter(c=>c.result);
+  const kept=graded.filter(c=>c.result==='worked').length;
+  const partial=graded.filter(c=>c.result==='partial').length;
+  const missed=graded.filter(c=>c.result==='didnt').length;
+  const rate=graded.length?Math.round(kept/graded.length*100):null;
+
+  const tally={};
+  entries.forEach(e=>{ const k=e.opp&&e.opp.kpi; if(k) tally[k]=(tally[k]||0)+1; });
+  const repeat=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0];
+  const repeatLabel=repeat?((KPIS.find(k=>k.key===repeat[0])||{}).label||repeat[0]):null;
+
+  const streak=commits.slice(-8).map(c=>`<i class="${c.result||''}" title="${c.week}: ${RESULT_LABEL[c.result]||'pending'}"></i>`).join('');
+
+  band.innerHTML = entries.length ? `<div class="tr-band">
+      <div class="tr-stat"><div class="n">${entries.length}</div><div class="l">Touch bases</div></div>
+      <div class="tr-stat"><div class="n">${commits.length}</div><div class="l">Commitments</div></div>
+      <div class="tr-stat ${rate==null?'':rate>=60?'good':'bad'}">
+        <div class="n">${rate==null?'&mdash;':rate+'%'}</div><div class="l">Follow-through</div></div>
+      <div class="tr-stat"><div class="n" style="font-size:1rem;padding-top:8px"><span class="streak">${streak||'&mdash;'}</span></div>
+        <div class="l">Last 8</div></div>
+      <div class="tr-note">
+        ${graded.length?`${kept} worked &middot; ${partial} partial &middot; ${missed} didn\u2019t${commits.length>graded.length?` &middot; ${commits.length-graded.length} not yet graded`:''}.`:'No commitment has been graded yet.'}
+        ${repeat&&repeat[1]>=3?`<br>Named <b>${repeatLabel}</b> as the opportunity <b>${repeat[1]} times</b> this year \u2014 if it keeps coming back, the weekly plan isn\u2019t reaching the cause.`:''}
+      </div>
+    </div>` : '';
+
+  if(!monthKeys.length){
+    t.innerHTML='<tr><td class="empty" style="border:none">Nothing recorded for '+rep+' in '+year+'.</td></tr>';
+    hint.textContent=''; return;
+  }
+
+  let html=`<tr><th class="caret"></th><th>Period</th>${KPIS.map(k=>`<th>${k.label}</th>`).join('')}<th>Commitments<span class="k-tgt" style="display:block;font-weight:400">week: result</span></th>`+
+             `<th>Kept<span class="k-tgt" style="display:block;font-weight:400">week: moved</span></th></tr>`;
+
+  monthKeys.forEach(mk=>{
+    const p=getPace(mk,rep);
+    const weeks=entries.filter(e=>monthKey(e.week)===mk).sort((a,b)=>a.week<b.week?1:-1);
+    const mc=commits.filter(c=>monthKey(c.week)===mk);
+    const mg=mc.filter(c=>c.result);
+    const mk_kept=mg.filter(c=>c.result==='worked').length;
+    const open=!!trackOpen[mk];
+    const label=new Date(mk+'-15T12:00:00').toLocaleString('en-US',{month:'long',year:'numeric'});
+
+    html+=`<tr class="mon" onclick="toggleTrackMonth('${mk}')">
+      <td class="caret">${open?'&#9662;':'&#9656;'}</td>
+      <td>${label}</td>
+      ${KPIS.map(k=>{const f=flagFor(k.key,p[k.key]);return `<td class="cell-flag ${f.cls}">${fmt(p[k.key],k.fmt)}</td>`;}).join('')}
+      <td>${mc.length||'&mdash;'}</td>
+      <td>${mg.length?`${mk_kept}/${mg.length}`:'&mdash;'}</td>
+    </tr>`;
+
+    if(open){
+      if(!weeks.length){
+        html+=`<tr class="wk none"><td></td><td class="first" colspan="${KPIS.length+3}">Pace data only \u2014 no touch base was recorded in ${label}.</td></tr>`;
+      }
+      weeks.forEach(e=>{
+        const c=commits.find(x=>x.week===e.week);
+        const oppLabel=(KPIS.find(k=>k.key===(e.opp&&e.opp.kpi))||{}).label||'&mdash;';
+        const scored=STEPS.filter(x=>e.steps&&e.steps[x]);
+        let low='&mdash;';
+        if(scored.length){const m=Math.min(...scored.map(x=>e.steps[x]));low=STEPS.filter(x=>e.steps[x]===m).join(', ')+` (${m}/5)`;}
+        html+=`<tr class="wk">
+          <td></td>
+          <td class="first"><b>Week of ${e.week}</b>${e.ack?' <span class="result-chip worked">Agreed</span>':''}
+            <span class="commit meta">Lowest step: ${low}</span></td>
+          <td colspan="${KPIS.length}">
+            <span class="commit"><b>${oppLabel}</b>${e.opp&&e.opp.text?' \u2014 '+e.opp.text:''}</span>
+            <span class="commit">Committed: ${e.plan&&e.plan.behavior?e.plan.behavior:'<span class="hint">no plan recorded</span>'}</span>
+            ${c&&c.note?`<span class="commit meta">Outcome note: ${c.note}</span>`:''}
+            ${e.managerNotes?`<span class="commit meta">Manager: ${e.managerNotes}</span>`:''}
+          </td>
+          <td>${c?resultChip(c.result):'<span class="hint">&mdash;</span>'}</td>
+          <td>${c?movedCell(c.move,c.oppKpi):'<span class="hint">&mdash;</span>'}</td>
+        </tr>`;
+      });
+    }
   });
   t.innerHTML=html;
+  hint.innerHTML='Click a month to open its weeks. <b>Kept</b> counts commitments the consultant later said worked. '+
+    'The last column shows what the named KPI actually did over the four weeks after the commitment \u2014 '+
+    'a plan that keeps working while the number keeps falling is aimed at the wrong thing.';
 }
 function exportCSV(){
   const rep=$('trRep').value;
   if(!repAuthed(rep)){ toast('Enter '+rep+'\u2019s PIN first'); return; }
-  const rows=state.entries.filter(e=>e.rep===rep).sort((a,b)=>a.week<b.week?-1:1);
+  const yr=$('trYear').value;
+  const rows=state.entries.filter(e=>e.rep===rep && (!yr||e.week.slice(0,4)===yr)).sort((a,b)=>a.week<b.week?-1:1);
   const head=['Week','Consultant',...KPIS.map(k=>k.label),...STEPS.map(s=>'Step: '+s),'Opportunity KPI','Opportunity','Action','When','Measure','Checkpoint','Needs','PriorResult','PriorNote','ManagerNotes','Growth','SkillPractice','Agreed','CoachedCalls'];
   const lines=[head.join(',')];
   rows.forEach(e=>{
@@ -1154,10 +1432,7 @@ function renderCoach(){
   if(!managerOn) return;
   const opts=state.config.reps.map(r=>`<option>${r}</option>`).join('');
   const cur=$('ccRep').value; $('ccRep').innerHTML=opts; if(cur&&state.config.reps.includes(cur))$('ccRep').value=cur;
-  const clCur=$('clRep').value;
-  $('clRep').innerHTML='<option value="">All consultants</option>'+opts;
-  if(clCur&&state.config.reps.includes(clCur))$('clRep').value=clCur;
-  ccRenderQueue(); renderCoachLog();
+  ccRenderQueue();
 }
 function ccRenderQueue(){
   const wk=thisWeek(), pw=prevWeek(wk);
@@ -1196,7 +1471,7 @@ function ccStart(){
   document.querySelectorAll('#ccLive .cc-play').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('#ccLive .dseg button').forEach(b=>b.className='');
   $('ccOutCard').style.display='none';
-  $('ccSetup').style.display='none'; $('ccQueueCard').style.display='none'; $('ccLogCard').style.display='none';
+  $('ccSetup').style.display='none'; $('ccQueueCard').style.display='none';
   $('ccLive').style.display='';
   $('ccHA').style.display=cc.mode==='ha'?'':'none';
   $('ccZT').style.display=cc.mode==='zt'?'':'none';
@@ -1293,231 +1568,11 @@ async function ccCopy(){
 }
 function ccReset(){
   clearInterval(cc.tick); cc={mode:cc.mode,marks:{},spoke:null,outcome:null,t0:null,tick:null,queueRef:null,lastText:''};
-  $('ccLive').style.display='none'; $('ccSetup').style.display=''; $('ccQueueCard').style.display=''; $('ccLogCard').style.display='';
+  $('ccLive').style.display='none'; $('ccSetup').style.display=''; $('ccQueueCard').style.display='';
   $('ccTimer').textContent='0:00'; $('ccTimer').classList.remove('hot');
   ['ccCust','ccQuote','ccAsk','ccBriefNotes','ccNote','ccNoteHA'].forEach(id=>$(id).value='');
   $('ccMathOut').className='cc-calcout'; $('ccMathOut').textContent='Enter both numbers — I\u2019ll show the gap and a counter.';
-  ccRenderQueue(); renderCoachLog();
-}
-
-/* =================== coach log =================== */
-const CL_LABELS=(()=>{const m={};CC_HA.forEach(([k,n])=>m[k]=n);CC_ZT.forEach(([k,n])=>m[k]=n);return m;})();
-function clDur(s){ if(!s&&s!==0) return '—'; return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
-function clCalls(){
-  const rep=$('clRep').value, mode=$('clMode').value;
-  const all=[];
-  state.entries.forEach(e=>(e.coachCalls||[]).forEach(c=>all.push({rep:e.rep, c})));
-  return all
-    .filter(x=>(!rep||x.rep===rep)&&(!mode||x.c.mode===mode))
-    .sort((a,b)=>b.c.ts-a.c.ts);
-}
-function renderCoachLog(){
-  if(!managerOn||!$('clList')) return;
-  const items=clCalls();
-  if(!items.length){
-    $('clRollup').innerHTML='';
-    $('clList').innerHTML='<div class="empty" style="padding:14px">No coached calls on record yet'+($('clRep').value?(' for '+$('clRep').value):'')+'. Every call you finish in Call Coach lands here automatically.</div>';
-    return;
-  }
-  /* rollup */
-  const sold=items.filter(x=>x.c.outcome==='sold').length;
-  const next=items.filter(x=>x.c.outcome==='next').length;
-  const no=items.filter(x=>x.c.outcome==='no').length;
-  const ha=items.filter(x=>x.c.mode==='ha').length;
-  const durs=items.map(x=>x.c.durationSec).filter(v=>v||v===0);
-  const avg=durs.length?Math.round(durs.reduce((a,b)=>a+b,0)/durs.length):null;
-  const missCount={};
-  items.forEach(x=>(x.c.misses||[]).forEach(k=>missCount[k]=(missCount[k]||0)+1));
-  const topMiss=Object.entries(missCount).sort((a,b)=>b[1]-a[1]).slice(0,3);
-  $('clRollup').innerHTML=`<div class="cl-rollup">
-    <div class="statline">
-      <span><b>${items.length}</b> calls (${ha} HA / ${items.length-ha} ZT)</span>
-      <span><b>${sold}</b> saved on the phone</span>
-      <span><b>${next}</b> dated next step</span>
-      <span><b>${no}</b> no</span>
-      ${avg!=null?`<span>Avg length <b>${clDur(avg)}</b></span>`:''}
-    </div>
-    ${topMiss.length?`<div style="font-size:.84rem"><b style="color:var(--maroon)">Most-missed steps:</b> ${topMiss.map(([k,n])=>`<span class="chip watch" style="margin-right:4px">${CL_LABELS[k]||k} — ${n} of ${items.length}</span>`).join('')}</div>`
-      :'<div style="font-size:.84rem;color:var(--sage-deep);font-weight:700">No missed steps tagged across these calls.</div>'}
-  </div>`;
-  /* list */
-  $('clList').innerHTML=items.map(({rep,c})=>{
-    const o=c.outcome==='sold'?'<span class="dpill sold">SAVED — SOLD</span>':c.outcome==='next'?'<span class="dpill pending">DATED NEXT STEP</span>':c.outcome==='no'?'<span class="dpill nosale">NO — PROTECTED</span>':'<span class="dpill" style="background:var(--muted);color:#fff">NOT TAGGED</span>';
-    const when=new Date(c.ts).toLocaleDateString(undefined,{month:'short',day:'numeric'})+' '+drTime(c.ts);
-    const hits=(c.hits||[]).map(k=>CL_LABELS[k]||k);
-    const miss=(c.misses||[]).map(k=>CL_LABELS[k]||k);
-    return `<details class="cl-call"><summary>
-        <span><b>${c.customer||'\u2014'}</b> · ${rep} <span class="chip">${c.mode==='ha'?'HA':'ZT'}</span> ${o}</span>
-        <span class="hint">${when} · ${clDur(c.durationSec)}</span>
-      </summary>
-      <div class="cl-body">
-        ${c.mode==='ha'&&(c.quoted||c.asked)?`<div class="eyebrow">Numbers</div><div>Quoted ${c.quoted?('$'+c.quoted.toLocaleString()):'—'} · Asked ${c.asked?('$'+c.asked.toLocaleString()):'—'}</div>`:''}
-        ${c.mode==='zt'&&c.spoke?`<div class="eyebrow">Objection spoke</div><div>${CC_SPOKES[c.spoke]||c.spoke}</div>`:''}
-        <div class="eyebrow">Landed clean</div><div>${hits.length?hits.join(' · '):'—'}</div>
-        <div class="eyebrow">Missed / weak</div><div>${miss.length?miss.join(' · '):'—'}</div>
-        ${c.briefNotes?`<div class="eyebrow">Brief notes</div><div style="white-space:pre-wrap">${c.briefNotes}</div>`:''}
-        ${c.coachNote?`<div class="eyebrow">The one coaching note</div><div style="white-space:pre-wrap">${c.coachNote}</div>`:''}
-      </div>
-    </details>`;
-  }).join('');
-}
-
-/* =================== daily recap =================== */
-function localDate(ts){const d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function drTime(ts){return new Date(ts).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});}
-function drShift(n){
-  const d=new Date(($('drDate').value||new Date().toISOString().slice(0,10))+'T12:00:00');
-  d.setDate(d.getDate()+n);
-  $('drDate').value=d.toISOString().slice(0,10);
-  renderDaily();
-}
-function drData(){
-  const day=$('drDate').value||new Date().toISOString().slice(0,10);
-  const byRep={}; state.config.reps.forEach(r=>byRep[r]={debriefs:[],coach:[]});
-  state.entries.forEach(e=>{
-    (e.debriefs||[]).forEach(c=>{ if(byRep[e.rep]&&localDate(c.ts)===day) byRep[e.rep].debriefs.push(c); });
-    (e.coachCalls||[]).forEach(c=>{ if(byRep[e.rep]&&localDate(c.ts)===day) byRep[e.rep].coach.push(c); });
-  });
-  return {day,byRep};
-}
-function drNice(day){ return new Date(day+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'}); }
-function renderDaily(){
-  if(!$('drDate').value) $('drDate').value=new Date().toISOString().slice(0,10);
-  const {day,byRep}=drData();
-
-  /* completion strip */
-  $('drComp').innerHTML=state.config.reps.map(rep=>{
-    const D=byRep[rep].debriefs, n=D.length;
-    const sold=D.filter(c=>c.outcome==='sold');
-    const uns=D.filter(c=>c.outcome!=='sold');
-    const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;
-    return `<div class="kpi ${n?'ok':'sub'}">
-      <div class="k-label">${rep}</div>
-      <div class="k-val">${n}</div>
-      <div class="k-tgt">${n?(sold.length+' sold · HA/ZT '+cov+'/'+uns.length):'No debriefs logged'}</div>
-      <span class="flag">${n?'Logged':'Missing'}</span>
-    </div>`;
-  }).join('');
-
-  /* coverage board */
-  const unsAll=[];
-  state.config.reps.forEach(rep=>byRep[rep].debriefs.filter(c=>c.outcome!=='sold').forEach(c=>unsAll.push({rep,c})));
-  const ord={none:0,sched:1,made:2};
-  unsAll.sort((a,b)=>((ord[a.c.hazt||'none']??0)-(ord[b.c.hazt||'none']??0))||b.c.ts-a.c.ts);
-  if(!unsAll.length){
-    $('drCover').innerHTML='<div class="empty" style="padding:14px">No unsold calls logged today.</div>';
-  }else{
-    $('drCover').innerHTML=unsAll.map(({rep,c})=>{
-      const st=c.hazt==='made'?'<span class="dpill" style="background:var(--sage-deep);color:#fff">MADE'+(c.haztWho?(' · '+c.haztWho):'')+'</span>'
-        :c.hazt==='sched'?'<span class="dpill" style="background:var(--tan);color:var(--ink)">SCHEDULED'+(c.haztWho?(' · '+c.haztWho):'')+'</span>'
-        :'<span class="dpill" style="background:var(--red);color:#fff">NOT YET — needs an owner</span>';
-      return `<div class="cc-queue-row"><span><b>${c.customer||'(no name)'}</b> · ${rep}
-        <span class="dpill ${c.outcome==='pending'?'pending':'nosale'}">${c.outcome==='pending'?'PENDING':'NO SALE'}</span> ${st}
-        ${c.holdback?`<div class="q-words">\u201C${c.holdback}\u201D</div>`:''}</span>
-        <span class="hint">${drTime(c.ts)}</span></div>`;
-    }).join('');
-  }
-
-  /* per-consultant detail */
-  $('drReps').innerHTML=state.config.reps.filter(rep=>byRep[rep].debriefs.length).map(rep=>{
-    const D=byRep[rep].debriefs.slice().sort((a,b)=>a.ts-b.ts);
-    const sold=D.filter(c=>c.outcome==='sold');
-    const rev=sold.reduce((s,c)=>s+(c.amount||0),0);
-    const nods=D.filter(c=>c.nod).length;
-    const fc=D.filter(c=>c.focus!==null&&c.focus!==undefined);
-    const fh=fc.filter(c=>c.focus).length;
-    const rows=D.map(c=>{
-      const pill=c.outcome==='sold'?('SOLD'+(c.amount?(' $'+c.amount.toLocaleString()):'')):c.outcome==='pending'?'PENDING':'NO SALE';
-      return `<div style="padding:9px 0;border-bottom:1px solid var(--line)">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-          <span><b>${c.customer||'\u2014'}</b> <span class="hint">${drTime(c.ts)}</span>
-            ${c.nod?'<span class="chip ok">Nod \u2713</span>':'<span class="chip sub">No nod</span>'}
-            ${c.focus===true?'<span class="chip ok">Focus \u2713</span>':c.focus===false?'<span class="chip watch">Focus \u2717</span>':''}
-            ${c.option?'<span class="chip">'+c.option+'</span>':''}</span>
-          <span class="dpill ${c.outcome==='sold'?'sold':c.outcome==='pending'?'pending':'nosale'}">${pill}</span>
-        </div>
-        ${c.words?`<div class="q-words">\u201C${c.words}\u201D</div>`:''}
-        ${c.holdback?`<div class="q-words">Holding them back: \u201C${c.holdback}\u201D</div>`:''}
-      </div>`;
-    }).join('');
-    return `<div class="card">
-      <h3>${rep} — ${D.length} debrief${D.length===1?'':'s'}</h3>
-      <div class="statline" style="margin-bottom:6px">
-        <span><b>${sold.length}</b> sold${rev?(' \u00B7 $'+rev.toLocaleString()):''}</span>
-        <span>Nod <b>${nods}/${D.length}</b></span>
-        ${fc.length?`<span>Focus <b>${fh}/${fc.length}</b></span>`:''}
-      </div>
-      ${rows}
-    </div>`;
-  }).join('') || '<div class="card"><div class="empty" style="padding:14px">No debriefs logged for this day yet.</div></div>';
-
-  /* coached calls */
-  const cAll=[];
-  state.config.reps.forEach(rep=>byRep[rep].coach.forEach(c=>cAll.push({rep,c})));
-  cAll.sort((a,b)=>a.c.ts-b.c.ts);
-  if(!cAll.length){
-    $('drCoach').innerHTML='<div class="empty" style="padding:14px">No coached HA/ZT calls logged today.</div>';
-  }else{
-    $('drCoach').innerHTML=cAll.map(({rep,c})=>{
-      const o=c.outcome==='sold'?'<span class="dpill sold">SAVED — SOLD</span>':c.outcome==='next'?'<span class="dpill pending">DATED NEXT STEP</span>':'<span class="dpill nosale">NO — PROTECTED</span>';
-      return `<div class="cc-queue-row"><span><b>${c.customer||'\u2014'}</b> · ${rep}
-        <span class="chip">${c.mode==='ha'?'High Authority':'Zero Ticket'}</span> ${o}
-        ${c.coachNote?`<div class="q-words">Note: ${c.coachNote}</div>`:''}</span>
-        <span class="hint">${drTime(c.ts)}</span></div>`;
-    }).join('');
-  }
-}
-function drCopy(){
-  const {day,byRep}=drData();
-  const L=[];
-  L.push('DAILY SALES TEAM RECAP — '+drNice(day));
-  let tCalls=0,tSold=0,tRev=0,tNod=0,tUns=0,tCov=0;
-  const repLines=[];
-  state.config.reps.forEach(rep=>{
-    const D=byRep[rep].debriefs;
-    if(!D.length){ repLines.push('\u2022 '+rep+': NO DEBRIEFS LOGGED'); return; }
-    const sold=D.filter(c=>c.outcome==='sold');
-    const rev=sold.reduce((s,c)=>s+(c.amount||0),0);
-    const uns=D.filter(c=>c.outcome!=='sold');
-    const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;
-    const nods=D.filter(c=>c.nod).length;
-    const fc=D.filter(c=>c.focus!==null&&c.focus!==undefined);
-    const fh=fc.filter(c=>c.focus).length;
-    tCalls+=D.length; tSold+=sold.length; tRev+=rev; tNod+=nods; tUns+=uns.length; tCov+=cov;
-    repLines.push('\u2022 '+rep+': '+D.length+' logged \u00B7 '+sold.length+' sold'+(rev?(' ($'+rev.toLocaleString()+')'):'')+' \u00B7 Nod '+nods+'/'+D.length+(fc.length?(' \u00B7 Focus '+fh+'/'+fc.length):'')+' \u00B7 HA/ZT '+cov+'/'+uns.length);
-  });
-  L.push('TEAM: '+tCalls+' debriefs \u00B7 '+tSold+' sold'+(tRev?(' ($'+tRev.toLocaleString()+')'):'')+' \u00B7 Nod '+tNod+'/'+tCalls+' \u00B7 HA/ZT coverage '+tCov+'/'+tUns);
-  L.push('');
-  L.push('BY CONSULTANT');
-  L.push(...repLines);
-  const waiting=[];
-  state.config.reps.forEach(rep=>byRep[rep].debriefs.filter(c=>c.outcome!=='sold'&&c.hazt!=='made').forEach(c=>waiting.push({rep,c})));
-  L.push('');
-  L.push('STILL WAITING FOR COVERAGE');
-  if(!waiting.length) L.push('\u2022 All unsold calls covered \u2713');
-  else waiting.forEach(({rep,c})=>L.push('\u2022 '+(c.customer||'(no name)')+' ('+rep+') \u2014 '+(c.outcome==='pending'?'PENDING':'NO SALE')+' \u2014 '+(c.hazt==='sched'?('SCHEDULED'+(c.haztWho?(' \u00B7 '+c.haztWho):'')):'NOT YET')+(c.holdback?(' \u2014 \u201C'+c.holdback+'\u201D'):'')));
-  const quotes=[];
-  state.config.reps.forEach(rep=>byRep[rep].debriefs.forEach(c=>{ if(c.words) quotes.push('\u2022 \u201C'+c.words+'\u201D \u2014 '+(c.customer||'customer')+' ('+rep+')'); }));
-  if(quotes.length){ L.push(''); L.push('THEIR WORDS TODAY'); L.push(...quotes); }
-  const coach=[];
-  state.config.reps.forEach(rep=>byRep[rep].coach.forEach(c=>coach.push({rep,c})));
-  if(coach.length){
-    const ha=coach.filter(x=>x.c.mode==='ha').length, zt=coach.length-ha;
-    L.push('');
-    L.push('COACHED HA/ZT CALLS: '+coach.length+' ('+ha+' HA / '+zt+' ZT)');
-    coach.forEach(({rep,c})=>{
-      const o=c.outcome==='sold'?'SAVED \u2014 SOLD':c.outcome==='next'?'Dated next step':'No \u2014 relationship protected';
-      L.push('\u2022 '+(c.mode==='ha'?'HA':'ZT')+' \u00B7 '+(c.customer||'\u2014')+' ('+rep+') \u2014 '+o+(c.coachNote?(' \u2014 '+c.coachNote):''));
-    });
-  }
-  L.push('');
-  L.push('Logged in the Leslie Coaching Hub.');
-  const txt=L.join('\n');
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(txt).then(()=>toast('Daily recap copied — paste it into Teams'));
-  }else{
-    const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('Daily recap copied');
-  }
+  ccRenderQueue();
 }
 
 /* =================== pace / setup =================== */
@@ -1526,14 +1581,263 @@ function renderPaceView(){
   $('paceOpen').style.display=managerOn?'':'none';
   if(managerOn){ renderPaceGrid(); renderTargets(); renderSetup(); }
 }
+let paceMode = localStorage.getItem('leslie_tb_pacemode') || 'raw';
+function setPaceMode(m){ paceMode=m; localStorage.setItem('leslie_tb_pacemode',m); renderPaceGrid(); }
+
 function renderPaceGrid(){
   const mk=monthKey($('paceMonth').value||new Date().toISOString().slice(0,10));
-  let html=`<tr><th>Consultant</th>${KPIS.map(k=>`<th>${k.label}</th>`).join('')}</tr>`;
-  state.config.reps.forEach(rep=>{
-    const p=getPace(mk,rep);
-    html+=`<tr><td><b>${rep}</b></td>${KPIS.map(k=>`<td><input type="number" step="any" data-pace="${rep}|${k.key}" value="${p[k.key]??''}"></td>`).join('')}</tr>`;
-  });
+  $('pmRaw').classList.toggle('on',paceMode==='raw');
+  $('pmRate').classList.toggle('on',paceMode==='rates');
+  $('paceModeHint').innerHTML = paceMode==='raw'
+    ? 'Enter the counts straight off the Pace Report. Close rates and average tickets are calculated for you \u2014 and because year-to-date sums the counts rather than averaging percentages, the YTD figures on every touch base are exact.'
+    : 'Legacy mode: type the percentages and averages directly. Use this only for past months where you no longer have the underlying counts \u2014 any year containing a rates-only month reports YTD as an estimate.';
+
+  let html='';
+  if(paceMode==='raw'){
+    const grid=[...RAW_FIELDS,ALL_APPTS];
+    html+=`<tr><th rowspan="2" style="vertical-align:bottom">Consultant</th><th class="grp" colspan="3">TGL</th><th class="grp" colspan="3">MARKETED</th><th class="grp">ALL</th><th rowspan="2" style="vertical-align:bottom">Calculated</th></tr>`;
+    html+=`<tr>${grid.map(f=>`<th>${f.label}</th>`).join('')}</tr>`;
+    state.config.reps.forEach(rep=>{
+      const p=getPaceRaw(mk,rep);
+      html+=`<tr><td><b>${rep}</b></td>${grid.map(f=>
+        `<td><input type="number" step="any" min="0" data-pace="${rep}|${f.key}" value="${p[f.key]??''}"
+           ${f.key==='appts'?'placeholder="auto"':''} oninput="paceRowCalc(this)"></td>`
+      ).join('')}<td class="derived" data-calc="${rep}"></td></tr>`;
+    });
+  }else{
+    html+=`<tr><th>Consultant</th>${KPIS.map(k=>`<th>${k.label}</th>`).join('')}</tr>`;
+    state.config.reps.forEach(rep=>{
+      const p=getPaceRaw(mk,rep);
+      html+=`<tr><td><b>${rep}</b></td>${KPIS.map(k=>`<td><input type="number" step="any" data-pace="${rep}|${k.key}" value="${p[k.key]??''}"></td>`).join('')}</tr>`;
+    });
+  }
   $('paceTable').innerHTML=html;
+  if(paceMode==='raw') state.config.reps.forEach(r=>paceRowCalcFor(r));
+}
+
+/* Live preview of what the raw counts derive to, so a fat-fingered entry is
+   obvious before it ever reaches a consultant's scoreboard. */
+function paceRowCalcFor(rep){
+  const cell=document.querySelector(`td[data-calc="${CSS.escape(rep)}"]`);
+  if(!cell) return;
+  const vals={};
+  [...RAW_FIELDS,ALL_APPTS].forEach(f=>{
+    const inp=document.querySelector(`input[data-pace="${CSS.escape(rep+'|'+f.key)}"]`);
+    vals[f.key]=inp?num(inp.value):null;
+  });
+  const d=deriveKpis(vals);
+  const warn=[];
+  if(num(vals.tglSold)!=null&&num(vals.tglAppts)!=null&&vals.tglSold>vals.tglAppts) warn.push('TGL sold exceeds TGL appts');
+  if(num(vals.mktSold)!=null&&num(vals.mktAppts)!=null&&vals.mktSold>vals.mktAppts) warn.push('Marketed sold exceeds marketed appts');
+  if(!RAW_FIELDS.some(f=>vals[f.key]!=null)){ cell.innerHTML='<span class="hint">No counts entered</span>'; return; }
+  const sum=(num(vals.tglAppts)||0)+(num(vals.mktAppts)||0);
+  if(num(vals.appts)!=null && vals.appts<sum) warn.push('all-leads total is below TGL + Marketed');
+  const extra=(num(vals.appts)!=null && vals.appts>sum) ? ` <span class="hint">(${fmt(vals.appts-sum,'int')} outside TGL/Mkt)</span>` : '';
+  cell.innerHTML=
+    `Appts <b>${fmt(d.appts,'int')}</b>${extra} &middot; TGL <b>${fmt(d.tglClose,'pct')}</b> @ <b>${fmt(d.tglTicket,'usd')}</b><br>`+
+    `Mkt <b>${fmt(d.mktClose,'pct')}</b> @ <b>${fmt(d.mktTicket,'usd')}</b>`+
+    (warn.length?`<br><span class="bad">&#9888; ${warn.join('; ')}</span>`:'');
+}
+function paceRowCalc(inp){ paceRowCalcFor(inp.dataset.pace.split('|')[0]); }
+
+/* =================== import from the pace report ===================
+   The Sales Dispatch Order sheet repeats generic headers ("Conversion Rate",
+   "Average Sale") across its Totals / TGL / Other / Self Gen / Marketed blocks,
+   so we key only off labels that are unique in that row. */
+const IMPORT_COLS = [
+  {label:"tgl's",                     key:'tglAppts'},
+  {label:"tgl's converted",           key:'tglSold'},
+  {label:'tgl revenue',               key:'tglRev'},
+  {label:'marketed leads',            key:'mktAppts'},
+  {label:'marketed leads converted',  key:'mktSold'},
+  {label:'marketed revenue',          key:'mktRev'},
+  {label:'total leads',               key:'totAppts', check:true},
+  {label:'total leads converted',     key:'totSold',  check:true},
+  {label:'total revenue',             key:'totRev',   check:true}
+];
+let importRows = null;
+
+function impNum(v){
+  if(v==null) return null;
+  let s=String(v).replace(/[$,\s\u00a0]/g,'').replace(/[()]/g,'');
+  if(s===''||s==='-'||s==='\u2013'||s==='\u2014') return 0;
+  const n=Number(s);
+  return isNaN(n)?null:n;
+}
+/* "Jeremy M." / "Jeremy M" / "JEREMY MILLER" all collapse to the same key. */
+function nameKey(s){
+  const t=String(s||'').toLowerCase().replace(/[^a-z\s]/g,'').trim().split(/\s+/);
+  if(!t.length||!t[0]) return '';
+  return t.length>1 ? t[0]+t[1][0] : t[0];
+}
+
+function parseImport(){
+  const raw=$('impText').value.replace(/\r/g,'');
+  const prev=$('impPrev'); importRows=null; backfill=null;
+  $('impApply').style.display='none'; $('impApply').textContent='Apply to the grid';
+  if(!raw.trim()){ prev.innerHTML='<p class="hint">Nothing pasted yet.</p>'; return; }
+
+  const lines=raw.split('\n').filter(l=>l.trim()!=='');
+  const split=l=>l.split(/\t/).map(c=>c.trim());
+
+  let hi=-1, cols=null;
+  for(let i=0;i<lines.length;i++){
+    const cells=split(lines[i]).map(c=>c.toLowerCase());
+    const found={};
+    IMPORT_COLS.forEach(c=>{ const j=cells.indexOf(c.label); if(j>=0) found[c.key]=j; });
+    const need=IMPORT_COLS.filter(c=>!c.check).every(c=>found[c.key]!=null);
+    if(need){ hi=i; cols=found; break; }
+  }
+  if(hi<0){
+    prev.innerHTML='<p class="hint" style="color:var(--red)">Could not find the header row. '+
+      'Make sure your selection includes the row containing <b>Advisor\u2019s Name</b>, <b>TGL\u2019s</b> and '+
+      '<b>Marketed Leads</b>, and that you copied from Excel (tab-separated) rather than retyping.</p>';
+    return;
+  }
+
+  const byKey={}; state.config.reps.forEach(r=>{ byKey[nameKey(r)]=r; });
+  const rows=[];
+  for(let i=hi+1;i<lines.length;i++){
+    const c=split(lines[i]);
+    const name=c[0];
+    if(!name||/^rep\s/i.test(name)||/total/i.test(name)) continue;
+    const v={};
+    IMPORT_COLS.forEach(col=>{ v[col.key]=impNum(c[cols[col.key]]); });
+    if(v.tglAppts==null&&v.mktAppts==null) continue;
+    v.appts=v.totAppts;   // Total Leads includes Other and Self Gen
+
+    const match=byKey[nameKey(name)]||null;
+    const warn=[];
+    if(v.totAppts!=null && (v.tglAppts||0)+(v.mktAppts||0)!==v.totAppts)
+      warn.push('TGL + Marketed appointments do not equal the row total');
+    if(v.totSold!=null && (v.tglSold||0)+(v.mktSold||0)!==v.totSold)
+      warn.push('TGL + Marketed sold do not equal the row total');
+    if(v.tglSold>v.tglAppts||v.mktSold>v.mktAppts) warn.push('sold exceeds appointments');
+    rows.push({name, match, warn, vals:v, derived:deriveKpis(v)});
+  }
+  if(!rows.length){ prev.innerHTML='<p class="hint">Found the header, but no consultant rows under it.</p>'; return; }
+
+  importRows=rows;
+  const matched=rows.filter(r=>r.match).length;
+  const unseen=state.config.reps.filter(r=>!rows.some(x=>x.match===r));
+  prev.innerHTML=
+    `<div class="imp-prev"><table>
+      <tr><th>Row in the report</th><th>Consultant</th><th>Appts</th><th>TGL</th><th>Marketed</th><th></th></tr>
+      ${rows.map(r=>`<tr class="${r.match?'':'miss'}">
+        <td><b>${r.name}</b></td>
+        <td>${r.match||'<span class="hint">not on your roster \u2014 skipped</span>'}</td>
+        <td>${fmt(r.derived.appts,'int')}</td>
+        <td>${fmt(r.derived.tglClose,'pct')} @ ${fmt(r.derived.tglTicket,'usd')}</td>
+        <td>${fmt(r.derived.mktClose,'pct')} @ ${fmt(r.derived.mktTicket,'usd')}</td>
+        <td>${r.match
+              ? (r.warn.length?`<span class="imp-badge warn" title="${r.warn.join('; ')}">check</span>`
+                              :'<span class="imp-badge ok">ok</span>')
+              : '<span class="imp-badge skip">skip</span>'}</td>
+      </tr>`).join('')}
+    </table></div>
+    <p class="hint" style="margin-top:8px">${matched} of ${rows.length} rows matched a consultant on your roster.
+      ${unseen.length?`No row found for: <b>${unseen.join(', ')}</b> \u2014 they will be left untouched.`:''}
+      ${rows.some(r=>r.match&&r.warn.length)?'<br><b>Rows marked \u201ccheck\u201d disagree with the report\u2019s own totals \u2014 hover to see why.</b>':''}
+    </p>`;
+  $('impApply').style.display = matched ? '' : 'none';
+}
+
+/* ---- multi-month backfill -------------------------------------------------
+   Accepts {"2026-01":{"Jeremy M.":{tglAppts:…}, …}, …} so a whole year can be
+   loaded in one go instead of month by month. */
+let backfill = null;
+
+function impLoadFile(input){
+  const f=input.files&&input.files[0];
+  if(!f) return;
+  const fr=new FileReader();
+  fr.onload=()=>{
+    const txt=String(fr.result||'');
+    input.value='';
+    let js=null;
+    if(txt.trim().startsWith('{')){ try{ js=JSON.parse(txt); }catch(e){ js=null; } }
+    if(js && Object.keys(js).some(k=>/^\d{4}-\d{2}$/.test(k))) return prepBackfill(js);
+    $('impText').value=txt; parseImport();
+  };
+  fr.onerror=()=>toast('Could not read that file');
+  fr.readAsText(f);
+}
+
+function prepBackfill(js){
+  backfill=null; importRows=null; $('impApply').style.display='none';
+  const byKey={}; state.config.reps.forEach(r=>{ byKey[nameKey(r)]=r; });
+  const months=Object.keys(js).filter(k=>/^\d{4}-\d{2}$/.test(k)).sort();
+  const plan=[], skipped=new Set();
+  months.forEach(mk=>{
+    const reps={};
+    Object.entries(js[mk]||{}).forEach(([name,vals])=>{
+      const match=byKey[nameKey(name)];
+      if(!match){ skipped.add(name); return; }
+      const clean={};
+      [...RAW_FIELDS,ALL_APPTS].forEach(f=>{ const v=num(vals[f.key]); if(v!=null) clean[f.key]=v; });
+      if(Object.keys(clean).length) reps[match]=clean;
+    });
+    plan.push({mk, reps});
+  });
+  const total=plan.reduce((a,p)=>a+Object.keys(p.reps).length,0);
+  if(!total){ $('impPrev').innerHTML='<p class="hint" style="color:var(--red)">That file had no consultants matching your roster.</p>'; return; }
+  backfill=plan;
+  $('impPrev').innerHTML=
+    `<div class="imp-prev"><table>
+      <tr><th>Month</th><th>Consultants</th><th>Appointments</th></tr>
+      ${plan.map(p=>{
+        const names=Object.keys(p.reps);
+        const ap=names.reduce((a,r)=>a+(deriveKpis(p.reps[r]).appts||0),0);
+        return `<tr class="${names.length?'':'miss'}"><td><b>${p.mk}</b></td>
+          <td>${names.length?names.join(', '):'<span class="hint">none on your roster</span>'}</td>
+          <td>${fmt(ap,'int')}</td></tr>`;
+      }).join('')}
+    </table></div>
+    <p class="hint" style="margin-top:8px">${total} consultant-months ready across ${plan.length} months.
+      ${skipped.size?`Not on your roster, so skipped: <b>${[...skipped].join(', ')}</b>.`:''}
+      <br><b>Applying this writes every month above and syncs them.</b> Existing months with the same consultant are overwritten.</p>`;
+  $('impApply').style.display='';
+  $('impApply').textContent='Apply '+plan.length+' months';
+}
+
+async function applyBackfill(){
+  if(!backfill) return;
+  let months=0, cells=0;
+  for(const p of backfill){
+    if(!Object.keys(p.reps).length) continue;
+    if(!state.pace[p.mk]) state.pace[p.mk]={};
+    Object.entries(p.reps).forEach(([rep,vals])=>{
+      const row=Object.assign({}, state.pace[p.mk][rep]||{}, vals);
+      const d=deriveKpis(row);
+      KPIS.forEach(k=>{ if(d[k.key]!=null) row[k.key]=Number(d[k.key].toFixed(4)); });
+      state.pace[p.mk][rep]=row; cells++;
+    });
+    months++;
+    await push('savePace',{month:p.mk, data:state.pace[p.mk]});
+  }
+  cache();
+  backfill=null; $('impApply').style.display='none'; $('impApply').textContent='Apply to the grid';
+  $('impPrev').innerHTML=`<p class="hint">Loaded ${cells} consultant-months across ${months} months. `+
+    `Open any week in <b>My Touch Base</b> to see year-to-date fill in.</p>`;
+  toast('Backfill loaded — '+months+' months');
+  renderPaceGrid(); renderPaceStrip&&renderPaceStrip();
+}
+
+function applyImport(){
+  if(backfill) return applyBackfill();
+  if(!importRows) return;
+  if(paceMode!=='raw') setPaceMode('raw');
+  let n=0;
+  importRows.filter(r=>r.match).forEach(r=>{
+    [...RAW_FIELDS,ALL_APPTS].forEach(f=>{
+      const inp=document.querySelector(`input[data-pace="${CSS.escape(r.match+'|'+f.key)}"]`);
+      if(inp && r.vals[f.key]!=null){ inp.value=r.vals[f.key]; }
+    });
+    paceRowCalcFor(r.match); n++;
+  });
+  const mk=monthKey($('paceMonth').value||new Date().toISOString().slice(0,10));
+  toast(n+' consultant'+(n===1?'':'s')+' filled in for '+mk+' \u2014 review, then Save pace data');
+  $('paceTable').scrollIntoView({behavior:'smooth',block:'center'});
 }
 async function savePace(){
   const mk=monthKey($('paceMonth').value||new Date().toISOString().slice(0,10));
@@ -1543,6 +1847,16 @@ async function savePace(){
     if(!state.pace[mk][rep]) state.pace[mk][rep]={};
     state.pace[mk][rep][key]=inp.value===''?null:Number(inp.value);
   });
+  /* Write the derived rates alongside the counts. Anything downstream that still
+     reads the old rate fields keeps working, including the Google Sheet. */
+  if(paceMode==='raw'){
+    state.config.reps.forEach(rep=>{
+      const row=state.pace[mk][rep];
+      if(!row||!hasRaw(row)) return;
+      const d=deriveKpis(row);
+      KPIS.forEach(k=>{ if(d[k.key]!=null) row[k.key]=Number(d[k.key].toFixed(4)); });
+    });
+  }
   await push('savePace',{month:mk, data:state.pace[mk]});
   toast('Pace data saved for '+mk);
   renderPaceStrip&&renderPaceStrip();
@@ -1586,7 +1900,7 @@ function fillRepSelects(){
   ['tbRep','trRep','dbRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
 }
 function refreshAll(){
-  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); renderDaily(); if(managerOn) renderPaceView();
+  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); if(managerOn) renderPaceView();
 }
 /* =================== post-call debrief =================== */
 let dbPicks={outcome:null,focus:null,nod:null,hazt:null}, dbWho='';
@@ -1713,7 +2027,7 @@ function dbCheckpoint(){
 (function init(){
   const today=new Date().toISOString().slice(0,10);
   const mon=mondayOf(today);
-  $('tbWeek').value=mon; $('revWeek').value=mon; $('paceMonth').value=today; $('drDate').value=today;
+  $('tbWeek').value=mon; $('revWeek').value=mon; $('paceMonth').value=today;
   $('mgrBtn').classList.toggle('on',managerOn);
   fillRepSelects();
   if(repOn && state.config.reps.includes(repOn)){ $('tbRep').value=repOn; $('trRep').value=repOn; $('dbRep').value=repOn; }
