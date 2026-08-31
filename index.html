@@ -45,10 +45,10 @@
   .mgr-btn.on{background:var(--red);border-color:var(--red);color:#fff}
   /* ---------- nav ---------- */
   nav{background:var(--maroon)}
-  .nav-inner{max-width:1180px;margin:0 auto;display:flex;overflow-x:auto}
+  .nav-inner{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:stretch}
   nav button{
     background:none;border:none;color:#EBD9CE;font:inherit;font-size:.9rem;font-weight:600;
-    padding:11px 18px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;
+    padding:10px 10px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;
   }
   nav button.active{color:#fff;border-bottom-color:var(--tan)}
   nav button:focus-visible{outline:2px solid var(--tan);outline-offset:-2px}
@@ -264,6 +264,158 @@
   .cc-queue-row:last-child{border-bottom:none}
   .cc-queue-row .q-words{color:var(--muted);font-size:.8rem;font-style:italic}
   .cc-out pre{white-space:pre-wrap;font:inherit;font-size:.85rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;max-height:320px;overflow:auto}
+  /* ================= tracker views ================= */
+  .ctx-month{background:#2c2523;border:1px solid #6b5f58;color:#F4E8D4;font:inherit;font-size:.78rem;padding:4px 8px;border-radius:6px}
+  nav .sep{width:1px;background:rgba(255,255,255,.22);margin:8px 6px;flex:0 0 auto}
+  nav .grp-label{color:#C9A99A;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;align-self:center;padding:0 10px 0 4px;white-space:nowrap}
+  .t-sub{color:var(--muted);font-size:.82rem;margin:-2px 0 14px}
+  .t-src{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:10px;background:var(--tan-soft);color:var(--maroon);margin-left:8px;vertical-align:2px}
+  .t-src.live{background:#E4EFEA;color:var(--sage-deep)}
+  /* progress bars */
+  .t-prog{background:#EFE8DD;border-radius:4px;height:8px;overflow:hidden}
+  .t-prog i{display:block;height:100%;border-radius:4px;background:var(--maroon);transition:width .3s}
+  .t-prog i.ok{background:var(--sage-deep)} .t-prog i.sub{background:var(--red)}
+  .t-progrow{margin-bottom:11px}
+  .t-progrow .lbl{display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:3px;color:var(--ink)}
+  /* alerts */
+  .t-alert{border-radius:8px;padding:11px 15px;margin-bottom:16px;font-size:.86rem;font-weight:600;border-left:4px solid}
+  .t-alert.ok{background:#E9F2EE;color:var(--sage-deep);border-color:var(--sage-deep)}
+  .t-alert.warn{background:#FBEEE5;color:#9E4423;border-color:var(--terracotta)}
+  .t-alert.sub{background:#FBE9EC;color:var(--red);border-color:var(--red)}
+  /* day grid */
+  .t-daygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
+  .t-day{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
+  .t-day.has{border-left:4px solid var(--sage-deep)}
+  .t-day.none{opacity:.62;border-left:4px solid var(--line)}
+  .t-day.wknd{background:#FBF8F3}
+  .t-day h4{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.9rem;color:var(--maroon);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:7px}
+  .t-day h4 .r{font-size:.72rem;font-weight:400;color:var(--muted);text-align:right}
+  .t-drow{display:grid;grid-template-columns:1fr 30px 30px 30px 30px 74px;gap:2px;font-size:.75rem;padding:3px 0;border-top:1px solid #F2EDE4;align-items:baseline}
+  .t-dhead{color:var(--muted);font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border:0;padding-bottom:2px}
+  .t-drow b{font-weight:700;font-size:.76rem}
+  .t-drow .c{text-align:center}
+  .t-drow .m{text-align:right;color:var(--ink)}
+  .t-empty{font-size:.78rem;color:var(--muted);text-align:center;padding:10px 0}
+  /* weekly close chips */
+  .t-wk{display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap}
+  .t-wk .who{width:112px;font-weight:700;font-size:.82rem;flex:0 0 auto}
+  .t-wc{flex:1;min-width:82px;text-align:center;border:1px solid var(--line);border-radius:8px;padding:6px 4px;background:#fff}
+  .t-wc.big{background:#FDFBF7;border-width:2px}
+  .t-wc .l{font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .t-wc .v{font-size:1.05rem;font-weight:700;line-height:1.25}
+  .t-wc .d{font-size:.62rem;color:var(--muted)}
+  .t-wc .v.ok{color:var(--sage-deep)} .t-wc .v.watch{color:var(--terracotta)} .t-wc .v.sub{color:var(--red)} .t-wc .v.none{color:var(--muted)}
+  .t-teamrow{border-top:2px solid var(--maroon);margin-top:6px;padding-top:9px}
+  /* tables */
+  tr.t-total td{background:var(--tan-soft);font-weight:700;border-top:2px solid var(--maroon)}
+  td.num,th.num{text-align:right;white-space:nowrap}
+  td.mid,th.mid{text-align:center}
+  .t-up{color:var(--sage-deep);font-weight:700}
+  .t-dn{color:var(--red);font-weight:700}
+  .t-na{color:var(--muted)}
+  /* forecast */
+  .t-scen{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+  .t-scard{background:#fff;border:2px solid var(--line);border-radius:var(--radius);padding:15px;text-align:center;box-shadow:var(--shadow)}
+  .t-scard .l{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--muted);margin-bottom:6px}
+  .t-scard .v{font-size:1.6rem;font-weight:700}
+  .t-scard .p{font-size:.72rem;margin-top:4px;color:var(--muted)}
+  .t-scard.best{border-color:var(--sage-deep)} .t-scard.best .v{color:var(--sage-deep)}
+  .t-scard.base{border-color:var(--maroon)} .t-scard.base .v{color:var(--maroon)}
+  .t-scard.worst{border-color:var(--red)} .t-scard.worst .v{color:var(--red)}
+  .t-assume{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:10px}
+  /* import */
+  .t-help{background:var(--tan-soft);border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:.82rem;line-height:1.6}
+  .t-help strong{color:var(--maroon)}
+  .t-colmap{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+  .t-colmap div{background:#fff;border:1px solid var(--line);border-radius:5px;padding:5px 9px;font-size:.74rem}
+  .t-colmap span{color:var(--maroon);font-weight:700}
+  .t-msg{padding:8px 12px;border-radius:6px;font-size:.82rem;font-weight:600;margin-top:9px;display:none}
+  .t-msg.ok{background:#E9F2EE;color:var(--sage-deep);display:block}
+  .t-msg.err{background:#FBE9EC;color:var(--red);display:block}
+  .t-paste{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.76rem}
+  /* modal */
+  .t-modal{display:none;position:fixed;inset:0;background:rgba(56,47,45,.5);z-index:900;overflow:auto;padding:30px 14px}
+  .t-modal.on{display:block}
+  .t-modal .box{background:var(--paper);border-radius:var(--radius);max-width:760px;margin:0 auto;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.28)}
+  .t-modal h3{font-size:1.1rem;margin-bottom:12px;color:var(--ink)}
+  .t-modal table{font-size:.82rem}
+  .t-modal td input{width:100%;min-width:56px;padding:5px 6px;text-align:right}
+  .t-modal .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+  .t-2col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+  @media(max-width:760px){.t-2col,.t-scen{grid-template-columns:1fr}}
+  /* ================= built-in guide ================= */
+  .help-btn{background:transparent;border:1px solid #6b5f58;color:#E9E1D8;font:inherit;font-size:.78rem;
+    width:28px;height:28px;line-height:1;border-radius:50%;cursor:pointer;padding:0}
+  .help-btn:hover{background:#4a3f3a}
+  .help-btn.on{background:var(--tan);border-color:var(--tan);color:var(--ink);font-weight:700}
+  .g-body{max-width:860px}
+  .g-seg{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 6px}
+  .g-seg button{font:inherit;font-size:.84rem;font-weight:700;padding:7px 15px;border-radius:20px;
+    border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--muted)}
+  .g-seg button.on{background:var(--maroon);border-color:var(--maroon);color:#fff}
+  .g-seg button:disabled{opacity:.45;cursor:not-allowed}
+  .g-toc{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0}
+  .g-toc a{font-size:.78rem;text-decoration:none;color:var(--maroon);border:1px solid var(--line);
+    background:#fff;border-radius:14px;padding:4px 11px;white-space:nowrap}
+  .g-toc a:hover{background:var(--tan-soft);border-color:var(--tan)}
+  .g-toc a:focus-visible{outline:2px solid var(--sage);outline-offset:1px}
+  .g-sec{border-top:1px solid var(--line);padding-top:26px;margin-top:30px;scroll-margin-top:16px}
+  .g-sec:first-of-type{border-top:0;padding-top:6px;margin-top:8px}
+  .g-sec h3{font-size:1.35rem;margin:0 0 4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .g-sec h4{font-size:1rem;margin:22px 0 6px;color:var(--maroon)}
+  .g-who{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    padding:3px 9px;border-radius:10px;background:var(--tan-soft);color:var(--maroon);white-space:nowrap}
+  .g-who.mgr{background:#F3E4DE;color:#9E4423}
+  .g-slug{font-size:.76rem;color:var(--muted);letter-spacing:.02em;margin:0 0 14px;
+    padding-bottom:10px;border-bottom:1px solid #EFE8DE}
+  .g-lede{font-size:1rem;color:var(--ink);margin:0 0 16px}
+  .g-sec p{margin:0 0 12px;max-width:70ch}
+  ol.g-steps{list-style:none;counter-reset:gs;margin:8px 0 16px;padding:0;
+    display:flex;flex-direction:column;gap:13px}
+  ol.g-steps>li{counter-increment:gs;position:relative;padding-left:38px;max-width:70ch}
+  ol.g-steps>li::before{content:counter(gs);position:absolute;left:0;top:0;width:23px;height:23px;
+    border-radius:50%;background:var(--ink);color:var(--tan);font-size:.72rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center}
+  ol.g-steps>li>b:first-child{display:block;color:var(--ink)}
+  ul.g-plain{margin:8px 0 14px;padding-left:20px;max-width:70ch}
+  ul.g-plain li{margin-bottom:6px}
+  .g-wiring{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:18px 0 4px;border-top:2px solid var(--ink)}
+  .g-wiring>div{padding:12px 18px 14px 0}
+  .g-wiring>div+div{padding-left:20px;border-left:1px solid var(--line)}
+  .g-wiring h5{font-size:.64rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    margin:0 0 8px;color:var(--muted)}
+  .g-wiring ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+  .g-wiring li{font-size:.86rem;line-height:1.45;padding-left:16px;position:relative}
+  .g-wiring li::before{content:"\\2192";position:absolute;left:0;color:var(--sage-deep);font-weight:700}
+  .g-wiring .gin li::before{content:"\\2190";color:var(--maroon)}
+  .g-tab{font-size:.85em;font-weight:700;color:var(--ink);background:var(--tan-soft);
+    padding:1px 6px;border-radius:3px;white-space:nowrap}
+  .g-note{border-left:3px solid var(--terracotta);background:var(--tan-soft);padding:12px 16px;
+    margin:16px 0;font-size:.92rem;max-width:70ch}
+  .g-note p{margin:0;max-width:none}
+  .g-note .gl{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--terracotta);display:block;margin-bottom:5px}
+  .g-note.calm{border-left-color:var(--sage-deep);background:#EFF4F1}
+  .g-note.calm .gl{color:var(--sage-deep)}
+  .g-rhythm{display:grid;gap:0;border-top:2px solid var(--ink);margin:16px 0 8px}
+  .g-rhythm.c4{grid-template-columns:repeat(4,1fr)}
+  .g-rhythm.c5{grid-template-columns:repeat(5,1fr)}
+  .g-rhythm>div{padding:13px 15px 15px 0}
+  .g-rhythm>div+div{padding-left:16px;border-left:1px solid var(--line)}
+  .g-rhythm .gw{font-size:.66rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+    color:var(--terracotta);margin-bottom:5px}
+  .g-rhythm .gt{font-weight:700;color:var(--ink);margin-bottom:4px}
+  .g-rhythm p{font-size:.84rem;color:var(--muted);margin:0}
+  .g-fig{margin:18px 0 6px}
+  .g-fig svg{width:100%;height:auto;max-width:740px;color:var(--ink)}
+  .g-fig figcaption{font-size:.84rem;color:var(--muted);margin-top:8px;max-width:66ch}
+  .g-end{margin-top:26px;padding-top:20px;border-top:2px solid var(--ink);font-size:.92rem;color:var(--muted)}
+  .g-end b{color:var(--ink)}
+  table.g-tbl td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+  @media(max-width:760px){
+    .g-wiring,.g-rhythm.c4,.g-rhythm.c5{grid-template-columns:1fr}
+    .g-wiring>div+div,.g-rhythm>div+div{padding-left:0;border-left:0;border-top:1px solid var(--line);padding-top:12px}
+  }
 </style>
 </head>
 <body>
@@ -272,10 +424,13 @@
   <div class="hd-inner">
     <div class="brand">
       <h1>Leslie <span>Coaching Hub</span></h1>
-      <div class="sub">Review &middot; Plan &middot; Own &middot; Execute — every Monday</div>
+      <div class="sub">The numbers and the coaching in one place</div>
     </div>
     <div class="hd-actions">
+      <label for="ctxMonth" style="display:none">Month</label>
+      <input type="month" class="ctx-month" id="ctxMonth" onchange="setCtxMonth(this.value)" title="Which month the scoreboard, daily log, team, forecast and year-over-year views show">
       <span class="sync-label"><span class="sync-dot" id="syncDot"></span><span id="syncText">Local only</span></span>
+      <button class="help-btn" id="helpBtn" title="How this tab works" aria-label="How this tab works" onclick="helpHere()">?</button>
       <button class="mgr-btn" id="mgrBtn" onclick="toggleManager()">Manager</button>
     </div>
   </div>
@@ -288,7 +443,17 @@
     <button data-v="review" onclick="showView('review')">Team Review</button>
     <button data-v="track" onclick="showView('track')">Track Record</button>
     <button data-v="coach" onclick="showView('coach')">Call Coach</button>
-    <button data-v="pace" onclick="showView('pace')">Pace Data &amp; Setup</button>
+    <div class="sep"></div><span class="grp-label">Numbers</span>
+    <button data-v="overview" onclick="showView('overview')">Scoreboard</button>
+    <button data-v="daily" onclick="showView('daily')">Daily Log</button>
+    <button data-v="team" onclick="showView('team')">Team</button>
+    <button data-v="forecast" onclick="showView('forecast')">Forecast</button>
+    <button data-v="yoy" onclick="showView('yoy')">Year over Year</button>
+    <div class="sep"></div>
+    <button data-v="pace" onclick="showView('pace')">Pace &amp; Setup</button>
+    <button data-v="import" onclick="showView('import')">Import</button>
+    <div class="sep"></div>
+    <button data-v="guide" onclick="showView('guide')">Guide</button>
   </div>
 </nav>
 
@@ -790,6 +955,685 @@
   </div>
 </section>
 
+<!-- ============ OVERVIEW ============ -->
+<section class="view" id="view-overview">
+  <h2>Scoreboard <span id="ovSrc" class="t-src"></span></h2>
+  <p class="t-sub" id="ovSub">Month to date, straight off the daily log.</p>
+  <div class="pace-strip" id="ovCards" style="margin-bottom:14px"></div>
+  <div class="pace-strip" id="ovAvgCards" style="margin-bottom:14px"></div>
+  <div id="ovAlert"></div>
+  <div class="t-2col">
+    <div>
+      <h3 style="font-size:.95rem;margin-bottom:8px">By consultant</h3>
+      <div class="tbl-wrap"><table id="ovRepTbl">
+        <thead><tr><th>Consultant</th><th class="num">TGL Appts</th><th class="num">TGL Sold</th><th class="num">Mkt Appts</th><th class="num">Mkt Sold</th><th class="num">Revenue</th><th class="num">Close</th></tr></thead>
+        <tbody></tbody><tfoot></tfoot></table></div>
+    </div>
+    <div>
+      <h3 style="font-size:.95rem;margin-bottom:8px">Monthly progress</h3>
+      <div id="ovProgress"></div>
+    </div>
+  </div>
+  <h3 style="font-size:.95rem;margin-bottom:8px">Weekly breakdown</h3>
+  <div class="tbl-wrap" style="margin-bottom:18px"><table id="ovWeekly">
+    <thead><tr><th>Week &amp; close rate</th><th class="num">TGL Appts</th><th class="num">TGL Sold</th><th class="num">Mkt Appts</th><th class="num">Mkt Sold</th><th class="num">Revenue</th></tr></thead>
+    <tbody></tbody></table></div>
+  <h3 style="font-size:.95rem;margin-bottom:4px">Weekly close rate by consultant</h3>
+  <p class="hint" style="margin-bottom:10px">TGL and Marketed combined. Hover a week for the split. <b style="color:var(--sage-deep)">&ge;50%</b> &middot; <b style="color:var(--terracotta)">35&ndash;49%</b> &middot; <b style="color:var(--red)">&lt;35%</b></p>
+  <div id="ovRepWeekly"></div>
+</section>
+
+<!-- ============ DAILY LOG ============ -->
+<section class="view" id="view-daily">
+  <h2>Daily Log <span id="dlMonthName"></span></h2>
+  <p class="t-sub">Every number in this hub rolls up from these days. Click <b>Edit</b> on a day to enter or correct it &mdash; it syncs to the team the moment you save.</p>
+  <div id="dlLocked" class="locked" style="display:none">&#128274; The daily log is manager-only. Use the <b>Manager</b> button up top.</div>
+  <div id="dlBody">
+    <div class="bar">
+      <div style="min-width:auto"><button class="btn small" onclick="dlOpen(dlToday())">Log today</button></div>
+      <div style="min-width:auto"><button class="btn ghost small" onclick="showView('import')">Paste from a report</button></div>
+      <div style="min-width:auto"><span class="hint" id="dlSummary"></span></div>
+    </div>
+    <div class="t-daygrid" id="dlGrid"></div>
+  </div>
+  <div class="t-modal" id="dlModal">
+    <div class="box">
+      <h3 id="dlModalTitle"></h3>
+      <div style="margin-bottom:12px"><label for="dlCalls">Service calls run by the whole team that day</label>
+        <input type="number" min="0" id="dlCalls" style="width:120px"></div>
+      <div class="tbl-wrap"><table id="dlModalTbl">
+        <thead><tr><th>Consultant</th><th class="mid">TGL<br>Appts</th><th class="mid">TGL<br>Sold</th><th class="mid">TGL<br>Revenue</th><th class="mid">Mkt<br>Appts</th><th class="mid">Mkt<br>Sold</th><th class="mid">Mkt<br>Revenue</th></tr></thead>
+        <tbody id="dlModalBody"></tbody></table></div>
+      <div class="hint" id="dlModalWarn" style="margin-top:8px"></div>
+      <div class="foot">
+        <button class="btn ghost small" onclick="dlClose()">Cancel</button>
+        <button class="btn small" onclick="dlSave()">Save day</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEAM ============ -->
+<section class="view" id="view-team">
+  <h2>Team Performance <span id="teamSrc" class="t-src"></span></h2>
+  <p class="t-sub">Month to date. Add or rename a consultant here and every view follows.</p>
+  <div class="bar"><div style="min-width:auto"><button class="btn ghost small" onclick="tmAddRep()">+ Add consultant</button></div></div>
+  <div class="tbl-wrap" style="margin-bottom:18px"><table id="tmTbl">
+    <thead><tr><th>Consultant</th>
+      <th class="num">TGL Appts</th><th class="num">TGL Sold</th><th class="num">TGL Close</th>
+      <th class="num">Mkt Appts</th><th class="num">Mkt Sold</th><th class="num">Mkt Close</th>
+      <th class="num">Sold</th><th class="num">Revenue</th><th class="num">Avg Sale</th><th class="num">Overall</th>
+      <th class="mid">&nbsp;</th></tr></thead>
+    <tbody></tbody><tfoot></tfoot></table></div>
+  <div class="t-2col">
+    <div><h3 style="font-size:.95rem;margin-bottom:8px">Close rate matrix</h3>
+      <div class="tbl-wrap"><table id="tmMatrix">
+        <thead><tr><th>Consultant</th><th class="mid">TGL</th><th class="mid">Marketed</th><th class="mid">Overall</th></tr></thead><tbody></tbody></table></div></div>
+    <div><h3 style="font-size:.95rem;margin-bottom:8px">Revenue contribution</h3>
+      <div class="tbl-wrap"><table id="tmContrib">
+        <thead><tr><th>Consultant</th><th class="num">Revenue</th><th class="num">% of total</th></tr></thead><tbody></tbody></table></div></div>
+  </div>
+</section>
+
+<!-- ============ FORECAST ============ -->
+<section class="view" id="view-forecast">
+  <h2>Forecast</h2>
+  <p class="t-sub">Where the month lands if the current appointment pace holds.</p>
+  <div class="pace-strip" id="fcCards" style="margin-bottom:18px"></div>
+  <div class="t-scen">
+    <div class="t-scard best"><div class="l">Best case</div><div class="v" id="fcBest">&mdash;</div><div class="p" id="fcBestP"></div></div>
+    <div class="t-scard base"><div class="l">Base case</div><div class="v" id="fcBase">&mdash;</div><div class="p" id="fcBaseP"></div></div>
+    <div class="t-scard worst"><div class="l">Worst case</div><div class="v" id="fcWorst">&mdash;</div><div class="p" id="fcWorstP"></div></div>
+  </div>
+  <div class="tbl-wrap" style="margin-bottom:18px"><table>
+    <thead><tr><th>Scenario</th><th class="num">Projected revenue</th><th class="num">vs target</th><th class="num">Close rate used</th><th class="num">Avg sale used</th></tr></thead>
+    <tbody id="fcRows"></tbody></table></div>
+  <div class="card">
+    <h3>Assumptions</h3>
+    <p class="hint">Set per month. Working days default to the weekdays in the month &mdash; drop it for holidays.</p>
+    <div class="t-assume">
+      <div><label for="fcTarget">Monthly revenue target</label><input type="number" id="fcTarget" onchange="fcSaveCfg()"></div>
+      <div><label for="fcWorkdays">Working days</label><input type="number" id="fcWorkdays" onchange="fcSaveCfg()"></div>
+      <div><label for="fcTglAvg">TGL avg sale (fallback)</label><input type="number" id="fcTglAvg" onchange="fcSaveCfg()"></div>
+      <div><label for="fcMktAvg">Marketed avg sale (fallback)</label><input type="number" id="fcMktAvg" onchange="fcSaveCfg()"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ YEAR OVER YEAR ============ -->
+<section class="view" id="view-yoy">
+  <h2>Year over Year <span id="yoyTitle"></span></h2>
+  <p class="t-sub" id="yoySub"></p>
+  <div id="yoyMissing"></div>
+  <div class="pace-strip" id="yoyCards" style="margin-bottom:16px"></div>
+  <div class="tbl-wrap" style="margin-bottom:6px"><table id="yoyTbl">
+    <thead><tr><th>Day</th>
+      <th class="num">LY rev</th><th class="num">This yr rev</th><th class="num">Day &Delta;</th>
+      <th class="num">LY MTD</th><th class="num">MTD</th><th class="num">MTD &Delta;%</th>
+      <th class="num">LY close</th><th class="num">Close</th></tr></thead>
+    <tbody></tbody><tfoot></tfoot></table></div>
+  <h3 style="font-size:.95rem;margin:18px 0 8px">Close rate &amp; average ticket by day &mdash; TGL vs Marketed</h3>
+  <div class="tbl-wrap"><table id="yoyDetail">
+    <thead>
+      <tr><th rowspan="2" style="vertical-align:bottom">Day</th>
+        <th class="mid" colspan="2">TGL close</th><th class="mid" colspan="2">Mkt close</th>
+        <th class="mid" colspan="2">TGL avg ticket</th><th class="mid" colspan="2">Mkt avg ticket</th></tr>
+      <tr><th class="num">LY</th><th class="num">Now</th><th class="num">LY</th><th class="num">Now</th>
+        <th class="num">LY</th><th class="num">Now</th><th class="num">LY</th><th class="num">Now</th></tr>
+    </thead><tbody></tbody><tfoot></tfoot></table></div>
+  <p class="hint" style="margin-top:6px">Single-day close rates and tickets swing hard on one or two deals &mdash; read the TOTAL row for the real trend.</p>
+
+  <h3 style="font-size:.95rem;margin:24px 0 4px">H1 A/B &mdash; Jan&ndash;Jun 2026 vs Jan&ndash;Jun 2025</h3>
+  <p class="hint" style="margin-bottom:10px">From the Nexstar Pace Report monthly files. Totals include self-gen (2 deals each year), so the overall rows exceed TGL + Marketed.</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Metric</th><th class="num">2025 H1</th><th class="num">2026 H1</th><th class="num">&Delta;</th></tr></thead>
+    <tbody>
+      <tr><td><b>TGL avg ticket</b></td><td class="num">$13,450</td><td class="num">$14,438</td><td class="num t-up">+7.3%</td></tr>
+      <tr><td><b>Marketed avg ticket</b></td><td class="num">$11,624</td><td class="num">$14,639</td><td class="num t-up">+25.9%</td></tr>
+      <tr><td><b>Overall avg ticket</b></td><td class="num">$13,084</td><td class="num">$14,475</td><td class="num t-up">+10.6%</td></tr>
+      <tr><td><b>TGL close rate</b></td><td class="num">60.6%</td><td class="num">51.4%</td><td class="num t-dn">&minus;9.2 pts</td></tr>
+      <tr><td><b>Marketed close rate</b></td><td class="num">41.8%</td><td class="num">26.6%</td><td class="num t-dn">&minus;15.2 pts</td></tr>
+      <tr><td><b>Overall close rate</b></td><td class="num">55.9%</td><td class="num">45.7%</td><td class="num t-dn">&minus;10.2 pts</td></tr>
+      <tr><td><b>TGL appointments</b></td><td class="num">431</td><td class="num">477</td><td class="num t-up">+46</td></tr>
+      <tr><td><b>Marketed appointments</b></td><td class="num">146</td><td class="num">143</td><td class="num t-dn">&minus;3</td></tr>
+      <tr><td><b>Total appointments</b></td><td class="num">580</td><td class="num">623</td><td class="num t-up">+43</td></tr>
+      <tr><td><b>TGL sales</b></td><td class="num">261 deals &middot; $3.51M</td><td class="num">245 deals &middot; $3.54M</td><td class="num t-up">+0.8% rev</td></tr>
+      <tr><td><b>Marketed sales</b></td><td class="num">61 deals &middot; $709K</td><td class="num">38 deals &middot; $556K</td><td class="num t-dn">&minus;21.5% rev</td></tr>
+      <tr class="t-total"><td>Total sales</td><td class="num">324 deals &middot; $4.24M</td><td class="num">285 deals &middot; $4.13M</td><td class="num t-dn">&minus;2.7% rev</td></tr>
+    </tbody></table></div>
+  <p class="hint" style="margin-top:6px">Read: 2026 is up on ticket size and appointment volume, down on conversion &mdash; the close-rate gap is the whole revenue story.</p>
+</section>
+
+<!-- ============ IMPORT & BACKUP ============ -->
+<section class="view" id="view-import">
+  <h2>Import a Day</h2>
+  <p class="t-sub">Paste a day straight out of the Pace Report or ServiceTitan instead of typing it. Imports land in the daily log and sync to the team.</p>
+  <div id="impLocked" class="locked" style="display:none">&#128274; Importing is manager-only. Use the <b>Manager</b> button up top.</div>
+  <div id="impBody">
+  <div class="card">
+    <h3>From the Nexstar Pace Report</h3>
+    <div class="t-help">
+      <strong>How to pull one day:</strong><br>
+      1. Open this month's <em>Sales Manager Pace Report</em>.<br>
+      2. Go to the sheet for that date (e.g. <strong>&ldquo;8th&rdquo;</strong>).<br>
+      3. Scroll to the per-rep grid at the bottom, below <strong>Calls Ran</strong>.<br>
+      4. Copy the consultant rows &mdash; header row optional.<br>
+      5. Paste below and click <strong>Import day</strong>.
+      <div class="t-colmap">
+        <div><span>Col 1</span> &mdash; Consultant</div>
+        <div><span>Col 2</span> &mdash; TGL appointments</div>
+        <div><span>Col 3</span> &mdash; TGL sold</div>
+        <div><span>Col 4</span> &mdash; TGL revenue</div>
+        <div><span>Col 5</span> &mdash; Marketed appointments</div>
+        <div><span>Col 6</span> &mdash; Marketed sold</div>
+        <div><span>Col 7</span> &mdash; Marketed revenue</div>
+      </div>
+    </div>
+    <div class="bar">
+      <div style="min-width:auto"><label for="impDate">Date</label><input type="date" id="impDate"></div>
+      <div style="min-width:auto"><label for="impCalls">Service calls</label><input type="number" min="0" id="impCalls" style="width:110px"></div>
+    </div>
+    <textarea id="impPaste" class="t-paste" placeholder="Paste the rows from Excel here..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn small" onclick="impPace()">Import day</button>
+      <button class="btn ghost small" onclick="$('impPaste').value=''">Clear</button>
+    </div>
+    <div class="t-msg" id="impMsg"></div>
+  </div>
+
+  <div class="card">
+    <h3>From ServiceTitan &mdash; Technician Performance</h3>
+    <div class="t-help">
+      1. ServiceTitan &rarr; Reports &rarr; Sales &rarr; <strong>Technician Performance</strong>.<br>
+      2. Filter to the Sales business unit, set the date range to that one day.<br>
+      3. Expand the Marketed and TGL columns, use <strong>Close Rate As Of</strong>.<br>
+      4. Copy the rows including the header and paste below &mdash; columns are matched by name.
+      <div class="t-colmap">
+        <div><span>Technician</span> &mdash; consultant</div>
+        <div><span>MKT Opportunities</span> &mdash; Mkt appts</div>
+        <div><span>MKT Jobs Sold</span> &mdash; Mkt sold</div>
+        <div><span>MKT Revenue</span> &mdash; Mkt revenue</div>
+        <div><span>TGL Opportunities</span> &mdash; TGL appts</div>
+        <div><span>TGL Jobs Sold</span> &mdash; TGL sold</div>
+        <div><span>TGL Revenue</span> &mdash; TGL revenue</div>
+      </div>
+    </div>
+    <div class="bar">
+      <div style="min-width:auto"><label for="stDate">Date</label><input type="date" id="stDate"></div>
+      <div style="min-width:auto"><label for="stCalls">Service calls</label><input type="number" min="0" id="stCalls" style="width:110px"></div>
+    </div>
+    <textarea id="stPaste" class="t-paste" placeholder="Paste the ServiceTitan rows here..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn small" onclick="impST()">Import ServiceTitan day</button>
+      <button class="btn ghost small" onclick="$('stPaste').value=''">Clear</button>
+    </div>
+    <div class="t-msg" id="stMsg"></div>
+  </div>
+
+  <div class="card">
+    <h3>Backup</h3>
+    <p class="hint" style="margin-bottom:10px">Everything the hub holds &mdash; daily log, monthly pace, touch bases, debriefs, settings &mdash; in one JSON file.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn ghost small" onclick="expJSON()">Download full backup</button>
+      <button class="btn ghost small" onclick="expDailyCSV()">Daily log as CSV</button>
+      <button class="btn ghost small" onclick="clearMonthDaily()">Clear this month's daily log</button>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ============ GUIDE ============ -->
+<section class="view" id="view-guide">
+  <h2>How this hub works</h2>
+  <p class="lead">Every tab, what it writes, and what lights up downstream when you save it. Nothing here is theory &mdash; it describes the buttons that are one click away.</p>
+
+  <div class="card">
+    <div class="g-seg">
+      <button id="gSegMine" onclick="setGuideRole('c')">My tabs</button>
+      <button id="gSegAll" onclick="setGuideRole('m')">Everything, including manager tabs</button>
+    </div>
+    <div class="hint" id="gSegHint" style="margin-top:8px"></div>
+    <div class="g-toc" id="gToc"></div>
+  </div>
+
+  <div class="g-body">
+
+  <!-- ---------- rhythm ---------- -->
+  <div class="g-sec" id="g-rhythm" data-g="b">
+    <h3>The rhythm</h3>
+    <p class="g-lede">The hub only works if it is fed on a schedule. These are the moments &mdash; nothing else is asked of anyone.</p>
+
+    <h4 data-g="b">For consultants &mdash; four moments</h4>
+    <div class="g-rhythm c4" data-g="b">
+      <div><div class="gw">After every call</div><div class="gt">Debrief</div>
+        <p>60 seconds in the truck, before you pull out of the driveway.</p></div>
+      <div><div class="gw">Wednesday midday</div><div class="gt">Checkpoint</div>
+        <p>One button. It writes the text to Nels from what you already logged.</p></div>
+      <div><div class="gw">Before Monday</div><div class="gt">Touch Base</div>
+        <p>Ten minutes. Your numbers are already there &mdash; you bring the read and the plan.</p></div>
+      <div><div class="gw">After the one-on-one</div><div class="gt">Agree</div>
+        <p>Read what Nels wrote, press agree. Week closed.</p></div>
+    </div>
+
+    <h4 data-g="m">For Nels &mdash; five moments</h4>
+    <div class="g-rhythm c5" data-g="m">
+      <div><div class="gw">Every workday</div><div class="gt">Log the day</div>
+        <p>Two minutes in the Daily Log, or paste it from a report. The only data-entry job that matters.</p></div>
+      <div><div class="gw">Every afternoon</div><div class="gt">Clear the queue</div>
+        <p>Call Coach lists unsold appointments with no HA/ZT made. Empty it before you leave.</p></div>
+      <div><div class="gw">Wednesday midday</div><div class="gt">Take the pulse</div>
+        <p>Checkpoint texts land. Compare them against the Debrief counts they were built from.</p></div>
+      <div><div class="gw">Friday 3:00</div><div class="gt">Close the month out</div>
+        <p>Catch up unlogged days so Monday's touch bases open on current numbers.</p></div>
+      <div><div class="gw">Monday</div><div class="gt">Run the board</div>
+        <p>Team Review, one card at a time. Write notes; they get read and agreed.</p></div>
+    </div>
+  </div>
+
+  <!-- ---------- where numbers come from ---------- -->
+  <div class="g-sec" id="g-flow" data-g="b">
+    <h3>Where the numbers come from</h3>
+    <p class="g-lede">There is exactly one path. Nels logs a day; the hub sums the days into a month; every scoreboard in the tool reads that month. Nothing is typed twice, and no two screens can disagree.</p>
+    <figure class="g-fig">
+      <svg viewBox="0 0 760 300" role="img" aria-label="The daily log is summed into a month total which feeds the consultant scoreboard, the Monday board chips, the track record and year to date, and the scoreboard, team, forecast and year over year views. The monthly pace report paste is only a fallback for months with no daily log.">
+        <defs>
+          <marker id="gm1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/></marker>
+          <marker id="gm2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#C05131"/></marker>
+        </defs>
+        <rect x="6" y="20" width="168" height="58" rx="3" fill="none" stroke="#C05131" stroke-width="1.8"/>
+        <text x="90" y="44" text-anchor="middle" font-size="12" font-weight="700" fill="#C05131">DAILY LOG</text>
+        <text x="90" y="61" text-anchor="middle" font-size="12" fill="currentColor">one day, per consultant</text>
+        <rect x="6" y="106" width="168" height="52" rx="3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4"/>
+        <text x="90" y="128" text-anchor="middle" font-size="11.5" font-weight="700" fill="currentColor">PACE &amp; SETUP</text>
+        <text x="90" y="144" text-anchor="middle" font-size="11.5" fill="currentColor">monthly paste</text>
+        <rect x="252" y="56" width="150" height="66" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <text x="327" y="83" text-anchor="middle" font-size="12" font-weight="700" fill="currentColor">THE MONTH</text>
+        <text x="327" y="101" text-anchor="middle" font-size="12" fill="currentColor">six counts, summed</text>
+        <line x1="174" y1="49" x2="244" y2="76" stroke="#C05131" stroke-width="1.8" marker-end="url(#gm2)"/>
+        <text x="182" y="42" font-size="11" fill="#C05131">always wins</text>
+        <line x1="174" y1="132" x2="244" y2="105" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#gm1)"/>
+        <text x="180" y="174" font-size="11" fill="currentColor">only if no days are logged</text>
+        <line x1="402" y1="89" x2="470" y2="42" stroke="currentColor" stroke-width="1.4" marker-end="url(#gm1)"/>
+        <line x1="402" y1="89" x2="470" y2="110" stroke="currentColor" stroke-width="1.4" marker-end="url(#gm1)"/>
+        <line x1="402" y1="89" x2="470" y2="178" stroke="currentColor" stroke-width="1.4" marker-end="url(#gm1)"/>
+        <line x1="402" y1="89" x2="470" y2="246" stroke="currentColor" stroke-width="1.4" marker-end="url(#gm1)"/>
+        <rect x="478" y="16" width="276" height="46" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="492" y="35" font-size="11.5" font-weight="700" fill="currentColor">MY TOUCH BASE</text>
+        <text x="492" y="51" font-size="12" fill="currentColor">each consultant's scoreboard + year to date</text>
+        <rect x="478" y="84" width="276" height="46" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="492" y="103" font-size="11.5" font-weight="700" fill="currentColor">TEAM REVIEW</text>
+        <text x="492" y="119" font-size="12" fill="currentColor">the KPI chips on every Monday card</text>
+        <rect x="478" y="152" width="276" height="46" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="492" y="171" font-size="11.5" font-weight="700" fill="currentColor">TRACK RECORD</text>
+        <text x="492" y="187" font-size="12" fill="currentColor">did the KPI move four weeks on?</text>
+        <rect x="478" y="220" width="276" height="46" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="492" y="239" font-size="11.5" font-weight="700" fill="currentColor">SCOREBOARD · TEAM · FORECAST · YOY</text>
+        <text x="492" y="255" font-size="12" fill="currentColor">the whole team, this month</text>
+      </svg>
+      <figcaption>Appointments run, close rates and average tickets are never typed on the right-hand side. They are derived from six counts per consultant per day: TGL appointments, sold and revenue, and the same three for marketed.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ---------- coaching loop ---------- -->
+  <div class="g-sec" id="g-loop" data-g="b">
+    <h3>How the coaching loop closes</h3>
+    <p class="g-lede">The second loop runs on what consultants log, and it has one job: no unsold appointment leaves the week without a documented fight, and no commitment goes ungraded.</p>
+    <figure class="g-fig">
+      <svg viewBox="0 0 760 250" role="img" aria-label="A touch base sets a focus behavior; each debrief counts it and, if unsold with no high authority call made, drops into the Call Coach queue; ending a coached call marks that debrief covered; the Monday board shows all of it and the manager's notes go back to the consultant to agree.">
+        <defs>
+          <marker id="gm3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/></marker>
+          <marker id="gm4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#C05131"/></marker>
+        </defs>
+        <rect x="6" y="30" width="156" height="54" rx="3" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="84" y="52" text-anchor="middle" font-size="11.5" font-weight="700" fill="currentColor">TOUCH BASE</text>
+        <text x="84" y="69" text-anchor="middle" font-size="11.5" fill="currentColor">sets one behavior</text>
+        <rect x="238" y="30" width="156" height="54" rx="3" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="316" y="52" text-anchor="middle" font-size="11.5" font-weight="700" fill="currentColor">DEBRIEF</text>
+        <text x="316" y="69" text-anchor="middle" font-size="11.5" fill="currentColor">every call, 60 seconds</text>
+        <rect x="470" y="30" width="156" height="54" rx="3" fill="none" stroke="#C05131" stroke-width="1.8"/>
+        <text x="548" y="52" text-anchor="middle" font-size="11.5" font-weight="700" fill="#C05131">CALL COACH</text>
+        <text x="548" y="69" text-anchor="middle" font-size="11.5" fill="currentColor">the coverage queue</text>
+        <rect x="238" y="164" width="156" height="54" rx="3" fill="none" stroke="currentColor" stroke-width="1.3"/>
+        <text x="316" y="186" text-anchor="middle" font-size="11.5" font-weight="700" fill="currentColor">TEAM REVIEW</text>
+        <text x="316" y="203" text-anchor="middle" font-size="11.5" fill="currentColor">the Monday board</text>
+        <line x1="162" y1="57" x2="230" y2="57" stroke="currentColor" stroke-width="1.3" marker-end="url(#gm3)"/>
+        <text x="196" y="48" text-anchor="middle" font-size="10.5" fill="currentColor">focus card</text>
+        <line x1="394" y1="47" x2="462" y2="47" stroke="#C05131" stroke-width="1.6" marker-end="url(#gm4)"/>
+        <text x="412" y="34" text-anchor="middle" font-size="10.5" fill="#C05131">unsold · no HA/ZT</text>
+        <path d="M 462 72 L 428 72 L 428 90 L 394 90" fill="none" stroke="#C05131" stroke-width="1.6" marker-end="url(#gm4)"/>
+        <text x="428" y="108" text-anchor="middle" font-size="10.5" fill="#C05131">covered</text>
+        <line x1="316" y1="84" x2="316" y2="156" stroke="currentColor" stroke-width="1.3" marker-end="url(#gm3)"/>
+        <text x="326" y="126" font-size="10.5" fill="currentColor">calls · sold · nod · coverage</text>
+        <path d="M 238 191 L 84 191 L 84 92" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#gm3)"/>
+        <text x="94" y="140" font-size="10.5" fill="currentColor">notes → agree</text>
+      </svg>
+      <figcaption>The two orange arrows are the money loop: an unsold debrief with no High Authority or Zero Ticket call queues itself for Nels, and ending that coached call marks the original debrief covered so it drops off the queue.</figcaption>
+    </figure>
+  </div>
+
+  <!-- ---------- access ---------- -->
+  <div class="g-sec" id="g-access" data-g="b">
+    <h3>Signing in, PINs and the month box</h3>
+    <p class="g-lede">The hub opens on a shared link &mdash; no account, no password. Three controls in the header govern everything below them.</p>
+    <ol class="g-steps">
+      <li><b>Your PIN.</b> Pick your name in the Consultant dropdown; the hub asks for your PIN the first time you open your own touch base or track record. It holds for that browser session. PINs aren't printed anywhere &mdash; ask Nels if you've lost yours. They exist so somebody else's honest self-score doesn't get saved under your name on a shared office tablet.</li>
+      <li><b>The month box.</b> One picker drives Scoreboard, Daily Log, Team, Forecast and Year over Year together. It does <em>not</em> drive the coaching tabs &mdash; those follow their own week pickers, so last week's touch bases can be reviewed against this month's numbers.</li>
+      <li><b>The sync dot.</b> Green means the Google Sheet has everything. Red means the hub is working from the copy on this device and will push when the connection returns &mdash; keep going, nothing is lost.</li>
+      <li data-g="m"><b>Manager.</b> Press it, enter the manager PIN, and it turns red. That unlocks Daily Log, Import, Pace &amp; Setup and Call Coach, adds the notes boxes to the Monday board, and opens any consultant's form without their PIN. It lasts for the browser session only, which is what you want on a shared machine. The end-of-day team rollup has its own separate PIN so a borrowed laptop can't send it.</li>
+    </ol>
+  </div>
+
+  <!-- ---------- my touch base ---------- -->
+  <div class="g-sec" id="g-mytb" data-g="b">
+    <h3>My Touch Base <span class="g-who">Consultant</span></h3>
+    <div class="g-slug">Before Monday &middot; about 10 minutes &middot; saving again for the same week updates it</div>
+    <p class="g-lede">You bring the plan; Nels brings the questions. Ten minutes of prep buys a conversation about your process instead of a conversation about your numbers.</p>
+    <ol class="g-steps">
+      <li><b>Pick your name and the week.</b> The date box snaps to Monday whatever day you click, so you can't file against the wrong week.</li>
+      <li><b>Read your scoreboard &mdash; section 1.</b> Appointments run, both close rates, both average tickets, each with year-to-date underneath and a flag against target. You type none of it. The line above the tiles tells you whether it came from the daily log or the monthly pace report.</li>
+      <li><b>Grade last week &mdash; section 2.</b> Last week's plan is quoted back with three buttons: Worked, Partially, Didn't work. Then say what you actually saw &mdash; which calls, what the customer did. This is the field the Track Record is built from; a blank one means the week never gets graded.</li>
+      <li><b>Self-check &mdash; section 3.</b> Rate all six steps 1&ndash;5 for last week's calls. A 5 means you ran that step the way we train it on <em>every</em> call. The hub flags your lowest step as a candidate for this week's focus.</li>
+      <li><b>Wins &mdash; section 4.</b> What worked and specifically what you did to make it work. "I built rapport" isn't a win; "I restated her concern about the upstairs bedroom before I presented" is. The second box is for one thing you did to get better &mdash; that counts even in a week the numbers didn't.</li>
+      <li><b>Opportunity &mdash; section 5.</b> Pick the KPI to move (sub-standard ones sort to the top) and the step it lives in, then name the <em>cause</em> in process terms. "Not enough appointments" is a circumstance; "I'm not attaching to anything they said out loud" is a cause you can act on.</li>
+      <li><b>Action plan &mdash; section 6.</b> Four boxes, all four answerable on Wednesday:
+        <ul class="g-plain">
+          <li><b>Behavior</b> &mdash; one thing, observable on a ride-along.</li>
+          <li><b>When</b> &mdash; the trigger moment in the call, not "throughout".</li>
+          <li><b>Measure</b> &mdash; a count. "My ticket will be higher" can't be counted; "X of Y quotes carried an attachment" can.</li>
+          <li><b>Checkpoint</b> &mdash; a day and a time.</li>
+        </ul>
+      </li>
+      <li><b>What you need from Nels &mdash; section 7.</b> Roleplay time, pricing help, a ride-along, an answer from leadership. It lands on the Monday board in a flagged box.</li>
+      <li><b>Save my touch base.</b> You can start Friday and finish Sunday &mdash; saving again updates the same entry.</li>
+    </ol>
+    <div class="g-note calm">
+      <span class="gl">What the behavior box actually does</span>
+      <p>Whatever you write in <b>Behavior</b> becomes the focus card on your Debrief tab, and every call you log afterwards asks whether you ran it. Write it as something you either did or didn't do on a given call and the tally works. Write it as an aspiration and there's nothing to count.</p>
+    </div>
+    <div class="g-wiring">
+      <div class="gin"><h5>What it reads</h5><ul>
+        <li>Month-to-date numbers from the <span class="g-tab">Daily Log</span></li>
+        <li>Last week's plan, so it can be graded</li>
+        <li>Nels's notes from the one-on-one</li>
+      </ul></div>
+      <div><h5>Where it goes</h5><ul>
+        <li><span class="g-tab">Debrief</span> &mdash; the focus behavior becomes the per-call question</li>
+        <li><span class="g-tab">Team Review</span> &mdash; the whole form becomes your Monday card</li>
+        <li><span class="g-tab">Track Record</span> &mdash; the commitment, and whether it worked</li>
+      </ul></div>
+    </div>
+    <h4>Review &amp; agree</h4>
+    <p>After the one-on-one, Nels writes his notes and what you practiced live onto your entry, and a card appears at the bottom of your touch base with both plus an agree button. Read them, press agree, and a green tick shows on your Monday card. If Nels edits the notes afterwards the tick clears and you'll be asked to read the new version &mdash; so you never end up on record agreeing to something you didn't read.</p>
+  </div>
+
+  <!-- ---------- debrief ---------- -->
+  <div class="g-sec" id="g-debrief" data-g="b">
+    <h3>Debrief <span class="g-who">Consultant</span></h3>
+    <div class="g-slug">After every appointment &middot; about 60 seconds &middot; in the truck, before you drive away</div>
+    <p class="g-lede">This is the one that matters. Everything else in the hub is built out of what gets logged here, and it has to happen while the call is still fresh. An hour later you'll remember the outcome and nothing else.</p>
+    <ol class="g-steps">
+      <li><b>Check the focus card.</b> If you filed a touch base this week your focus behavior sits at the top in quotes with a running tally &mdash; <em>ran it on 3 of 5 calls</em>. That's the number Nels asks about on Wednesday.</li>
+      <li><b>Customer.</b> A first name is plenty. It's what shows in the coverage queue if the call didn't sell, so make it something you'd recognize at 6pm.</li>
+      <li><b>How did it end?</b> Sold, Pending, or No sale. Pending means a real dated next step exists, not "they're thinking about it".</li>
+      <li><b>Did you run your focus behavior?</b> Only appears if you have a plan this week. Answer honestly &mdash; a "skipped it" that shows a pattern is worth more than a padded count.</li>
+      <li><b>Restate-to-nod.</b> Did you say their top concern back in <em>their</em> words and get the nod before you opened the tablet? Every call, whatever your focus is.</li>
+      <li><b>One thing they said &mdash; their exact words.</b> Not a summary. <em>"The upstairs bedroom is an oven by 3pm."</em> That line opens your next presentation and it's the line Nels reads back on Monday.</li>
+      <li><b>If it sold:</b> the amount and the option they chose. <b>If it didn't:</b> the High Authority / Zero Ticket call &mdash; Made, Scheduled or Not yet &mdash; who you called, and what's holding them back in their words.</li>
+      <li><b>Save this call.</b> The form clears and your week's tally updates underneath.</li>
+    </ol>
+    <div class="g-note">
+      <span class="gl">The one that costs money</span>
+      <p>An unsold call logged as <b>Not yet</b> lands in Nels's coverage queue immediately and stays there until someone makes the call. That's the point &mdash; an unsold appointment nobody fought for is the most expensive thing in your week. Log it as Not yet rather than skipping the debrief; the queue is help, not a black mark.</p>
+    </div>
+    <h4>The Wednesday checkpoint</h4>
+    <p>At the bottom of the same tab: <span class="g-tab">Text Nels my checkpoint</span>. It builds the message from what you already logged &mdash; focus count, restate-to-nod, calls, sold, HA/ZT coverage &mdash; and hands it to your phone. You don't type a checkpoint; you press a button.</p>
+    <h4 data-g="m">The end-of-day team rollup <span class="g-who mgr">Nels only</span></h4>
+    <p data-g="m">A card at the bottom of the same tab, gated by the end-of-day PIN, covering today only across the whole team: calls, sold and revenue, pending, no-sale, restate-to-nod, HA/ZT coverage with anything still open named, then a short block per consultant with each call's customer words and holdback &mdash; and finally who logged nothing today. That last line is the useful one; a consultant who ran four appointments and logged none is invisible everywhere else.</p>
+    <div class="g-wiring">
+      <div class="gin"><h5>What it reads</h5><ul>
+        <li>Your focus behavior and trigger moment, from <span class="g-tab">My Touch Base</span></li>
+      </ul></div>
+      <div><h5>Where it goes</h5><ul>
+        <li><span class="g-tab">Team Review</span> &mdash; calls, sold, focus hits, nod rate, coverage</li>
+        <li><span class="g-tab">Call Coach</span> &mdash; unsold calls without an HA/ZT queue up</li>
+        <li>The daily team rollup to Gabe and Brendan</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ---------- team review ---------- -->
+  <div class="g-sec" id="g-review" data-g="b">
+    <h3>Team Review <span class="g-who">Everyone can read it</span> <span class="g-who mgr">Notes are Nels only</span></h3>
+    <div class="g-slug">Monday &middot; the board the one-on-ones are run from</div>
+    <p class="g-lede">Everyone's week on one screen &mdash; numbers, self-check, wins, opportunity, plan and asks for the selected week. It's open to the team on purpose: the team's numbers aren't a secret from the team, and seeing how somebody else framed their opportunity is the fastest way to write a better one.</p>
+    <ol class="g-steps">
+      <li><b>Set the week.</b> The date snaps to Monday. Anyone who hasn't filed shows an empty card &mdash; which is itself the first conversation.</li>
+      <li><b>Read the card top down.</b> KPI chips flagged against target, the six-step self-check as a meter, last week's result with the note, wins, the field block, growth, the opportunity, this week's plan, and the asks in a flagged box.</li>
+      <li><b>Check the field block against the plan.</b> <em>From the field</em> shows calls, sold, focus hits out of focus-eligible calls, restate-to-nod, and HA/ZT coverage on unsold, plus any coached calls. A self-check of 5 next to a focus count of 1 of 6 is the conversation.</li>
+      <li data-g="m"><b>Write the notes.</b> Two boxes &mdash; manager notes, and what was actually run live and how it landed &mdash; then <span class="g-tab">Save manager fields</span>.</li>
+      <li data-g="m"><b>Watch for the agreed tick.</b> The consultant reads both boxes on their own touch base and presses agree. Editing the notes afterwards clears the tick and asks them to read it again.</li>
+    </ol>
+    <div class="g-note" data-g="m">
+      <span class="gl">The asks are the deal</span>
+      <p>The needs box is the consultant's fastest lane to you, and it only stays credible if it gets answered. Anything committed to on Monday, report on next Monday &mdash; the board is the record either way.</p>
+    </div>
+  </div>
+
+  <!-- ---------- track record ---------- -->
+  <div class="g-sec" id="g-track" data-g="b">
+    <h3>Track Record <span class="g-who">Consultant</span></h3>
+    <div class="g-slug">Whenever you want the honest view &middot; PIN-protected per consultant</div>
+    <p class="g-lede">History by month: what the KPIs did, what was committed each week, whether it worked, and whether the number actually moved. Nobody types this &mdash; it assembles itself from touch bases and the daily log.</p>
+    <ul class="g-plain">
+      <li><b>Month rows</b> &mdash; the five KPIs flagged against target. Click to expand the weeks inside.</li>
+      <li><b>Commitment</b> &mdash; the behavior named that week.</li>
+      <li><b>Result</b> &mdash; how it was graded the following week: Worked, Partial, Didn't, or Pending if it was never graded.</li>
+      <li><b>Moved</b> &mdash; whether the named KPI shifted between the month of the commitment and four weeks on, with the before and after on hover.</li>
+      <li><b>Export CSV</b> &mdash; the whole table, for a review or your own records.</li>
+    </ul>
+    <div class="g-note calm">
+      <span class="gl">The only way this gets thin</span>
+      <p>Every "Pending" is a week where the plan was never graded. Grading takes one button in section 2 of the next Monday's touch base. Skip it a few weeks running and the Track Record stops being able to tell you anything.</p>
+    </div>
+  </div>
+
+  <!-- ---------- call coach ---------- -->
+  <div class="g-sec" id="g-coach" data-g="m">
+    <h3>Call Coach <span class="g-who mgr">Manager only</span></h3>
+    <div class="g-slug">Live, while the phone is ringing</div>
+    <p class="g-lede">The High Authority and Zero Ticket playbook, built for the moment you pick up. Everything you tap becomes a coached-call record on that consultant's week.</p>
+    <h4>The coverage queue</h4>
+    <p>At the top: every unsold appointment from this week and last week with no HA/ZT call made, newest first, with the customer, the consultant and the holdback in their words. Press <span class="g-tab">Start this call</span> and the hub sets the consultant, customer and brief note for you and opens in Zero Ticket mode. When you end the call, that debrief is marked covered and drops off the queue. <em>Scheduled</em> keeps it in the queue on purpose &mdash; only <em>made</em> clears it.</p>
+    <h4>Running a call</h4>
+    <ol class="g-steps">
+      <li><b>Pick the mode.</b> High Authority &mdash; the consultant is the voice, you're behind the curtain. Zero Ticket &mdash; you take the customer.</li>
+      <li><b>Pick the consultant and customer</b> and press Answer the call. A timer starts.</li>
+      <li><b>Tap as you go.</b> Each checklist item cycles: once for landed clean, twice for missed or weak, again to clear. The misses become the coaching note if you don't write one.</li>
+      <li><b>High Authority:</b> the seven steps plus frame held, with the qualifying questions and the quote-versus-ask calculator that gives you the counter number.</li>
+      <li><b>Zero Ticket:</b> the five-part brief first &mdash; anything not green, ask for it before you take the customer, especially what they think the <em>real</em> objection is. Then the wheel: open warm, acknowledge and empathize and by-pass, name the spoke and run its play, ask for the business, set a dated next step.</li>
+      <li><b>Record the outcome</b>, write the one coaching note, and press <span class="g-tab">End call</span>. Copy the record into Teams or ServiceTitan if you want it there too &mdash; it's already saved to the consultant's week.</li>
+    </ol>
+    <div class="g-note calm">
+      <span class="gl">One note, not five</span>
+      <p>The note box is deliberately singular. A consultant who gets one specific correction after a coached call changes one thing; a consultant who gets five changes nothing.</p>
+    </div>
+  </div>
+
+  <!-- ---------- scoreboard ---------- -->
+  <div class="g-sec" id="g-scoreboard" data-g="b">
+    <h3>Scoreboard <span class="g-who">Everyone can read it</span></h3>
+    <div class="g-slug">The month at a glance &middot; the tab to open in a team meeting</div>
+    <p class="g-lede">A badge next to the heading tells you whether you're looking at numbers derived from the daily log or at a month with nothing logged yet.</p>
+    <div class="tbl-wrap"><table class="g-tbl">
+      <tr><th>Block</th><th>What it tells you</th></tr>
+      <tr><td>Top tiles</td><td>Revenue against target, sold, overall close, appointments run, service calls, and this month against the same month last year. The revenue tile edges red under 70% of target and green at 100%.</td></tr>
+      <tr><td>Ticket tiles</td><td>TGL, marketed and cumulative average ticket, each with the deal count behind it &mdash; so you can see when an average is riding on two sales.</td></tr>
+      <tr><td>Pace line</td><td>What's needed per day for the working days left, against what's actually being run per day.</td></tr>
+      <tr><td>By consultant</td><td>The month per person, with a TOTAL row that reconciles to the tiles.</td></tr>
+      <tr><td>Weekly breakdown</td><td>Seven-day blocks &mdash; 1&ndash;7, 8&ndash;14, 15&ndash;21, 22&ndash;28, 29&ndash;end &mdash; with close rate split by lead type.</td></tr>
+      <tr><td>Weekly close grid</td><td>Every consultant, every week, plus a month-to-date chip and a team row. Hover a chip for the TGL and marketed split. Green at 50%, amber 35&ndash;49, red below 35.</td></tr>
+    </table></div>
+    <p>Your own numbers on your touch base come from exactly the same daily log, so if the Scoreboard says you ran fourteen appointments this month, your touch base will too. They can't disagree.</p>
+  </div>
+
+  <!-- ---------- daily log ---------- -->
+  <div class="g-sec" id="g-daily" data-g="m">
+    <h3>Daily Log <span class="g-who mgr">Manager only</span></h3>
+    <div class="g-slug">Every workday &middot; about 2 minutes &middot; the single source of truth</div>
+    <p class="g-lede">One card per calendar day. Days with data carry a green edge, weekends sit on a tinted ground, and each card shows that day's revenue, the team's service calls, and last year's figure for the same date.</p>
+    <ol class="g-steps">
+      <li><b>Check the month box first.</b> Everything on this tab belongs to the month in the header.</li>
+      <li><b>Press <span class="g-tab">Log today</span></b>, or Edit on any day card.</li>
+      <li><b>Service calls.</b> The team's total calls run that day. It feeds the Scoreboard tile and nothing else &mdash; leave it at zero if you don't track it.</li>
+      <li><b>Fill the six columns per consultant.</b> TGL appointments, sold, revenue; then the same three for marketed. Revenue is the sold total for that lead type that day, not an average.</li>
+      <li><b>Watch the warning line.</b> It flags sold exceeding appointments, or revenue booked with no sale, as you type. Those are the two mistakes that quietly corrupt a close rate.</li>
+      <li><b>Save day.</b> It writes to the Google Sheet immediately and every other tab recalculates. Leave a consultant's row blank if they didn't run &mdash; a blank is different from a zero, and blanks keep them out of the day's averages.</li>
+    </ol>
+    <h4>Correcting a day</h4>
+    <p>Open the day, change the number, save. There is nothing else to update: the month total, every consultant's touch-base scoreboard, the Monday board chips, the Track Record and the year-to-date all re-derive from the day you just fixed.</p>
+    <div class="g-wiring">
+      <div class="gin"><h5>What it reads</h5><ul>
+        <li>The roster from <span class="g-tab">Pace &amp; Setup</span></li>
+        <li>Last year's same-day revenue, for the card corner</li>
+      </ul></div>
+      <div><h5>Where it goes</h5><ul>
+        <li><span class="g-tab">Scoreboard</span>, <span class="g-tab">Team</span>, <span class="g-tab">Forecast</span>, <span class="g-tab">Year over Year</span></li>
+        <li><span class="g-tab">My Touch Base</span> &mdash; every consultant's KPI tiles and year-to-date</li>
+        <li><span class="g-tab">Team Review</span> &mdash; the KPI chips on each Monday card</li>
+        <li><span class="g-tab">Track Record</span> &mdash; monthly pace and four-week KPI movement</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ---------- team ---------- -->
+  <div class="g-sec" id="g-team" data-g="b">
+    <h3>Team <span class="g-who">Everyone can read it</span> <span class="g-who mgr">Roster edits are Nels only</span></h3>
+    <div class="g-slug">The month arranged for comparison</div>
+    <p class="g-lede">Appointments, sold and close rate split by lead type, then total sold, revenue, average sale and overall close. Underneath: a close-rate matrix and each person's share of the month's revenue.</p>
+    <ol class="g-steps" data-g="m">
+      <li><b>Add a consultant.</b> Type the name as you want it shown everywhere &mdash; "Jeremy M." style keeps the tables narrow. They appear immediately in every dropdown, the day editor and the Monday board.</li>
+      <li><b>Rename one.</b> This is a real migration, not a label change: the hub moves their PIN, every logged day, every monthly pace row and every touch base to the new name, then re-syncs all of it. Use it for a spelling fix &mdash; not to hand a seat to a new hire.</li>
+      <li><b>Someone leaves.</b> Leave them on the roster until the year is out so their history stays readable. They'll show zeros in the current month, which is accurate.</li>
+    </ol>
+  </div>
+
+  <!-- ---------- forecast ---------- -->
+  <div class="g-sec" id="g-forecast" data-g="b">
+    <h3>Forecast <span class="g-who">Everyone can read it</span></h3>
+    <div class="g-slug">Assumptions are set per month</div>
+    <p class="g-lede">Where the month lands if the current appointment pace holds. Three scenarios, all built from what's actually been logged rather than from a guess.</p>
+    <ol class="g-steps">
+      <li><b>Set the month's assumptions</b> in the panel at the bottom: revenue target, working days, and fallback average sales. Working days default to the weekdays in the month &mdash; knock off holidays by hand.</li>
+      <li><b>Read the tiles.</b> Target, days logged, days remaining, revenue to date, and the daily revenue needed to land on target.</li>
+      <li><b>Read the scenarios.</b> Base case runs the current close rate and average sale forward across the remaining days. Best case adds 20% to the close rate (capped at 70%) and 5% to the ticket; worst case takes 15% off the close rate and 5% off the ticket.</li>
+    </ol>
+    <div class="g-note calm">
+      <span class="gl">Read it honestly</span>
+      <p>The projection multiplies appointments-per-logged-day by the days remaining. Early in a month two logged days is a thin base and the numbers swing hard; it settles by the second week. Assumptions save per month, so setting September's target doesn't disturb August's history.</p>
+    </div>
+  </div>
+
+  <!-- ---------- yoy ---------- -->
+  <div class="g-sec" id="g-yoy" data-g="b">
+    <h3>Year over Year <span class="g-who">Everyone can read it</span></h3>
+    <div class="g-slug">Needs a prior-year baseline for the month you're viewing</div>
+    <p class="g-lede">This month against the same month last year, matched period for period &mdash; the comparison runs only through the latest day logged, so a half-logged month is never compared against a full one.</p>
+    <ul class="g-plain">
+      <li><b>Tiles</b> &mdash; revenue, both close rates, overall close and both average sales, each with last year underneath and the gap in points or percent.</li>
+      <li><b>Day table</b> &mdash; last year's revenue and this year's, the daily difference, both running month-to-date totals, and the percentage gap.</li>
+      <li><b>Close rate &amp; ticket by day</b> &mdash; TGL and marketed side by side across both years. Read the TOTAL row; single days swing on one deal.</li>
+      <li><b>H1 A/B</b> &mdash; the fixed January&ndash;June comparison. It doesn't change with the month selector.</li>
+    </ul>
+    <p>August 2025 is loaded. Any month without a baseline says so plainly at the top and leaves the day tables empty rather than implying a comparison it can't make.</p>
+  </div>
+
+  <!-- ---------- pace & setup ---------- -->
+  <div class="g-sec" id="g-pace" data-g="m">
+    <h3>Pace &amp; Setup <span class="g-who mgr">Manager only</span></h3>
+    <div class="g-slug">Monthly, and whenever the team changes</div>
+    <p class="g-lede">Four panels. The first is the fallback path for months without a daily log; the other three are the hub's settings.</p>
+    <h4>Monthly pace report</h4>
+    <p>Pick any date in the month and enter each consultant's raw counts, plus an optional all-leads total that captures self-gen and other lead types. Close rates and tickets are calculated for you, previewed live, and warned about if sold exceeds appointments.</p>
+    <p><b>This panel does not overwrite the daily log.</b> If a month has logged days, those win and this grid is only the backup copy. Use it for history &mdash; months before the daily log existed &mdash; or a month where the log got away from you. <em>Rates only</em> mode exists for old months where the underlying counts are gone; any year containing a rates-only month reports its year-to-date as an estimate rather than pretending to be exact.</p>
+    <h4>Import from the pace report</h4>
+    <p>Paste the <b>Sales Dispatch Order</b> sheet &mdash; the header row starting <em>Advisor's Name</em> plus the consultant rows. Columns are read by name, so order doesn't matter. Nothing is written until you read the preview and press Apply, and nothing syncs until you then press <b>Save pace data</b>. A multi-month backfill file can be loaded here too.</p>
+    <h4>Targets</h4>
+    <p>The five numbers every flag in the hub triggers off. On pace is at or above target, Watch is within 85%, Sub-standard is below that. The appointments target is read as a monthly figure, so a year-to-date total is judged against target &times; months elapsed rather than the raw number.</p>
+    <h4>PINs, team &amp; connection</h4>
+    <ul class="g-plain">
+      <li><b>Consultant PINs</b> &mdash; one each; blank removes the gate for that person. Manager mode bypasses all of them.</li>
+      <li><b>Consultants</b> &mdash; the roster as a comma-separated list. The Team tab is the friendlier way to edit it.</li>
+      <li><b>Apps Script URL and team code</b> &mdash; the connection to the Google Sheet. Blank runs local-only on one device.</li>
+      <li><b>Manager PIN and end-of-day PIN</b> &mdash; both set here.</li>
+    </ul>
+  </div>
+
+  <!-- ---------- import ---------- -->
+  <div class="g-sec" id="g-import" data-g="m">
+    <h3>Import <span class="g-who mgr">Manager only</span></h3>
+    <div class="g-slug">Instead of typing a day &middot; writes straight into the daily log</div>
+    <h4>From the Nexstar Pace Report</h4>
+    <ol class="g-steps">
+      <li><b>Open the month's pace report</b> and go to the sheet for that date &mdash; the one named for the day, like <em>8th</em>.</li>
+      <li><b>Scroll to the per-rep grid</b> at the bottom, below <em>Calls Ran</em>.</li>
+      <li><b>Copy the consultant rows.</b> Column order is fixed: name, TGL appointments, sold, revenue, then marketed appointments, sold, revenue. A header row is fine &mdash; it's skipped.</li>
+      <li><b>Set the date and the service-call count</b>, paste, and press <span class="g-tab">Import day</span>.</li>
+      <li><b>Read the confirmation.</b> It says how many consultants imported and names anyone whose row didn't match the roster.</li>
+    </ol>
+    <h4>From ServiceTitan</h4>
+    <ol class="g-steps">
+      <li><b>Reports &rarr; Sales &rarr; Technician Performance.</b> Filter to the Sales business unit, date range set to that single day.</li>
+      <li><b>Expand the marketed and TGL columns</b> and use <em>Close Rate As Of</em>.</li>
+      <li><b>Copy the rows including the header.</b> This importer matches columns by name, so the header is what makes it work &mdash; and column order doesn't matter.</li>
+      <li><b>Set the date, paste, import.</b> If it finds the header but no TGL or marketed columns it says so rather than importing zeros.</li>
+    </ol>
+    <div class="g-note">
+      <span class="gl">Name matching</span>
+      <p>Reports say "Jeremy Murray" or "Murray, Jeremy"; the hub says "Jeremy M." The importer matches on first name plus initial, either order. Anything it can't place is still imported under the name as typed and called out in the confirmation &mdash; so a new hire who isn't on the roster shows up as a stranger rather than silently vanishing. Add them on the Team tab and re-import that day.</p>
+    </div>
+    <h4>Backup</h4>
+    <ul class="g-plain">
+      <li><b>Download full backup</b> &mdash; one JSON file with the daily log, monthly pace, every touch base, debrief, coached call and setting. Worth doing at month end.</li>
+      <li><b>Daily log as CSV</b> &mdash; the selected month, one row per consultant per day.</li>
+      <li><b>Clear this month's daily log</b> &mdash; wipes the logged days for the month in the header and nothing else. Touch bases and debriefs are untouched. It asks first.</li>
+    </ul>
+  </div>
+
+  <!-- ---------- rollover ---------- -->
+  <div class="g-sec" id="g-rollover" data-g="m">
+    <h3>Month rollover <span class="g-who mgr">Manager only</span></h3>
+    <p class="g-lede">Nothing breaks at midnight on the 1st &mdash; the hub is month-aware throughout. Five minutes of housekeeping keeps it clean.</p>
+    <ol class="g-steps">
+      <li><b>Change the month box</b> to the new month. The Daily Log opens empty and waiting.</li>
+      <li><b>Set the Forecast assumptions</b> &mdash; the revenue target from the new pace report, and working days minus holidays. Everything else carries forward.</li>
+      <li><b>Download a full backup</b> from the Import tab for the month that just closed.</li>
+      <li><b>Check the closed month reconciles.</b> Open the Scoreboard on the old month and compare against the pace report's monthly actuals. If they differ, a day is missing or double-entered &mdash; the Daily Log shows which.</li>
+      <li><b>Load the prior-year baseline</b> for the new month if you want year-over-year.</li>
+    </ol>
+  </div>
+
+  <!-- ---------- troubleshooting ---------- -->
+  <div class="g-sec" id="g-trouble" data-g="b">
+    <h3>When it looks wrong</h3>
+    <div class="tbl-wrap"><table class="g-tbl">
+      <tr><th>What you see</th><th>What it means</th></tr>
+      <tr><td>Sync error</td><td>The hub is working from the copy on this device and will push when the connection is back. Keep going &mdash; nothing is lost. If it stays red all day, tell Nels.</td></tr>
+      <tr><td>Scoreboard all dashes</td><td>No days logged for that month yet. It fills in as the month goes.</td></tr>
+      <tr><td>No focus card on Debrief</td><td>No touch base submitted this week. Debriefs still save and still count &mdash; you just won't be asked the focus question.</td></tr>
+      <tr><td>Numbers look off</td><td>Check the month box in the header first. Then tell Nels which day looks wrong &mdash; he can correct any single day and everything recalculates.</td></tr>
+      <tr><td>PIN not accepted</td><td>Ask Nels. Don't use somebody else's &mdash; the entry saves under whoever's name is in the dropdown.</td></tr>
+      <tr data-g="m"><td>Close rate above 100%</td><td>Sold exceeds appointments on some day. The day editor warns as you type; open that consultant's days and find it.</td></tr>
+      <tr data-g="m"><td>Ticket looks wild</td><td>Revenue logged against zero sold, or a day entered twice. Check the day cards for a duplicate figure.</td></tr>
+      <tr data-g="m"><td>A consultant reads zero</td><td>Their name on the imported report didn't match the roster. Add them on the Team tab and re-import that day.</td></tr>
+      <tr data-g="m"><td>Touch base says "pace report"</td><td>No days logged for that month, so it fell back. Log a day and it switches over.</td></tr>
+      <tr data-g="m"><td>Queue never empties</td><td>Unsold debriefs stay until an HA/ZT is <em>made</em>. "Scheduled" keeps them there on purpose.</td></tr>
+    </table></div>
+    <p class="g-end"><b>The short version.</b> Debrief every call while you're still in the driveway. Write a behavior on Monday that can be counted. Grade last week before you plan this one. <span data-g="m">And log every day, in one place, on the day &mdash; every number in the hub is only ever as current as the last day logged.</span></p>
+  </div>
+
+  </div><!-- /g-body -->
+</section>
+
 </main>
 
 <div class="toast" id="toast"></div>
@@ -914,7 +1758,14 @@ function deriveKpis(p){
   out.mktTicket = (mr!=null&&ms)       ? mr/ms             : g('mktTicket');
   return out;
 }
-function getPaceRaw(month,rep){ return (state.pace[month]||{})[rep]||{}; }
+function getPaceRaw(month,rep){
+  const pasted=(state.pace[month]||{})[rep]||{};
+  /* A month with a daily log wins: the rollup is the same six counts, summed from
+     what was actually logged, so nothing downstream has to know the difference. */
+  const roll=(typeof dailyRollup==='function')?dailyRollup(month,rep):null;
+  if(!roll) return pasted;
+  return Object.assign({},pasted,roll,{appts:(roll.tglAppts||0)+(roll.mktAppts||0),_src:'daily'});
+}
 function getPace(month,rep){
   const p=getPaceRaw(month,rep);
   return Object.assign({}, p, deriveKpis(p));
@@ -983,7 +1834,7 @@ function normPace(p){
   const out={};
   for(const k of Object.keys(p||{})){
     let nk=k;
-    if(!/^\d{4}-\d{2}$/.test(k)){
+    if(!/^\d{4}-\d{2}$/.test(k) && !/~/.test(k)){
       const d=new Date(k);
       if(!isNaN(d)) nk=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
     }
@@ -998,6 +1849,7 @@ async function loadRemote(){
     const j=await r.json();
     if(j.error) throw new Error(j.error);
     state={config:{...structuredClone(DEFAULT_CONFIG),...(j.config||{})}, pace:normPace(j.pace||{}), entries:j.entries||[]};
+    state.config.monthly=state.config.monthly||{};
     cache(); setSync('ok'); refreshAll();
   }catch(e){ setSync('err'); toast('Sync failed: '+(e.message||'network error')+' — working from local copy'); }
 }
@@ -1023,6 +1875,13 @@ function showView(v){
   if(v==='track') renderTrack();
   if(v==='coach') renderCoach();
   if(v==='pace') renderPaceView();
+  if(v==='overview') renderOverview();
+  if(v==='daily') renderDailyLog();
+  if(v==='team') renderTeamPerf();
+  if(v==='forecast') renderForecast();
+  if(v==='yoy') renderYoY();
+  if(v==='import') renderImportView();
+  if(v==='guide') renderGuide();
 }
 function toggleManager(){
   if(managerOn){ managerOn=false; sessionStorage.removeItem('leslie_tb_mgr'); sessionStorage.removeItem('leslie_tb_owner'); }
@@ -1032,7 +1891,8 @@ function toggleManager(){
     else if(pin!==null){ toast('Incorrect PIN'); }
   }
   $('mgrBtn').classList.toggle('on',managerOn);
-  renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach(); renderDebrief();
+  renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach(); renderDebrief(); renderNumbers();
+  renderGuide();
 }
 
 /* =================== my touch base =================== */
@@ -1082,7 +1942,9 @@ function buildOppSelectors(){
 function renderPaceStrip(){
   const rep=$('tbRep').value, week=$('tbWeek').value, mk=monthKey(week);
   const p=getPace(mk,rep);
-  $('paceSrc').textContent=`Pulled from the ${new Date(mk+'-15T12:00:00').toLocaleString('en-US',{month:'long',year:'numeric'})} Sales Manager Pace Report for ${rep}.`;
+  $('paceSrc').innerHTML = (p._src==='daily')
+    ? `Rolled up from the ${monthName(mk,true)} daily log for ${rep} &mdash; ${daysLogged(mk).length} day(s) logged so far.`
+    : `Pulled from the ${monthName(mk,true)} Sales Manager Pace Report for ${rep.replace(/\.$/,'')}.`;
   const y=ytdFor(mk.slice(0,4),rep,mk);
   $('paceStrip').innerHTML=KPIS.map(k=>{
     const f=flagFor(k.key,p[k.key]);
@@ -1286,7 +2148,7 @@ function kpiMove(rep,week,key){
 function trackYears(rep){
   const ys=new Set();
   state.entries.filter(e=>e.rep===rep).forEach(e=>ys.add(e.week.slice(0,4)));
-  Object.keys(state.pace||{}).forEach(mk=>{ if((state.pace[mk]||{})[rep]) ys.add(mk.slice(0,4)); });
+  Object.keys(state.pace||{}).forEach(mk=>{ if(mk.includes('~')) return; if((state.pace[mk]||{})[rep]) ys.add(mk.slice(0,4)); });
   ys.add(String(new Date().getFullYear()));
   return [...ys].sort().reverse();
 }
@@ -1326,7 +2188,7 @@ function renderTrack(){
 
   const entries=state.entries.filter(e=>e.rep===rep && e.week.slice(0,4)===year)
                              .sort((a,b)=>a.week<b.week?-1:1);
-  const paceMonths=Object.keys(state.pace||{}).filter(mk=>mk.slice(0,4)===year && (state.pace[mk]||{})[rep]);
+  const paceMonths=Object.keys(state.pace||{}).filter(mk=>!mk.includes('~') && mk.slice(0,4)===year && (state.pace[mk]||{})[rep]);
   const monthKeys=[...new Set([...paceMonths, ...entries.map(e=>monthKey(e.week))])].sort().reverse();
 
   /* ---- commitment ledger ---- */
@@ -1464,7 +2326,7 @@ function ccRenderQueue(){
     </div>`).join('');
 }
 function ccFromQueue(payload){
-  const q=JSON.parse(JSON.parse(payload));
+  const q=(typeof payload==='string')?JSON.parse(payload):payload;
   cc.queueRef={rep:q.rep, week:q.week, idx:q.idx};
   $('ccRep').value=q.rep; $('ccCust').value=q.customer;
   ccSetMode('zt');
@@ -1611,7 +2473,7 @@ function renderPaceGrid(){
     html+=`<tr><th rowspan="2" style="vertical-align:bottom">Consultant</th><th class="grp" colspan="3">TGL</th><th class="grp" colspan="3">MARKETED</th><th class="grp">ALL</th><th rowspan="2" style="vertical-align:bottom">Calculated</th></tr>`;
     html+=`<tr>${grid.map(f=>`<th>${f.label}</th>`).join('')}</tr>`;
     state.config.reps.forEach(rep=>{
-      const p=getPaceRaw(mk,rep);
+      const p=pastedPace(mk,rep);
       html+=`<tr><td><b>${rep}</b></td>${grid.map(f=>
         `<td><input type="number" step="any" min="0" data-pace="${rep}|${f.key}" value="${p[f.key]??''}"
            ${f.key==='appts'?'placeholder="auto"':''} oninput="paceRowCalc(this)"></td>`
@@ -1620,7 +2482,7 @@ function renderPaceGrid(){
   }else{
     html+=`<tr><th>Consultant</th>${KPIS.map(k=>`<th>${k.label}</th>`).join('')}</tr>`;
     state.config.reps.forEach(rep=>{
-      const p=getPaceRaw(mk,rep);
+      const p=pastedPace(mk,rep);
       html+=`<tr><td><b>${rep}</b></td>${KPIS.map(k=>`<td><input type="number" step="any" data-pace="${rep}|${k.key}" value="${p[k.key]??''}"></td>`).join('')}</tr>`;
     });
   }
@@ -1909,6 +2771,745 @@ async function saveSetup(){
   fillRepSelects(); toast('Setup saved'); loadRemote();
 }
 
+
+/* ===================================================================
+   DAILY LOG + SALES TRACKER
+   -------------------------------------------------------------------
+   The daily log is the source of truth. Every day is stored as its own
+   pace row keyed "YYYY-MM~DD", which the existing sync backend already
+   accepts and hands back verbatim (the tilde stops Sheets reading the
+   key as a date). getPaceRaw() rolls those days up, so the scoreboard,
+   team review, track record and year-to-date all derive from what was
+   actually logged — no monthly paste required.
+   =================================================================== */
+
+const CALLS_ROW='~calls';
+const TEAM_ROW='~team';
+const LS_CTXM='leslie_tb_ctxmonth';
+
+/* ---- month context ---- */
+function ctxMK(){
+  const el=$('ctxMonth');
+  return (el&&el.value)||localStorage.getItem(LS_CTXM)||new Date().toISOString().slice(0,7);
+}
+function setCtxMonth(v){
+  localStorage.setItem(LS_CTXM,v);
+  renderNumbers();
+}
+function monthName(mk,long){
+  return new Date(mk+'-15T12:00:00').toLocaleString('en-US',{month:long?'long':'short',year:'numeric'});
+}
+function mAbbr(mk){return new Date(mk+'-15T12:00:00').toLocaleString('en-US',{month:'short'});}
+function daysInMonth(mk){const[y,m]=mk.split('-').map(Number);return new Date(y,m,0).getDate();}
+function weekdaysIn(mk){
+  let n=0; const[y,m]=mk.split('-').map(Number);
+  for(let d=1;d<=daysInMonth(mk);d++){const w=new Date(y,m-1,d).getDay(); if(w>0&&w<6)n++;}
+  return n;
+}
+function isWeekend(mk,d){const[y,m]=mk.split('-').map(Number);const w=new Date(y,m-1,d).getDay();return w===0||w===6;}
+function prevYearMK(mk){return (Number(mk.slice(0,4))-1)+mk.slice(4);}
+function dayKey(mk,d){return mk+'~'+String(d).padStart(2,'0');}
+
+/* ---- daily reads ---- */
+function dayRec(mk,d){return state.pace[dayKey(mk,d)]||null;}
+function dayReps(mk,d){
+  const r=dayRec(mk,d)||{}, o={};
+  for(const k of Object.keys(r)) if(k[0]!=='~') o[k]=r[k];
+  return o;
+}
+function dayCalls(mk,d){const r=dayRec(mk,d);return r&&r[CALLS_ROW]?(num(r[CALLS_ROW].n)||0):0;}
+function rowLive(r){return !!(num(r.tglAppts)||num(r.mktAppts)||num(r.tglSold)||num(r.mktSold)||num(r.tglRev)||num(r.mktRev));}
+function dayHasData(mk,d){return Object.values(dayReps(mk,d)).some(rowLive);}
+function daysLogged(mk){
+  const out=[]; for(let d=1;d<=daysInMonth(mk);d++) if(dayHasData(mk,d)) out.push(d);
+  return out;
+}
+function monthHasDaily(mk){return daysLogged(mk).length>0;}
+
+/* A consultant's month, summed from the days they actually appear in. */
+function dailyRollup(mk,rep){
+  const T={tglAppts:0,tglSold:0,tglRev:0,mktAppts:0,mktSold:0,mktRev:0};
+  let any=false;
+  for(let d=1;d<=daysInMonth(mk);d++){
+    const r=(dayRec(mk,d)||{})[rep]; if(!r) continue;
+    let touched=false;
+    RAW_FIELDS.forEach(f=>{const v=num(r[f.key]); if(v!=null){T[f.key]+=v;touched=true;}});
+    if(touched) any=true;
+  }
+  return any?T:null;
+}
+/* The monthly grid still edits the pasted numbers, never the rollup. */
+function pastedPace(month,rep){return (state.pace[month]||{})[rep]||{};}
+
+/* ---- writes ---- */
+async function saveDay(mk,d,reps,calls){
+  const key=dayKey(mk,d);
+  const rec={};
+  for(const rep of Object.keys(reps)){
+    const r=reps[rep];
+    if(rowLive(r)) rec[rep]={tglAppts:r.tglAppts||0,tglSold:r.tglSold||0,tglRev:r.tglRev||0,
+                             mktAppts:r.mktAppts||0,mktSold:r.mktSold||0,mktRev:r.mktRev||0};
+  }
+  if(calls) rec[CALLS_ROW]={n:calls};
+  state.pace[key]=rec;
+  await push('savePace',{month:key,data:rec});
+}
+
+/* ---- team + per-consultant totals for a month ---- */
+function mtdTot(mk){
+  const t={tglAppts:0,tglSold:0,tglRev:0,mktAppts:0,mktSold:0,mktRev:0,calls:0};
+  for(let d=1;d<=daysInMonth(mk);d++){
+    t.calls+=dayCalls(mk,d);
+    for(const r of Object.values(dayReps(mk,d)))
+      RAW_FIELDS.forEach(f=>{t[f.key]+=num(r[f.key])||0;});
+  }
+  t.rev=t.tglRev+t.mktRev; t.appts=t.tglAppts+t.mktAppts; t.sold=t.tglSold+t.mktSold;
+  return t;
+}
+function repTot(mk,rep){
+  const T=dailyRollup(mk,rep)||{tglAppts:0,tglSold:0,tglRev:0,mktAppts:0,mktSold:0,mktRev:0};
+  const t={...T};
+  t.rev=t.tglRev+t.mktRev; t.appts=t.tglAppts+t.mktAppts; t.sold=t.tglSold+t.mktSold;
+  return t;
+}
+/* Same 7-day blocks the tracker has always used: 1-7, 8-14, 15-21, 22-28, 29-end. */
+function weekBlocks(mk){
+  const n=daysInMonth(mk), out=[];
+  for(let s=1;s<=n;s+=7) out.push({week:out.length+1,days:Array.from({length:Math.min(7,n-s+1)},(_,i)=>s+i)});
+  return out;
+}
+function weekTot(mk,rep){
+  return weekBlocks(mk).map(w=>{
+    const t={week:w.week,days:w.days,tglAppts:0,tglSold:0,tglRev:0,mktAppts:0,mktSold:0,mktRev:0};
+    for(const d of w.days){
+      const reps=dayReps(mk,d);
+      for(const [nm,r] of Object.entries(reps)){
+        if(rep&&nm!==rep) continue;
+        RAW_FIELDS.forEach(f=>{t[f.key]+=num(r[f.key])||0;});
+      }
+    }
+    t.rev=t.tglRev+t.mktRev; t.appts=t.tglAppts+t.mktAppts; t.sold=t.tglSold+t.mktSold;
+    return t;
+  });
+}
+
+/* ---- month settings (target, workdays, fallback tickets) ---- */
+function monthCfg(mk){
+  state.config.monthly=state.config.monthly||{};
+  let c=state.config.monthly[mk];
+  if(!c){
+    const prior=Object.keys(state.config.monthly).filter(k=>k<mk).sort().pop();
+    const base=prior?state.config.monthly[prior]:null;
+    c={target:base?base.target:1122975, workdays:weekdaysIn(mk),
+       tglAvg:base?base.tglAvg:14300, mktAvg:base?base.mktAvg:11500};
+    state.config.monthly[mk]=c;
+  }
+  if(!c.workdays) c.workdays=weekdaysIn(mk);
+  return c;
+}
+
+/* ---- small formatters (kept separate from the hub's fmt) ---- */
+function tMoney(n){return '$'+Math.round(n||0).toLocaleString();}
+function tPct(a,b){return b?Math.round(100*a/b)+'%':'\u2014';}
+function rateCls(p){return p==null?'':p>=50?'ok':p>=35?'watch':'sub';}
+function statCard(label,value,sub,cls){
+  return `<div class="kpi ${cls||''}"><div class="k-label">${label}</div><div class="k-val">${value}</div><div class="k-tgt">${sub||''}</div></div>`;
+}
+
+/* =================== year-over-year baseline =================== */
+/* Prior-year daily team totals, keyed by month. August 2025 came out of the
+   Nexstar Pace Report daily sheets and reconciles to that month's actuals
+   (37 TGL + 18 Marketed deals, $826,532). Add a month here and the whole
+   year-over-year view lights up for it. */
+const YOY_BASE = {"2025-08":{"1":{"tglAppts":5,"tglSold":3,"tglRev":43009,"mktAppts":0,"mktSold":0,"mktRev":0},"2":{"tglAppts":1,"tglSold":0,"tglRev":0,"mktAppts":0,"mktSold":0,"mktRev":0},"4":{"tglAppts":1,"tglSold":1,"tglRev":16000,"mktAppts":1,"mktSold":1,"mktRev":12500},"5":{"tglAppts":3,"tglSold":1,"tglRev":16500,"mktAppts":2,"mktSold":1,"mktRev":26000},"6":{"tglAppts":2,"tglSold":1,"tglRev":22000,"mktAppts":1,"mktSold":0,"mktRev":0},"7":{"tglAppts":3,"tglSold":2,"tglRev":32666,"mktAppts":1,"mktSold":0,"mktRev":0},"8":{"tglAppts":2,"tglSold":2,"tglRev":23000,"mktAppts":3,"mktSold":1,"mktRev":14000},"9":{"tglAppts":1,"tglSold":1,"tglRev":17000,"mktAppts":1,"mktSold":0,"mktRev":0},"10":{"tglAppts":2,"tglSold":2,"tglRev":21000,"mktAppts":0,"mktSold":0,"mktRev":0},"11":{"tglAppts":3,"tglSold":2,"tglRev":30768,"mktAppts":4,"mktSold":3,"mktRev":41250},"12":{"tglAppts":3,"tglSold":2,"tglRev":36000,"mktAppts":3,"mktSold":2,"mktRev":17900},"13":{"tglAppts":5,"tglSold":2,"tglRev":35365,"mktAppts":1,"mktSold":0,"mktRev":0},"14":{"tglAppts":3,"tglSold":1,"tglRev":12900,"mktAppts":1,"mktSold":0,"mktRev":0},"15":{"tglAppts":4,"tglSold":2,"tglRev":31000,"mktAppts":1,"mktSold":0,"mktRev":0},"16":{"tglAppts":2,"tglSold":1,"tglRev":23000,"mktAppts":0,"mktSold":0,"mktRev":0},"18":{"tglAppts":1,"tglSold":1,"tglRev":21000,"mktAppts":3,"mktSold":1,"mktRev":12000},"19":{"tglAppts":3,"tglSold":2,"tglRev":27696,"mktAppts":0,"mktSold":0,"mktRev":0},"20":{"tglAppts":6,"tglSold":2,"tglRev":52624,"mktAppts":1,"mktSold":1,"mktRev":16977},"21":{"tglAppts":4,"tglSold":0,"tglRev":0,"mktAppts":3,"mktSold":1,"mktRev":11500},"22":{"tglAppts":5,"tglSold":4,"tglRev":60738,"mktAppts":0,"mktSold":0,"mktRev":0},"23":{"tglAppts":1,"tglSold":0,"tglRev":0,"mktAppts":0,"mktSold":0,"mktRev":0},"25":{"tglAppts":1,"tglSold":1,"tglRev":15000,"mktAppts":4,"mktSold":1,"mktRev":13500},"26":{"tglAppts":2,"tglSold":0,"tglRev":0,"mktAppts":2,"mktSold":2,"mktRev":34700},"27":{"tglAppts":3,"tglSold":1,"tglRev":12709,"mktAppts":1,"mktSold":1,"mktRev":4500},"28":{"tglAppts":2,"tglSold":0,"tglRev":0,"mktAppts":3,"mktSold":2,"mktRev":24180},"29":{"tglAppts":2,"tglSold":2,"tglRev":25450,"mktAppts":2,"mktSold":0,"mktRev":0},"30":{"tglAppts":2,"tglSold":1,"tglRev":13900,"mktAppts":2,"mktSold":1,"mktRev":8200}}};
+function yoyMonth(mk){return YOY_BASE[prevYearMK(mk)]||null;}
+function yoyDay(mk,d){const m=yoyMonth(mk);return m?(m[String(d)]||null):null;}
+function yoyTot(mk,throughDay){
+  const m=yoyMonth(mk)||{};
+  const t={tglAppts:0,tglSold:0,tglRev:0,mktAppts:0,mktSold:0,mktRev:0};
+  for(const [d,v] of Object.entries(m)){
+    if(throughDay&&+d>throughDay) continue;
+    t.tglAppts+=v.tglAppts;t.tglSold+=v.tglSold;t.tglRev+=v.tglRev;
+    t.mktAppts+=v.mktAppts;t.mktSold+=v.mktSold;t.mktRev+=v.mktRev;
+  }
+  t.rev=t.tglRev+t.mktRev; t.appts=t.tglAppts+t.mktAppts; t.sold=t.tglSold+t.mktSold;
+  return t;
+}
+
+/* =================== OVERVIEW =================== */
+function renderOverview(){
+  const mk=ctxMK(), t=mtdTot(mk), logged=daysLogged(mk), cfg=monthCfg(mk);
+  const live=monthHasDaily(mk);
+  $('ovSrc').className='t-src'+(live?' live':'');
+  $('ovSrc').textContent=live?'from the daily log':'no daily log yet';
+  $('ovSub').innerHTML=live
+    ? `${monthName(mk,true)} &mdash; ${logged.length} day${logged.length===1?'':'s'} logged. Every scoreboard in this hub reads these numbers.`
+    : `${monthName(mk,true)} has nothing in the daily log yet. Log a day, or paste one in from a report, and the whole hub follows.`;
+  const prog=cfg.target?Math.min(100,Math.round(100*t.rev/cfg.target)):0;
+
+  $('ovCards').innerHTML=
+    statCard('Revenue month to date',tMoney(t.rev),`${prog}% of ${tMoney(cfg.target)}`,prog>=100?'ok':prog>=70?'watch':'sub')+
+    statCard('Sold',t.sold,`TGL ${t.tglSold} &middot; Marketed ${t.mktSold}`)+
+    statCard('Overall close',tPct(t.sold,t.appts),`TGL ${tPct(t.tglSold,t.tglAppts)} &middot; Mkt ${tPct(t.mktSold,t.mktAppts)}`)+
+    statCard('Appointments run',t.appts,`TGL ${t.tglAppts} &middot; Marketed ${t.mktAppts}`)+
+    statCard('Service calls',t.calls,`${logged.length} day${logged.length===1?'':'s'} logged`)+
+    (()=>{const md=logged.length?Math.max(...logged):0;
+      if(!yoyMonth(mk)) return statCard('vs last year','\u2014','No '+monthName(prevYearMK(mk),true)+' baseline loaded');
+      const ly=yoyTot(mk,md||31), full=yoyTot(mk);
+      if(!md) return statCard('vs last year','\u2014',monthName(prevYearMK(mk),true)+' total: '+tMoney(full.rev));
+      const diff=t.rev-ly.rev, p=ly.rev?Math.round(100*diff/ly.rev):0;
+      return statCard(`vs last year (thru the ${md}${ord(md)})`,(diff>=0?'+':'')+p+'%',
+        `${tMoney(t.rev)} vs ${tMoney(ly.rev)} &middot; full month ${tMoney(full.rev)}`,diff>=0?'ok':'sub');})();
+
+  $('ovAvgCards').innerHTML=
+    statCard('TGL avg ticket',t.tglSold?tMoney(t.tglRev/t.tglSold):'\u2014',`${t.tglSold} sold &middot; ${tMoney(t.tglRev)}`)+
+    statCard('Marketed avg ticket',t.mktSold?tMoney(t.mktRev/t.mktSold):'\u2014',`${t.mktSold} sold &middot; ${tMoney(t.mktRev)}`)+
+    statCard('Cumulative avg ticket',t.sold?tMoney(t.rev/t.sold):'\u2014',`${t.sold} sold &middot; ${tMoney(t.rev)}`);
+
+  /* pace alert */
+  let alert='';
+  if(logged.length){
+    const gap=cfg.target-t.rev, left=Math.max(0,cfg.workdays-logged.length);
+    const need=left>0?gap/left:0, pace=t.rev/Math.max(1,logged.length);
+    if(gap<=0) alert=`<div class="t-alert ok">Target cleared &mdash; ${tMoney(t.rev)} against a ${tMoney(cfg.target)} goal.</div>`;
+    else if(left===0) alert=`<div class="t-alert sub">No working days left and ${tMoney(gap)} short of ${tMoney(cfg.target)}.</div>`;
+    else if(need>pace*1.5) alert=`<div class="t-alert sub">Behind pace &mdash; ${tMoney(need)} a day for the ${left} day${left===1?'':'s'} left to hit target. Running at ${tMoney(pace)} a day.</div>`;
+    else alert=`<div class="t-alert warn">On track &mdash; ${tMoney(need)} a day over the ${left} day${left===1?'':'s'} left. Running at ${tMoney(pace)} a day.</div>`;
+  }
+  $('ovAlert').innerHTML=alert;
+
+  /* per-consultant */
+  const reps=state.config.reps;
+  $('ovRepTbl').querySelector('tbody').innerHTML=reps.map(rep=>{
+    const r=repTot(mk,rep);
+    return `<tr><td><b>${rep}</b></td>
+      <td class="num">${r.tglAppts}</td><td class="num">${r.tglSold}</td>
+      <td class="num">${r.mktAppts}</td><td class="num">${r.mktSold}</td>
+      <td class="num">${tMoney(r.rev)}</td><td class="num">${tPct(r.sold,r.appts)}</td></tr>`;
+  }).join('');
+  $('ovRepTbl').querySelector('tfoot').innerHTML=`<tr class="t-total"><td>TOTAL</td>
+    <td class="num">${t.tglAppts}</td><td class="num">${t.tglSold}</td>
+    <td class="num">${t.mktAppts}</td><td class="num">${t.mktSold}</td>
+    <td class="num">${tMoney(t.rev)}</td><td class="num">${tPct(t.sold,t.appts)}</td></tr>`;
+
+  $('ovProgress').innerHTML=
+    `<div class="t-progrow"><div class="lbl"><span><b>Team</b></span><span>${tMoney(t.rev)} / ${tMoney(cfg.target)}</span></div>
+      <div class="t-prog"><i class="${prog>=100?'ok':prog>=70?'':'sub'}" style="width:${prog}%"></i></div></div>`+
+    reps.map(rep=>{
+      const r=repTot(mk,rep);
+      const share=cfg.target?Math.min(100,Math.round(100*r.rev/(cfg.target/reps.length))):0;
+      return `<div class="t-progrow"><div class="lbl"><span>${rep}</span><span>${tMoney(r.rev)} &middot; ${r.sold} sold</span></div>
+        <div class="t-prog"><i style="width:${share}%"></i></div></div>`;
+    }).join('');
+
+  /* weekly */
+  const weeks=weekTot(mk,null);
+  $('ovWeekly').querySelector('tbody').innerHTML=weeks.map(w=>`<tr>
+    <td><b>Week ${w.week}</b> <span class="hint">(${mAbbr(mk)} ${w.days[0]}&ndash;${w.days[w.days.length-1]})</span><br>
+      <b>${tPct(w.sold,w.appts)} close</b> <span class="hint">TGL ${tPct(w.tglSold,w.tglAppts)} &middot; Mkt ${tPct(w.mktSold,w.mktAppts)}</span></td>
+    <td class="num">${w.tglAppts}</td><td class="num">${w.tglSold}</td>
+    <td class="num">${w.mktAppts}</td><td class="num">${w.mktSold}</td>
+    <td class="num">${tMoney(w.rev)}</td></tr>`).join('');
+
+  const chip=(label,sold,appts,tS,tA,mS,mA,big)=>{
+    const has=appts>0, p=has?Math.round(100*sold/appts):null;
+    const tip=has?`TGL ${tS}/${tA} (${tPct(tS,tA)}) \u00b7 Marketed ${mS}/${mA} (${tPct(mS,mA)})`:'No appointments';
+    return `<div class="t-wc${big?' big':''}" title="${tip}"><div class="l">${label}</div>
+      <div class="v ${has?rateCls(p):'none'}">${has?p+'%':'\u2014'}</div>
+      <div class="d">${has?sold+'/'+appts:'no appts'}</div></div>`;
+  };
+  const wl=w=>`Wk ${w.week} \u00b7 ${w.days[0]}\u2013${w.days[w.days.length-1]}`;
+  $('ovRepWeekly').innerHTML=reps.map(rep=>{
+    const rw=weekTot(mk,rep), r=repTot(mk,rep);
+    return `<div class="t-wk"><div class="who">${rep}</div>
+      ${rw.map(w=>chip(wl(w),w.sold,w.appts,w.tglSold,w.tglAppts,w.mktSold,w.mktAppts,false)).join('')}
+      ${chip('MTD',r.sold,r.appts,r.tglSold,r.tglAppts,r.mktSold,r.mktAppts,true)}</div>`;
+  }).join('')+
+  `<div class="t-wk t-teamrow"><div class="who">TEAM</div>
+    ${weeks.map(w=>chip(wl(w),w.sold,w.appts,w.tglSold,w.tglAppts,w.mktSold,w.mktAppts,false)).join('')}
+    ${chip('MTD',t.sold,t.appts,t.tglSold,t.tglAppts,t.mktSold,t.mktAppts,true)}</div>`;
+}
+function ord(n){const s=['th','st','nd','rd'],v=n%100;return s[(v-20)%10]||s[v]||s[0];}
+
+/* =================== DAILY LOG =================== */
+function dlToday(){
+  const mk=ctxMK(), now=new Date().toISOString().slice(0,10);
+  return monthKey(now)===mk?Number(now.slice(8,10)):1;
+}
+function renderDailyLog(){
+  const mk=ctxMK();
+  $('dlMonthName').innerHTML=`<span class="t-src">${monthName(mk,true)}</span>`;
+  $('dlLocked').style.display=managerOn?'none':'';
+  $('dlBody').style.display=managerOn?'':'none';
+  if(!managerOn) return;
+  const logged=daysLogged(mk), t=mtdTot(mk);
+  $('dlSummary').innerHTML=`${logged.length} of ${daysInMonth(mk)} days logged &middot; ${tMoney(t.rev)} &middot; ${t.sold} sold`;
+  const reps=state.config.reps;
+  let html='';
+  for(let d=1;d<=daysInMonth(mk);d++){
+    const rec=dayReps(mk,d), has=dayHasData(mk,d);
+    const rev=Object.values(rec).reduce((s,r)=>s+(num(r.tglRev)||0)+(num(r.mktRev)||0),0);
+    const ly=yoyDay(mk,d);
+    html+=`<div class="t-day ${has?'has':'none'}${isWeekend(mk,d)?' wknd':''}">
+      <h4><span>${mAbbr(mk)} ${d}</span><span class="r">${has?tMoney(rev)+' &middot; '+dayCalls(mk,d)+' calls':'Nothing logged'}${ly?'<br>LY '+tMoney(ly.tglRev+ly.mktRev):''}</span></h4>
+      ${has?`<div class="t-drow t-dhead"><div>&nbsp;</div><div class="c">TGA</div><div class="c">TGS</div><div class="c">MKA</div><div class="c">MKS</div><div class="m">Revenue</div></div>`+
+        reps.filter(r=>rec[r]&&rowLive(rec[r])).map(r=>{const v=rec[r];
+          return `<div class="t-drow"><b>${r}</b>
+            <div class="c">${num(v.tglAppts)||'\u2014'}</div><div class="c">${num(v.tglSold)||'\u2014'}</div>
+            <div class="c">${num(v.mktAppts)||'\u2014'}</div><div class="c">${num(v.mktSold)||'\u2014'}</div>
+            <div class="m">${((num(v.tglRev)||0)+(num(v.mktRev)||0))?tMoney((num(v.tglRev)||0)+(num(v.mktRev)||0)):'\u2014'}</div></div>`;
+        }).join('')
+      :'<div class="t-empty">Click Edit to log this day</div>'}
+      <button class="btn ghost small" style="width:100%;margin-top:9px" onclick="dlOpen(${d})">Edit</button>
+    </div>`;
+  }
+  $('dlGrid').innerHTML=html;
+}
+let dlDay=null;
+function dlOpen(d){
+  if(!managerOn){toast('Manager PIN required to edit the daily log');return;}
+  const mk=ctxMK(); dlDay=d;
+  const rec=dayReps(mk,d);
+  $('dlModalTitle').textContent=new Date(`${mk}-${String(d).padStart(2,'0')}T12:00:00`)
+    .toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  $('dlCalls').value=dayCalls(mk,d)||'';
+  $('dlModalBody').innerHTML=state.config.reps.map(rep=>{
+    const v=rec[rep]||{};
+    const inp=(k,w)=>`<input type="number" min="0" step="any" data-dl="${rep}|${k}" value="${v[k]??''}" oninput="dlWarn()">`;
+    return `<tr><td><b>${rep}</b></td>
+      <td>${inp('tglAppts')}</td><td>${inp('tglSold')}</td><td>${inp('tglRev')}</td>
+      <td>${inp('mktAppts')}</td><td>${inp('mktSold')}</td><td>${inp('mktRev')}</td></tr>`;
+  }).join('');
+  dlWarn();
+  $('dlModal').classList.add('on');
+}
+function dlClose(){$('dlModal').classList.remove('on');dlDay=null;}
+function dlWarn(){
+  const g=(rep,k)=>{const i=document.querySelector(`input[data-dl="${CSS.escape(rep+'|'+k)}"]`);return i?num(i.value):null;};
+  const w=[];
+  state.config.reps.forEach(rep=>{
+    const ta=g(rep,'tglAppts'),ts=g(rep,'tglSold'),ma=g(rep,'mktAppts'),ms=g(rep,'mktSold');
+    const tr=g(rep,'tglRev'),mr=g(rep,'mktRev');
+    if(ts!=null&&ta!=null&&ts>ta) w.push(`${rep}: TGL sold exceeds TGL appointments`);
+    if(ms!=null&&ma!=null&&ms>ma) w.push(`${rep}: Marketed sold exceeds Marketed appointments`);
+    if(tr&&!ts) w.push(`${rep}: TGL revenue with no TGL sale`);
+    if(mr&&!ms) w.push(`${rep}: Marketed revenue with no Marketed sale`);
+  });
+  $('dlModalWarn').innerHTML=w.length?`<span class="bad">&#9888; ${w.join(' &middot; ')}</span>`:'';
+}
+async function dlSave(){
+  if(dlDay==null) return;
+  const mk=ctxMK(), reps={};
+  state.config.reps.forEach(rep=>{
+    const g=k=>{const i=document.querySelector(`input[data-dl="${CSS.escape(rep+'|'+k)}"]`);return i?(num(i.value)||0):0;};
+    reps[rep]={tglAppts:g('tglAppts'),tglSold:g('tglSold'),tglRev:g('tglRev'),
+               mktAppts:g('mktAppts'),mktSold:g('mktSold'),mktRev:g('mktRev')};
+  });
+  const d=dlDay;
+  dlClose();
+  await saveDay(mk,d,reps,num($('dlCalls').value)||0);
+  toast(`${mAbbr(mk)} ${d} saved`);
+  refreshAll();
+}
+
+/* =================== TEAM =================== */
+function renderTeamPerf(){
+  const mk=ctxMK(), t=mtdTot(mk), reps=state.config.reps;
+  $('teamSrc').className='t-src'+(monthHasDaily(mk)?' live':'');
+  $('teamSrc').textContent=monthName(mk,true);
+  $('tmTbl').querySelector('tbody').innerHTML=reps.map(rep=>{
+    const r=repTot(mk,rep);
+    return `<tr><td><b>${rep}</b></td>
+      <td class="num">${r.tglAppts}</td><td class="num">${r.tglSold}</td><td class="num">${tPct(r.tglSold,r.tglAppts)}</td>
+      <td class="num">${r.mktAppts}</td><td class="num">${r.mktSold}</td><td class="num">${tPct(r.mktSold,r.mktAppts)}</td>
+      <td class="num">${r.sold}</td><td class="num">${tMoney(r.rev)}</td>
+      <td class="num">${r.sold?tMoney(r.rev/r.sold):'\u2014'}</td><td class="num">${tPct(r.sold,r.appts)}</td>
+      <td class="mid">${managerOn?`<button class="btn ghost small" style="padding:3px 9px;font-size:.72rem" onclick="tmRename('${rep.replace(/'/g,"\\'")}')">Rename</button>`:''}</td></tr>`;
+  }).join('');
+  $('tmTbl').querySelector('tfoot').innerHTML=`<tr class="t-total"><td>TOTAL</td>
+    <td class="num">${t.tglAppts}</td><td class="num">${t.tglSold}</td><td class="num">${tPct(t.tglSold,t.tglAppts)}</td>
+    <td class="num">${t.mktAppts}</td><td class="num">${t.mktSold}</td><td class="num">${tPct(t.mktSold,t.mktAppts)}</td>
+    <td class="num">${t.sold}</td><td class="num">${tMoney(t.rev)}</td>
+    <td class="num">${t.sold?tMoney(t.rev/t.sold):'\u2014'}</td><td class="num">${tPct(t.sold,t.appts)}</td><td></td></tr>`;
+
+  const badge=(s,a)=>{
+    if(!a) return '<span class="chip">\u2014</span>';
+    const p=Math.round(100*s/a);
+    return `<span class="chip ${rateCls(p)}">${p}%</span>`;
+  };
+  $('tmMatrix').querySelector('tbody').innerHTML=reps.map(rep=>{
+    const r=repTot(mk,rep);
+    return `<tr><td>${rep}</td><td class="mid">${badge(r.tglSold,r.tglAppts)}</td>
+      <td class="mid">${badge(r.mktSold,r.mktAppts)}</td><td class="mid">${badge(r.sold,r.appts)}</td></tr>`;
+  }).join('');
+  $('tmContrib').querySelector('tbody').innerHTML=reps.map(rep=>{
+    const r=repTot(mk,rep), c=t.rev?Math.round(100*r.rev/t.rev):0;
+    return `<tr><td>${rep}</td><td class="num">${tMoney(r.rev)}</td>
+      <td class="num"><div style="display:flex;align-items:center;gap:7px;justify-content:flex-end">${c}%
+        <div class="t-prog" style="width:64px"><i style="width:${c}%"></i></div></div></td></tr>`;
+  }).join('');
+}
+async function tmAddRep(){
+  if(!managerOn){toast('Manager PIN required');return;}
+  const name=prompt('New consultant name:');
+  if(!name||!name.trim()) return;
+  const n=name.trim();
+  if(state.config.reps.includes(n)){toast('Already on the roster');return;}
+  state.config.reps.push(n);
+  await push('saveConfig',{config:state.config});
+  toast(n+' added'); refreshAll();
+}
+async function tmRename(oldName){
+  if(!managerOn){toast('Manager PIN required');return;}
+  const nn=prompt(`Rename "${oldName}" to:`,oldName);
+  if(!nn||nn===oldName) return;
+  const i=state.config.reps.indexOf(oldName);
+  if(i>=0) state.config.reps[i]=nn;
+  if(state.config.repPins&&state.config.repPins[oldName]!=null){
+    state.config.repPins[nn]=state.config.repPins[oldName];
+    delete state.config.repPins[oldName];
+  }
+  const touched=[];
+  for(const key of Object.keys(state.pace)){
+    const row=state.pace[key];
+    if(row&&row[oldName]){row[nn]=row[oldName];delete row[oldName];touched.push(key);}
+  }
+  state.entries.forEach(e=>{if(e.rep===oldName){e.rep=nn;e.id=nn+'|'+e.week;}});
+  await push('saveConfig',{config:state.config});
+  for(const key of touched) await push('savePace',{month:key,data:state.pace[key]});
+  for(const e of state.entries.filter(x=>x.rep===nn)) await push('saveEntry',{entry:e});
+  toast('Renamed to '+nn); refreshAll();
+}
+
+/* =================== FORECAST =================== */
+function renderForecast(){
+  const mk=ctxMK(), cfg=monthCfg(mk), t=mtdTot(mk), logged=daysLogged(mk).length;
+  $('fcTarget').value=cfg.target; $('fcWorkdays').value=cfg.workdays;
+  $('fcTglAvg').value=cfg.tglAvg; $('fcMktAvg').value=cfg.mktAvg;
+  const left=Math.max(0,cfg.workdays-logged);
+  const gap=Math.max(0,cfg.target-t.rev);
+  const need=left>0?gap/left:0;
+  $('fcCards').innerHTML=
+    statCard('Monthly target',tMoney(cfg.target),monthName(mk,true))+
+    statCard('Days logged',logged,`of ${cfg.workdays} working days`)+
+    statCard('Days remaining',left,left?'':'month complete')+
+    statCard('Revenue to date',tMoney(t.rev),`${cfg.target?Math.round(100*t.rev/cfg.target):0}% of target`)+
+    statCard('Daily revenue needed',left>0?tMoney(need):'\u2014',left>0?'to land on target':'no days left');
+
+  const avgSale=t.sold?t.rev/t.sold:(cfg.tglAvg+cfg.mktAvg)/2;
+  const closeR=t.appts?t.sold/t.appts:0.45;
+  const dailyAppts=logged>0?t.appts/logged:0;
+  const rows=[
+    {label:'Best case',closeR:Math.min(closeR*1.2,0.7),avgS:avgSale*1.05,cls:'best',el:'fcBest'},
+    {label:'Base case',closeR:closeR,avgS:avgSale,cls:'base',el:'fcBase'},
+    {label:'Worst case',closeR:closeR*0.85,avgS:avgSale*0.95,cls:'worst',el:'fcWorst'}
+  ].map(s=>({...s,proj:t.rev+(dailyAppts*s.closeR*s.avgS*left)}));
+  rows.forEach(s=>{
+    $(s.el).textContent=tMoney(s.proj);
+    $(s.el+'P').textContent=(cfg.target?Math.round(100*s.proj/cfg.target):0)+'% of target'+(s.proj>=cfg.target?' \u2713':'');
+  });
+  $('fcRows').innerHTML=rows.map(s=>{
+    const vs=s.proj-cfg.target;
+    return `<tr><td>${s.label}</td><td class="num">${tMoney(s.proj)}</td>
+      <td class="num ${vs>=0?'t-up':'t-dn'}">${vs>=0?'+':'\u2212'}${tMoney(Math.abs(vs))}</td>
+      <td class="num">${Math.round(s.closeR*100)}%</td><td class="num">${tMoney(s.avgS)}</td></tr>`;
+  }).join('');
+}
+async function fcSaveCfg(){
+  const mk=ctxMK(), c=monthCfg(mk);
+  c.target=num($('fcTarget').value)||c.target;
+  c.workdays=num($('fcWorkdays').value)||c.workdays;
+  c.tglAvg=num($('fcTglAvg').value)||c.tglAvg;
+  c.mktAvg=num($('fcMktAvg').value)||c.mktAvg;
+  await push('saveConfig',{config:state.config});
+  renderNumbers();
+}
+
+/* =================== YEAR OVER YEAR =================== */
+function renderYoY(){
+  const mk=ctxMK(), pk=prevYearMK(mk);
+  $('yoyTitle').innerHTML=`<span class="t-src">${monthName(mk,true)} vs ${monthName(pk,true)}</span>`;
+  const base=yoyMonth(mk);
+  if(!base){
+    $('yoySub').textContent='';
+    $('yoyMissing').innerHTML=`<div class="t-alert warn">No ${monthName(pk,true)} baseline is loaded yet, so the day-by-day comparison below is empty. Send the ${pk.slice(0,4)} Sales Manager Pace Report through and it gets built in. The H1 comparison at the bottom is unaffected.</div>`;
+  }else{
+    $('yoyMissing').innerHTML='';
+    $('yoySub').textContent=`${monthName(pk,true)} baseline from the Nexstar Pace Report daily sheets. The same-period comparison runs through the latest day logged this year.`;
+  }
+  const t=mtdTot(mk), logged=daysLogged(mk), md=logged.length?Math.max(...logged):0;
+  const cmp=base?yoyTot(mk,md||daysInMonth(mk)):null;
+
+  const rateCard=(label,cS,cA,lS,lA)=>{
+    const c=cA?Math.round(100*cS/cA):null, l=lA?Math.round(100*lS/lA):null;
+    const cls=(c==null||l==null)?'':(c>=l?'ok':'sub');
+    const d=(c==null||l==null)?'':` (${c-l>=0?'+':'\u2212'}${Math.abs(c-l)} pts)`;
+    return statCard(label,c==null?'\u2014':c+'%',`Last year: ${l==null?'\u2014':l+'%'}${d}`,cls);
+  };
+  const avgCard=(label,cR,cD,lR,lD)=>{
+    const c=cD?cR/cD:null, l=lD?lR/lD:null;
+    const cls=(c==null||l==null)?'':(c>=l?'ok':'sub');
+    const d=(c==null||l==null||!l)?'':` (${c-l>=0?'+':'\u2212'}${Math.abs(Math.round(100*(c/l-1)))}%)`;
+    return statCard(label,c==null?'\u2014':tMoney(c),`Last year: ${l==null?'\u2014':tMoney(l)}${d}`,cls);
+  };
+  if(!cmp||!md){ $('yoyCards').innerHTML=''; }
+  else{
+    const diff=t.rev-cmp.rev, p=cmp.rev?Math.round(100*diff/cmp.rev):0;
+    $('yoyCards').innerHTML=
+      statCard('Revenue to date',tMoney(t.rev),`Last year: ${tMoney(cmp.rev)} (${diff>=0?'+':''}${p}%)`,diff>=0?'ok':'sub')+
+      rateCard('TGL close',t.tglSold,t.tglAppts,cmp.tglSold,cmp.tglAppts)+
+      rateCard('Marketed close',t.mktSold,t.mktAppts,cmp.mktSold,cmp.mktAppts)+
+      rateCard('Overall close',t.sold,t.appts,cmp.sold,cmp.appts)+
+      avgCard('TGL avg sale',t.tglRev,t.tglSold,cmp.tglRev,cmp.tglSold)+
+      avgCard('Marketed avg sale',t.mktRev,t.mktSold,cmp.mktRev,cmp.mktSold);
+  }
+
+  let c25=0,c26=0,a25=0,s25=0,a26=0,s26=0,rows='';
+  for(let d=1;d<=daysInMonth(mk);d++){
+    const ly=yoyDay(mk,d), cy=dayTot(mk,d);
+    if(!ly&&!cy.any) continue;
+    const lyRev=ly?ly.tglRev+ly.mktRev:0;
+    c25+=lyRev; c26+=cy.rev;
+    if(ly){a25+=ly.tglAppts+ly.mktAppts;s25+=ly.tglSold+ly.mktSold;}
+    a26+=cy.appts; s26+=cy.sold;
+    const dd=cy.rev-lyRev;
+    const mtdP=(cy.any&&c25)?Math.round(100*(c26/c25-1)):null;
+    rows+=`<tr><td><b>${mAbbr(mk)} ${d}</b></td>
+      <td class="num">${lyRev?tMoney(lyRev):'\u2014'}</td>
+      <td class="num">${cy.any?tMoney(cy.rev):'\u2014'}</td>
+      <td class="num ${!cy.any?'t-na':dd>=0?'t-up':'t-dn'}">${cy.any?(dd>=0?'+':'\u2212')+tMoney(Math.abs(dd)):'\u2014'}</td>
+      <td class="num">${tMoney(c25)}</td>
+      <td class="num">${cy.any?tMoney(c26):'\u2014'}</td>
+      <td class="num ${mtdP==null?'t-na':mtdP>=0?'t-up':'t-dn'}">${mtdP==null?'\u2014':(mtdP>=0?'+':'')+mtdP+'%'}</td>
+      <td class="num">${ly?tPct(ly.tglSold+ly.mktSold,ly.tglAppts+ly.mktAppts):'\u2014'}</td>
+      <td class="num">${cy.appts?tPct(cy.sold,cy.appts):'\u2014'}</td></tr>`;
+  }
+  $('yoyTbl').querySelector('tbody').innerHTML=rows||'<tr><td colspan="9" class="t-na" style="text-align:center;padding:18px">Nothing logged this month yet.</td></tr>';
+  $('yoyTbl').querySelector('tfoot').innerHTML=`<tr class="t-total"><td>TOTAL</td>
+    <td class="num">${tMoney(c25)}</td><td class="num">${tMoney(c26)}</td>
+    <td class="num ${c26-c25>=0?'t-up':'t-dn'}">${(c26-c25>=0?'+':'\u2212')+tMoney(Math.abs(c26-c25))}</td>
+    <td class="num">${tMoney(c25)}</td><td class="num">${tMoney(c26)}</td>
+    <td class="num">${c25?(c26>=c25?'+':'')+Math.round(100*(c26/c25-1))+'%':'\u2014'}</td>
+    <td class="num">${tPct(s25,a25)}</td><td class="num">${tPct(s26,a26)}</td></tr>`;
+  renderYoYDetail(mk);
+}
+function dayTot(mk,d){
+  const t={tglAppts:0,tglSold:0,tglRev:0,mktAppts:0,mktSold:0,mktRev:0};
+  const reps=dayReps(mk,d);
+  for(const r of Object.values(reps)) RAW_FIELDS.forEach(f=>{t[f.key]+=num(r[f.key])||0;});
+  t.rev=t.tglRev+t.mktRev; t.appts=t.tglAppts+t.mktAppts; t.sold=t.tglSold+t.mktSold;
+  t.any=dayHasData(mk,d);
+  return t;
+}
+function renderYoYDetail(mk){
+  const T={t25a:0,t25s:0,t25r:0,m25a:0,m25s:0,m25r:0,t26a:0,t26s:0,t26r:0,m26a:0,m26s:0,m26r:0};
+  const avgT=(r,s)=>s?tMoney(r/s):'\u2014';
+  let rows='';
+  for(let d=1;d<=daysInMonth(mk);d++){
+    const ly=yoyDay(mk,d), cy=dayTot(mk,d);
+    if(!ly&&!cy.any) continue;
+    if(ly){T.t25a+=ly.tglAppts;T.t25s+=ly.tglSold;T.t25r+=ly.tglRev;T.m25a+=ly.mktAppts;T.m25s+=ly.mktSold;T.m25r+=ly.mktRev;}
+    if(cy.any){T.t26a+=cy.tglAppts;T.t26s+=cy.tglSold;T.t26r+=cy.tglRev;T.m26a+=cy.mktAppts;T.m26s+=cy.mktSold;T.m26r+=cy.mktRev;}
+    rows+=`<tr><td><b>${mAbbr(mk)} ${d}</b></td>
+      <td class="num">${ly?tPct(ly.tglSold,ly.tglAppts):'\u2014'}</td><td class="num">${cy.any?tPct(cy.tglSold,cy.tglAppts):'\u2014'}</td>
+      <td class="num">${ly?tPct(ly.mktSold,ly.mktAppts):'\u2014'}</td><td class="num">${cy.any?tPct(cy.mktSold,cy.mktAppts):'\u2014'}</td>
+      <td class="num">${ly?avgT(ly.tglRev,ly.tglSold):'\u2014'}</td><td class="num">${cy.any?avgT(cy.tglRev,cy.tglSold):'\u2014'}</td>
+      <td class="num">${ly?avgT(ly.mktRev,ly.mktSold):'\u2014'}</td><td class="num">${cy.any?avgT(cy.mktRev,cy.mktSold):'\u2014'}</td></tr>`;
+  }
+  $('yoyDetail').querySelector('tbody').innerHTML=rows||'<tr><td colspan="9" class="t-na" style="text-align:center;padding:18px">Nothing to compare yet.</td></tr>';
+  $('yoyDetail').querySelector('tfoot').innerHTML=`<tr class="t-total"><td>TOTAL</td>
+    <td class="num">${tPct(T.t25s,T.t25a)}</td><td class="num">${tPct(T.t26s,T.t26a)}</td>
+    <td class="num">${tPct(T.m25s,T.m25a)}</td><td class="num">${tPct(T.m26s,T.m26a)}</td>
+    <td class="num">${avgT(T.t25r,T.t25s)}</td><td class="num">${avgT(T.t26r,T.t26s)}</td>
+    <td class="num">${avgT(T.m25r,T.m25s)}</td><td class="num">${avgT(T.m26r,T.m26s)}</td></tr>`;
+}
+
+/* =================== IMPORT A DAY =================== */
+function tMsg(el,type,text){
+  const e=$(el); e.textContent=text; e.className='t-msg '+type;
+  setTimeout(()=>{e.className='t-msg';},6000);
+}
+function renderImportView(){
+  $('impLocked').style.display=managerOn?'none':'';
+  $('impBody').style.display=managerOn?'':'none';
+  const today=new Date().toISOString().slice(0,10);
+  if(!$('impDate').value) $('impDate').value=today;
+  if(!$('stDate').value) $('stDate').value=today;
+}
+function impParseDate(id,msgEl){
+  const v=$(id).value;
+  if(!v){tMsg(msgEl,'err','Pick the date this data is for.');return null;}
+  return {mk:v.slice(0,7), d:Number(v.slice(8,10))};
+}
+async function impPace(){
+  const dt=impParseDate('impDate','impMsg'); if(!dt) return;
+  const raw=$('impPaste').value.trim();
+  if(!raw){tMsg('impMsg','err','Paste the rows first.');return;}
+  const reps={}; let n=0; const unknown=[];
+  for(const line of raw.split('\n')){
+    const cols=line.split('\t').map(c=>c.trim());
+    if(cols.length<2) continue;
+    const name=cols[0];
+    if(!name) continue;
+    const low=name.toLowerCase();
+    if(low.includes('rep name')||low.includes('technician')||low.includes('consultant')||low.includes('total')) continue;
+    const v=i=>{const x=parseFloat((cols[i]||'').replace(/[,$%]/g,''));return isNaN(x)?0:x;};
+    const match=matchRep(name);
+    if(!match) unknown.push(name);
+    reps[match||name]={tglAppts:v(1),tglSold:v(2),tglRev:v(3),mktAppts:v(4),mktSold:v(5),mktRev:v(6)};
+    n++;
+  }
+  if(!n){tMsg('impMsg','err','No consultant rows found — check the column order.');return;}
+  await saveDay(dt.mk,dt.d,reps,num($('impCalls').value)||0);
+  $('impPaste').value='';
+  refreshAll();
+  tMsg('impMsg','ok',`Imported ${n} consultant${n===1?'':'s'} for ${mAbbr(dt.mk)} ${dt.d}.`+
+    (unknown.length?` Not on the roster, saved as typed: ${unknown.join(', ')}.`:''));
+}
+/* Names come off the reports as "Jeremy Murray" or "Murray, Jeremy" while the hub
+   knows "Jeremy M." — match on the first name plus the initial. */
+function matchRep(name){
+  const reps=state.config.reps;
+  const exact=reps.find(r=>r.toLowerCase()===name.toLowerCase());
+  if(exact) return exact;
+  const clean=name.replace(/,/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
+  const parts=clean.split(' ').filter(Boolean);
+  if(!parts.length) return null;
+  const cand=[parts[0]+(parts[1]?' '+parts[1][0]:'')];
+  if(parts.length>1) cand.push(parts[1]+' '+parts[0][0]);
+  for(const c of cand){
+    const hit=reps.find(r=>r.toLowerCase().replace(/\./g,'')===c);
+    if(hit) return hit;
+  }
+  return reps.find(r=>r.toLowerCase().split(' ')[0]===parts[0])||null;
+}
+async function impST(){
+  const dt=impParseDate('stDate','stMsg'); if(!dt) return;
+  const raw=$('stPaste').value.trim();
+  if(!raw){tMsg('stMsg','err','Paste the ServiceTitan rows first.');return;}
+  const lines=raw.split('\n');
+  let hdr=-1, hc=[];
+  for(let i=0;i<Math.min(5,lines.length);i++){
+    const cols=lines[i].split('\t').map(c=>c.trim().toLowerCase());
+    if(cols.some(c=>c.includes('technician')||c.includes('consultant'))){hdr=i;hc=cols;break;}
+  }
+  const idx=(arr,terms)=>{for(const t of terms){const i=arr.findIndex(c=>c.includes(t));if(i>=0)return i;}return -1;};
+  const iName=idx(hc,['technician','consultant','name']);
+  const iMA=idx(hc,['mkt opportun','marketed opportun']);
+  const iMS=idx(hc,['mkt jobs sold','marketed jobs sold','mkt sold']);
+  const iMR=idx(hc,['mkt revenue','marketed revenue']);
+  const iTA=idx(hc,['tgl opportun','tgl opps','turnover opportun']);
+  const iTS=idx(hc,['tgl jobs sold','tgl sold','turnover jobs sold']);
+  const iTR=idx(hc,['tgl revenue','turnover revenue']);
+  if(hdr>=0&&iTA<0&&iMA<0){tMsg('stMsg','err','Found the header but no TGL or Marketed columns — expand those columns in ServiceTitan and copy again.');return;}
+  const reps={}; let n=0; const unknown=[];
+  for(let i=(hdr>=0?hdr+1:0);i<lines.length;i++){
+    const cols=lines[i].split('\t').map(c=>c.trim());
+    if(cols.length<3) continue;
+    const name=(iName>=0?cols[iName]:cols[0]);
+    if(!name||!name.trim()) continue;
+    if(name.toLowerCase().includes('total')) continue;
+    const v=j=>{if(j<0||j>=cols.length)return 0;const x=parseFloat(cols[j].replace(/[,$%]/g,''));return isNaN(x)?0:x;};
+    const match=matchRep(name);
+    if(!match) unknown.push(name);
+    reps[match||name]={tglAppts:v(iTA),tglSold:v(iTS),tglRev:v(iTR),mktAppts:v(iMA),mktSold:v(iMS),mktRev:v(iMR)};
+    n++;
+  }
+  if(!n){tMsg('stMsg','err','No rows found — check that you copied the data rows too.');return;}
+  await saveDay(dt.mk,dt.d,reps,num($('stCalls').value)||0);
+  $('stPaste').value='';
+  refreshAll();
+  tMsg('stMsg','ok',`Imported ${n} consultant${n===1?'':'s'} from ServiceTitan for ${mAbbr(dt.mk)} ${dt.d}.`+
+    (unknown.length?` Not on the roster, saved as typed: ${unknown.join(', ')}.`:''));
+}
+
+/* =================== BACKUP =================== */
+function dl(name,text,type){
+  const b=new Blob([text],{type:type||'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();
+}
+function expJSON(){
+  dl('leslie_hub_backup_'+new Date().toISOString().slice(0,10)+'.json',
+     JSON.stringify(state,null,2),'application/json');
+  toast('Backup downloaded');
+}
+function expDailyCSV(){
+  const mk=ctxMK();
+  const rows=[['Date','Consultant','TGL appts','TGL sold','TGL revenue','Mkt appts','Mkt sold','Mkt revenue']];
+  for(let d=1;d<=daysInMonth(mk);d++){
+    const reps=dayReps(mk,d);
+    for(const [rep,r] of Object.entries(reps)){
+      if(!rowLive(r)) continue;
+      rows.push([`${mk}-${String(d).padStart(2,'0')}`,rep,r.tglAppts||0,r.tglSold||0,r.tglRev||0,r.mktAppts||0,r.mktSold||0,r.mktRev||0]);
+    }
+  }
+  dl(`leslie_daily_${mk}.csv`,rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n'),'text/csv');
+  toast('Daily log exported');
+}
+async function clearMonthDaily(){
+  if(!managerOn){toast('Manager PIN required');return;}
+  const mk=ctxMK();
+  if(!confirm(`Clear every logged day in ${monthName(mk,true)}? Touch bases and debriefs are not affected.`)) return;
+  for(let d=1;d<=daysInMonth(mk);d++){
+    const key=dayKey(mk,d);
+    if(!state.pace[key]) continue;
+    state.pace[key]={};
+    await push('savePace',{month:key,data:{}});
+  }
+  toast(monthName(mk,true)+' daily log cleared');
+  refreshAll();
+}
+
+/* =================== shared refresh =================== */
+function renderNumbers(){
+  const mk=ctxMK();
+  if($('ctxMonth')) $('ctxMonth').value=mk;
+  renderOverview(); renderDailyLog(); renderTeamPerf(); renderForecast(); renderYoY(); renderImportView();
+}
+
+
+/* =================== built-in guide =================== */
+const GUIDE_ANCHOR={mytb:'g-mytb',debrief:'g-debrief',review:'g-review',track:'g-track',
+  coach:'g-coach',overview:'g-scoreboard',daily:'g-daily',team:'g-team',forecast:'g-forecast',
+  yoy:'g-yoy',pace:'g-pace',import:'g-import',guide:'g-rhythm'};
+let guideRole=localStorage.getItem('leslie_tb_guiderole')||null;
+function guideRoleEff(){ return managerOn ? (guideRole||'m') : 'c'; }
+function setGuideRole(r){
+  if(r==='m'&&!managerOn){ toast('Manager PIN required to show the manager tabs'); return; }
+  guideRole=r; localStorage.setItem('leslie_tb_guiderole',r); renderGuide();
+}
+function renderGuide(){
+  const r=guideRoleEff();
+  $('gSegMine').classList.toggle('on',r==='c');
+  $('gSegAll').classList.toggle('on',r==='m');
+  $('gSegAll').disabled=!managerOn;
+  $('gSegHint').textContent = managerOn
+    ? 'Manager mode is on. Switch to “My tabs” to read the hub the way the consultants see it.'
+    : 'Showing the tabs you can use. The manager tabs unlock with the Manager button in the header.';
+  document.querySelectorAll('#view-guide [data-g]').forEach(el=>{
+    el.style.display=(el.dataset.g==='b'||el.dataset.g===r)?'':'none';
+  });
+  $('gToc').innerHTML=[...document.querySelectorAll('#view-guide .g-sec')]
+    .filter(s=>s.style.display!=='none')
+    .map(s=>`<a href="#${s.id}" onclick="return guideJump('${s.id}')">${s.querySelector('h3').firstChild.textContent.trim()}</a>`)
+    .join('');
+}
+function guideJump(id){ const el=$(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); return false; }
+/* The ? in the header opens the guide at the section for whatever tab you're on. */
+function openGuideFor(v){
+  showView('guide');
+  const a=GUIDE_ANCHOR[v]||'g-rhythm';
+  setTimeout(()=>{
+    const el=$(a);
+    if(el && el.style.display!=='none') el.scrollIntoView({behavior:'smooth',block:'start'});
+    else window.scrollTo({top:0,behavior:'smooth'});
+  },70);
+}
+function helpHere(){
+  const b=document.querySelector('nav button.active');
+  openGuideFor(b?b.dataset.v:'mytb');
+}
+
 /* =================== init =================== */
 function fillRepSelects(){
   const opts=state.config.reps.map(r=>`<option>${r}</option>`).join('');
@@ -1916,6 +3517,7 @@ function fillRepSelects(){
 }
 function refreshAll(){
   fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); if(managerOn) renderPaceView();
+  renderNumbers();
 }
 /* =================== post-call debrief =================== */
 let dbPicks={outcome:null,focus:null,nod:null,hazt:null}, dbWho='';
@@ -2140,11 +3742,16 @@ function dbDaySend(){
   const today=new Date().toISOString().slice(0,10);
   const mon=mondayOf(today);
   $('tbWeek').value=mon; $('revWeek').value=mon; $('paceMonth').value=today;
+  $('ctxMonth').value=ctxMK();
   $('mgrBtn').classList.toggle('on',managerOn);
   fillRepSelects();
   if(repOn && state.config.reps.includes(repOn)){ $('tbRep').value=repOn; $('trRep').value=repOn; $('dbRep').value=repOn; }
   loadForm();
+  renderNumbers(); renderGuide();
+  if(location.hash==='#guide') showView('guide');
   if(location.hash==='#debrief') showView('debrief');
+  if(location.hash==='#scoreboard') showView('overview');
+  if(location.hash==='#daily') showView('daily');
   loadRemote();
 })();
 </script>
