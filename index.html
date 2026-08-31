@@ -78,6 +78,7 @@
   .btn:hover{background:#A60D26}
   .btn.ghost{background:#fff;color:var(--maroon);border:1px solid var(--maroon)}
   .btn.small{padding:6px 14px;font-size:.82rem}
+  .daycard{border-left:5px solid var(--maroon)}
   .toast{
     position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);
     background:var(--ink);color:#fff;padding:10px 22px;border-radius:30px;font-size:.88rem;
@@ -503,6 +504,13 @@
       <button class="btn ghost small" style="margin-top:12px" onclick="dbCheckpoint()">Text Nels my checkpoint</button>
     </div>
   </div>
+
+  <div class="card daycard" id="dayCard" style="display:none">
+    <div class="eyebrow">End of day &mdash; Nels only</div>
+    <div class="statline" id="dayStats"></div>
+    <p class="hint" id="dayHint" style="margin:6px 0 12px"></p>
+    <button class="btn small" onclick="dbDaySend()">Send today&rsquo;s team rollup to Gabe &amp; Brendan</button>
+  </div>
 </section>
 
 <section class="view" id="view-review">
@@ -771,6 +779,10 @@
           <label for="cfgPin">Manager PIN</label>
           <input type="text" id="cfgPin" placeholder="Gates this tab">
         </div>
+        <div>
+          <label for="cfgOwnerPin">End-of-day PIN (Nels)</label>
+          <input type="text" id="cfgOwnerPin" placeholder="Gates the team rollup">
+        </div>
       </div>
       <div class="hint" style="margin:8px 0 12px">Leave the URL blank to run local-only on this device. With a URL + team code, the whole team syncs to your Google Sheet.</div>
       <button class="btn ghost small" onclick="saveSetup()">Save setup</button>
@@ -812,7 +824,8 @@ const DEFAULT_CONFIG = {
   reps:['Jeremy M.','Justin B.','Tom O.','Kevin L.','Tony P.'],
   targets:{appts:25, tglClose:55, mktClose:40, tglTicket:12500, mktTicket:11000},
   managerPin:'1928',
-  repPins:{'Jeremy M.':'4125','Justin B.':'6832','Tom O.':'6967','Kevin L.':'8645','Tony P.':'8895'}
+  repPins:{'Jeremy M.':'4125','Justin B.':'6832','Tom O.':'6967','Kevin L.':'8645','Tony P.':'8895'},
+  ownerPin:'7391'
 };
 const LS_SETTINGS='leslie_tb_settings_v1';
 const LS_CACHE='leslie_tb_cache_v1';
@@ -1012,14 +1025,14 @@ function showView(v){
   if(v==='pace') renderPaceView();
 }
 function toggleManager(){
-  if(managerOn){ managerOn=false; sessionStorage.removeItem('leslie_tb_mgr'); }
+  if(managerOn){ managerOn=false; sessionStorage.removeItem('leslie_tb_mgr'); sessionStorage.removeItem('leslie_tb_owner'); }
   else{
     const pin=prompt('Manager PIN:');
     if(pin===String(state.config.managerPin||DEFAULT_CONFIG.managerPin)){ managerOn=true; sessionStorage.setItem('leslie_tb_mgr','1'); }
     else if(pin!==null){ toast('Incorrect PIN'); }
   }
   $('mgrBtn').classList.toggle('on',managerOn);
-  renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach();
+  renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach(); renderDebrief();
 }
 
 /* =================== my touch base =================== */
@@ -1876,6 +1889,7 @@ function renderSetup(){
   $('cfgEndpoint').value=settings.endpoint||'';
   $('cfgCode').value=settings.teamCode||'';
   $('cfgPin').value=state.config.managerPin||'';
+  $('cfgOwnerPin').value=state.config.ownerPin||'';
   $('pinGrid').innerHTML=state.config.reps.map((r,i)=>`<div>
       <label for="repPin${i}">${r}</label>
       <input type="text" id="repPin${i}" data-rep="${r}" class="rep-pin" inputmode="numeric" maxlength="6" value="${(state.config.repPins||{})[r]||''}" placeholder="No PIN (open)">
@@ -1884,6 +1898,7 @@ function renderSetup(){
 async function saveSetup(){
   state.config.reps=$('cfgReps').value.split(',').map(s=>s.trim()).filter(Boolean);
   state.config.managerPin=$('cfgPin').value.trim()||DEFAULT_CONFIG.managerPin;
+  state.config.ownerPin=$('cfgOwnerPin').value.trim()||DEFAULT_CONFIG.ownerPin;
   const pins={};
   document.querySelectorAll('.rep-pin').forEach(inp=>{ const v=inp.value.trim(); if(v) pins[inp.dataset.rep]=v; });
   state.config.repPins=pins;
@@ -1961,6 +1976,7 @@ async function dbSave(){
   window.scrollTo({top:0});
 }
 function renderDebrief(){
+  renderDayCard();
   const rep=$('dbRep').value;
   if(!repAuthed(rep)){
     $('dbBody').style.display='none'; $('dbLock').style.display='';
@@ -2022,6 +2038,102 @@ function dbCheckpoint(){
   ].filter(Boolean).join('\n');
   if(navigator.share){ navigator.share({text:msg}).catch(()=>{}); }
   else{ navigator.clipboard.writeText(msg).then(()=>toast('Checkpoint copied — paste it into a text to Nels')); }
+}
+
+/* ---------- end-of-day rollup (manager mode + owner PIN) ---------- */
+function ownerPin(){ const p=state.config.ownerPin; const v=p==null?'':String(p).trim(); return v||String(DEFAULT_CONFIG.ownerPin); }
+function ownerAuthed(){ return sessionStorage.getItem('leslie_tb_owner')==='1'; }
+function unlockOwner(){
+  if(ownerAuthed()) return true;
+  const pin=prompt('End-of-day PIN (Nels only):');
+  if(pin===null) return false;
+  if(pin.trim()===ownerPin()){ sessionStorage.setItem('leslie_tb_owner','1'); return true; }
+  toast('Incorrect PIN'); return false;
+}
+function dayStart(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+function dbToday(rep){ const t0=dayStart(); return dbCalls(rep).filter(c=>c.ts>=t0); }
+function teamToday(){
+  return state.config.reps
+    .map(rep=>({rep, calls:dbToday(rep)}))
+    .filter(r=>r.calls.length);
+}
+function renderDayCard(){
+  const card=$('dayCard');
+  if(!managerOn){ card.style.display='none'; return; }
+  card.style.display='';
+  const team=teamToday();
+  const calls=team.reduce((n,r)=>n+r.calls.length,0);
+  if(!calls){
+    $('dayStats').textContent='';
+    $('dayHint').textContent='Nothing logged today yet — the rollup covers today only, across the whole team.';
+    return;
+  }
+  const all=team.flatMap(r=>r.calls);
+  const sold=all.filter(c=>c.outcome==='sold');
+  const uns=all.filter(c=>c.outcome!=='sold');
+  const open=uns.filter(c=>!(c.hazt==='made'||c.hazt==='sched'));
+  $('dayStats').innerHTML='<span><b>'+calls+'</b> calls</span>'
+    +'<span><b>'+sold.length+'</b> sold</span>'
+    +'<span><b>'+team.length+'</b> of '+state.config.reps.length+' logged</span>'
+    +(open.length?('<span><b>'+open.length+'</b> unsold with no HA/ZT</span>'):'');
+  $('dayHint').textContent='Today across the team — send it to Gabe & Brendan before you head home.';
+}
+function dbDaySend(){
+  if(!managerOn){ toast('Manager mode required'); return; }
+  if(!unlockOwner()) return;
+  const team=teamToday();
+  if(!team.length){ toast('No calls logged today yet'); return; }
+  const money=n=>'$'+Math.round(n).toLocaleString();
+  const HAZT={made:'made',sched:'scheduled',none:'not yet'};
+  const all=team.flatMap(r=>r.calls);
+  const sold=all.filter(c=>c.outcome==='sold');
+  const pend=all.filter(c=>c.outcome==='pending');
+  const nosale=all.filter(c=>c.outcome==='nosale');
+  const uns=all.filter(c=>c.outcome!=='sold');
+  const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched');
+  const open=uns.filter(c=>!(c.hazt==='made'||c.hazt==='sched'));
+  const nods=all.filter(c=>c.nod).length;
+  const rev=sold.reduce((s,c)=>s+(c.amount||0),0);
+  const quiet=state.config.reps.filter(r=>!team.some(t=>t.rep===r));
+  const L=[];
+  L.push('DAILY DEBRIEF — TEAM — '+new Date().toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}));
+  L.push('For: Gabe & Brendan · from Nels');
+  L.push('Calls: '+all.length+' · Sold: '+sold.length+(rev?(' ('+money(rev)+')'):'')+' · Pending: '+pend.length+' · No sale: '+nosale.length);
+  L.push('Restate-to-nod: '+nods+'/'+all.length);
+  if(uns.length) L.push('HA/ZT on unsold: '+cov.length+'/'+uns.length+(open.length?(' — '+open.length+' still open'):''));
+  team.forEach(t=>{
+    const plan=entryFor(t.rep,thisWeek())?.plan;
+    const fc=t.calls.filter(c=>c.focus!==null&&c.focus!==undefined);
+    const hits=fc.filter(c=>c.focus).length;
+    const rSold=t.calls.filter(c=>c.outcome==='sold');
+    const rRev=rSold.reduce((s,c)=>s+(c.amount||0),0);
+    L.push('');
+    L.push(t.rep.toUpperCase()+' — '+t.calls.length+' call'+(t.calls.length===1?'':'s')+' · '+rSold.length+' sold'+(rRev?(' ('+money(rRev)+')'):''));
+    if(plan?.behavior && fc.length) L.push('   Focus “'+plan.behavior+'”: ran it '+hits+' of '+fc.length);
+    t.calls.forEach((c,i)=>{
+      L.push('   '+(i+1)+'. '+(c.outcome==='sold'
+        ? (c.customer||'(no name)')+' — SOLD'+(c.amount?(' '+money(c.amount)):'')+(c.option?(' · '+c.option):'')
+        : (c.customer||'(no name)')+' — '+(c.outcome==='pending'?'PENDING':'NO SALE')+' · HA/ZT: '+(HAZT[c.hazt]||'—')+(c.haztWho?(' — '+c.haztWho):'')));
+      if(c.words) L.push('      “'+c.words+'”');
+      if(c.holdback) L.push('      Holding them back: “'+c.holdback+'”');
+    });
+  });
+  if(open.length){
+    L.push('');
+    L.push('Needs coverage tonight: '+open.map(c=>(c.customer||'(no name)')+' ('+c.rep+')').join(', '));
+  }
+  if(quiet.length){
+    L.push('');
+    L.push('No debriefs logged today: '+quiet.join(', '));
+  }
+  const msg=L.join('\n');
+  if(navigator.share){
+    navigator.share({title:'Daily debrief — team', text:msg}).catch(()=>{});
+  }else{
+    navigator.clipboard.writeText(msg)
+      .then(()=>toast('Team rollup copied — send it to Gabe & Brendan'))
+      .catch(()=>toast('Copy failed — try again'));
+  }
 }
 
 (function init(){
