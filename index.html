@@ -343,6 +343,16 @@
   .t-modal .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
   .t-2col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
   @media(max-width:760px){.t-2col,.t-scen{grid-template-columns:1fr}}
+  /* ---- lead plan ---- */
+  .lead-var{display:inline-block;font-weight:700;font-variant-numeric:tabular-nums;
+    padding:1px 6px;border-radius:5px;font-size:.78rem;line-height:1.5}
+  .lead-var.ok{background:#E9F2EE;color:var(--sage-deep)}
+  .lead-var.watch{background:#FBEEE5;color:#9E4423}
+  .lead-var.sub{background:#FBE9EC;color:var(--red)}
+  .t-dleads{margin:6px 0 8px;padding:7px 9px;background:var(--sand,#F6F3EE);border-radius:7px;font-size:.78rem}
+  .t-dleads .ln{display:flex;justify-content:space-between;gap:10px;align-items:center}
+  .t-dleads .ln+.ln{margin-top:3px;padding-top:3px;border-top:1px dotted rgba(0,0,0,.12)}
+  .t-dleads .ln span:first-child{color:var(--muted)}
   /* ================= built-in guide ================= */
   .help-btn{background:transparent;border:1px solid #6b5f58;color:#E9E1D8;font:inherit;font-size:.78rem;
     width:28px;height:28px;line-height:1;border-radius:50%;cursor:pointer;padding:0}
@@ -961,6 +971,9 @@
   <p class="t-sub" id="ovSub">Month to date, straight off the daily log.</p>
   <div class="pace-strip" id="ovCards" style="margin-bottom:14px"></div>
   <div class="pace-strip" id="ovAvgCards" style="margin-bottom:14px"></div>
+  <h3 style="font-size:.95rem;margin:18px 0 4px">Leads vs plan</h3>
+  <p class="hint" id="ovLeadSub" style="margin-bottom:10px"></p>
+  <div class="pace-strip" id="ovLeadCards" style="margin-bottom:14px"></div>
   <div id="ovAlert"></div>
   <div class="t-2col">
     <div>
@@ -994,6 +1007,7 @@
       <div style="min-width:auto"><button class="btn ghost small" onclick="showView('import')">Paste from a report</button></div>
       <div style="min-width:auto"><span class="hint" id="dlSummary"></span></div>
     </div>
+    <p class="hint" id="dlPlanLine" style="margin:-4px 0 12px"></p>
     <div class="t-daygrid" id="dlGrid"></div>
   </div>
   <div class="t-modal" id="dlModal">
@@ -1025,6 +1039,14 @@
       <th class="num">Sold</th><th class="num">Revenue</th><th class="num">Avg Sale</th><th class="num">Overall</th>
       <th class="mid">&nbsp;</th></tr></thead>
     <tbody></tbody><tfoot></tfoot></table></div>
+  <h3 style="font-size:.95rem;margin-bottom:4px">Leads run vs the daily bar</h3>
+  <p class="hint" id="tmLeadSub" style="margin-bottom:10px"></p>
+  <div class="tbl-wrap" style="margin-bottom:18px"><table id="tmLeads">
+    <thead><tr><th>Consultant</th>
+      <th class="num">TGL</th><th class="num">Marketed</th><th class="num">Leads run</th>
+      <th class="num">Expected by now</th><th class="num">Ahead / behind</th>
+      <th class="num">Month bar</th><th class="num">% of bar</th></tr></thead>
+    <tbody></tbody><tfoot></tfoot></table></div>
   <div class="t-2col">
     <div><h3 style="font-size:.95rem;margin-bottom:8px">Close rate matrix</h3>
       <div class="tbl-wrap"><table id="tmMatrix">
@@ -1048,14 +1070,31 @@
   <div class="tbl-wrap" style="margin-bottom:18px"><table>
     <thead><tr><th>Scenario</th><th class="num">Projected revenue</th><th class="num">vs target</th><th class="num">Close rate used</th><th class="num">Avg sale used</th></tr></thead>
     <tbody id="fcRows"></tbody></table></div>
+  <h3 style="font-size:.95rem;margin:22px 0 4px">Leads vs plan</h3>
+  <p class="hint" style="margin-bottom:10px">The lead plan spread evenly across the budgeted working days. &ldquo;Expected by now&rdquo; is that daily rate times the days logged.</p>
+  <div class="pace-strip" id="fcLeadCards" style="margin-bottom:14px"></div>
+  <div class="tbl-wrap" style="margin-bottom:18px"><table>
+    <thead><tr><th>Lead type</th><th class="num">Plan</th><th class="num">Per day</th>
+      <th class="num">Run</th><th class="num">Expected by now</th><th class="num">Ahead / behind</th>
+      <th class="num">Needed per day left</th></tr></thead>
+    <tbody id="fcLeadRows"></tbody></table></div>
   <div class="card">
     <h3>Assumptions</h3>
-    <p class="hint">Set per month. Working days default to the weekdays in the month &mdash; drop it for holidays.</p>
+    <p class="hint">Set per month. Working days default to the weekdays in the month &mdash; drop it for holidays. Everything on this tab, the Scoreboard, the Daily Log, Team and Year over Year reads these four numbers.</p>
     <div class="t-assume">
       <div><label for="fcTarget">Monthly revenue target</label><input type="number" id="fcTarget" onchange="fcSaveCfg()"></div>
       <div><label for="fcWorkdays">Working days</label><input type="number" id="fcWorkdays" onchange="fcSaveCfg()"></div>
       <div><label for="fcTglAvg">TGL avg sale (fallback)</label><input type="number" id="fcTglAvg" onchange="fcSaveCfg()"></div>
       <div><label for="fcMktAvg">Marketed avg sale (fallback)</label><input type="number" id="fcMktAvg" onchange="fcSaveCfg()"></div>
+    </div>
+    <h3 style="margin-top:16px">Lead plan</h3>
+    <p class="hint">How many appointments the team has to run this month, by category, plus each consultant's daily bar.</p>
+    <div class="t-assume">
+      <div><label for="fcTglLeads">TGL leads &mdash; month</label><input type="number" min="0" id="fcTglLeads" onchange="fcSaveCfg()"></div>
+      <div><label for="fcMktLeads">Marketed leads &mdash; month</label><input type="number" min="0" id="fcMktLeads" onchange="fcSaveCfg()"></div>
+      <div><label for="fcTotLeads">Total leads (optional override)</label><input type="number" min="0" id="fcTotLeads" placeholder="auto" onchange="fcSaveCfg()">
+        <span class="hint" id="fcTotLeadsHint"></span></div>
+      <div><label for="fcApptsDay">Appointments a day, per consultant</label><input type="number" min="0" step="any" id="fcApptsDay" onchange="fcSaveCfg()"></div>
     </div>
   </div>
 </section>
@@ -1065,6 +1104,9 @@
   <h2>Year over Year <span id="yoyTitle"></span></h2>
   <p class="t-sub" id="yoySub"></p>
   <div id="yoyMissing"></div>
+  <h3 style="font-size:.95rem;margin:14px 0 4px">Leads run &mdash; this year, last year, and plan</h3>
+  <p class="hint" id="yoyLeadSub" style="margin-bottom:10px"></p>
+  <div class="pace-strip" id="yoyLeadCards" style="margin-bottom:16px"></div>
   <div class="pace-strip" id="yoyCards" style="margin-bottom:16px"></div>
   <div class="tbl-wrap" style="margin-bottom:6px"><table id="yoyTbl">
     <thead><tr><th>Day</th>
@@ -1468,7 +1510,8 @@
       <tr><th>Block</th><th>What it tells you</th></tr>
       <tr><td>Top tiles</td><td>Revenue against target, sold, overall close, appointments run, service calls, and this month against the same month last year. The revenue tile edges red under 70% of target and green at 100%.</td></tr>
       <tr><td>Ticket tiles</td><td>TGL, marketed and cumulative average ticket, each with the deal count behind it &mdash; so you can see when an average is riding on two sales.</td></tr>
-      <tr><td>Pace line</td><td>What's needed per day for the working days left, against what's actually being run per day.</td></tr>
+      <tr><td>Leads vs plan</td><td>TGL, marketed and total appointments run this month, each against the plan and against where the pace says you should be by now. The green or red tag is the gap. See <a href="#" onclick="return guideJump('g-leads')">The lead plan</a>.</td></tr>
+      <tr><td>Pace line</td><td>What's needed per day for the working days left, against what's actually being run per day. A second line does the same for leads.</td></tr>
       <tr><td>By consultant</td><td>The month per person, with a TOTAL row that reconciles to the tiles.</td></tr>
       <tr><td>Weekly breakdown</td><td>Seven-day blocks &mdash; 1&ndash;7, 8&ndash;14, 15&ndash;21, 22&ndash;28, 29&ndash;end &mdash; with close rate split by lead type.</td></tr>
       <tr><td>Weekly close grid</td><td>Every consultant, every week, plus a month-to-date chip and a team row. Hover a chip for the TGL and marketed split. Green at 50%, amber 35&ndash;49, red below 35.</td></tr>
@@ -1476,11 +1519,39 @@
     <p>Your own numbers on your touch base come from exactly the same daily log, so if the Scoreboard says you ran fourteen appointments this month, your touch base will too. They can't disagree.</p>
   </div>
 
+  <!-- ---------- the lead plan ---------- -->
+  <div class="g-sec" id="g-leads" data-g="b">
+    <h3>The lead plan <span class="g-who">Everyone can read it</span></h3>
+    <div class="g-slug">One set of numbers &middot; read by five tabs</div>
+    <p class="g-lede">Revenue is the outcome. Leads run is the input you can actually manage day to day, so the hub carries a monthly lead plan alongside the revenue target and measures every day against it.</p>
+    <div class="tbl-wrap"><table class="g-tbl">
+      <tr><th>Number</th><th>What it means</th></tr>
+      <tr><td>TGL leads &mdash; month</td><td>Tech-generated appointments the team has to run this month.</td></tr>
+      <tr><td>Marketed leads &mdash; month</td><td>Marketed appointments for the month.</td></tr>
+      <tr><td>Total leads</td><td>TGL plus marketed. Override it only if your plan's total isn't the sum of the two.</td></tr>
+      <tr><td>Appointments a day, per consultant</td><td>The individual bar &mdash; what one consultant is expected to run on a working day.</td></tr>
+    </table></div>
+    <p><b>Where the pace line comes from.</b> The monthly plan is divided by the budgeted working days on the Forecast tab. That gives a per-day rate for each category. &ldquo;Expected by now&rdquo; is that rate times the number of days logged, and the green or red tag is what you've run minus what was expected. Anything inside half a lead reads as on pace.</p>
+    <div class="g-note calm">
+      <span class="gl">Set it once</span>
+      <p>All four numbers live in <b>Forecast &rarr; Lead plan</b>, per month. Change them there and the Scoreboard, Daily Log, Team and Year over Year tabs all move together &mdash; there is nowhere else to enter them, so they cannot disagree.</p>
+    </div>
+    <div class="tbl-wrap"><table class="g-tbl">
+      <tr><th>Tab</th><th>What it shows about leads</th></tr>
+      <tr><td>Scoreboard</td><td>Month-to-date leads by category against plan and pace, plus a plain-language ahead/behind line.</td></tr>
+      <tr><td>Daily Log</td><td>Leads run on each individual day by category, and the running month-to-date position after that day.</td></tr>
+      <tr><td>Team</td><td>Each consultant's leads run against their own daily bar, and the team against the plan.</td></tr>
+      <tr><td>Forecast</td><td>The plan itself, leads needed per remaining day, and where the lead count lands at the current run rate.</td></tr>
+      <tr><td>Year over Year</td><td>Leads run this year against the same days last year, with the plan alongside.</td></tr>
+    </table></div>
+  </div>
+
   <!-- ---------- daily log ---------- -->
   <div class="g-sec" id="g-daily" data-g="m">
     <h3>Daily Log <span class="g-who mgr">Manager only</span></h3>
     <div class="g-slug">Every workday &middot; about 2 minutes &middot; the single source of truth</div>
     <p class="g-lede">One card per calendar day. Days with data carry a green edge, weekends sit on a tinted ground, and each card shows that day's revenue, the team's service calls, and last year's figure for the same date.</p>
+    <p><b>Leads on each card.</b> A logged day also shows how many leads were run that day split TGL / marketed, with a tag for that day against the daily pace, and a second line giving the month-to-date total against the plan with its own tag. Read down the grid and you can see exactly which days put you ahead or behind. The line at the top of the tab restates the plan and the daily rate it works out to.</p>
     <ol class="g-steps">
       <li><b>Check the month box first.</b> Everything on this tab belongs to the month in the header.</li>
       <li><b>Press <span class="g-tab">Log today</span></b>, or Edit on any day card.</li>
@@ -1509,7 +1580,8 @@
   <div class="g-sec" id="g-team" data-g="b">
     <h3>Team <span class="g-who">Everyone can read it</span> <span class="g-who mgr">Roster edits are Nels only</span></h3>
     <div class="g-slug">The month arranged for comparison</div>
-    <p class="g-lede">Appointments, sold and close rate split by lead type, then total sold, revenue, average sale and overall close. Underneath: a close-rate matrix and each person's share of the month's revenue.</p>
+    <p class="g-lede">Appointments, sold and close rate split by lead type, then total sold, revenue, average sale and overall close. Underneath: leads run against the daily bar, a close-rate matrix and each person's share of the month's revenue.</p>
+    <p><b>Leads run vs the daily bar.</b> Every consultant is expected to run the same number of appointments a day &mdash; the bar set on the Forecast tab. This table shows what each has actually run, what the bar says they should have by now, and the gap. It is a volume conversation, not a conversion one: someone at 100% of the bar with a 30% close rate has a different problem from someone at 60% of the bar closing well.</p>
     <ol class="g-steps" data-g="m">
       <li><b>Add a consultant.</b> Type the name as you want it shown everywhere &mdash; "Jeremy M." style keeps the tables narrow. They appear immediately in every dropdown, the day editor and the Monday board.</li>
       <li><b>Rename one.</b> This is a real migration, not a label change: the hub moves their PIN, every logged day, every monthly pace row and every touch base to the new name, then re-syncs all of it. Use it for a spelling fix &mdash; not to hand a seat to a new hire.</li>
@@ -1524,6 +1596,7 @@
     <p class="g-lede">Where the month lands if the current appointment pace holds. Three scenarios, all built from what's actually been logged rather than from a guess.</p>
     <ol class="g-steps">
       <li><b>Set the month's assumptions</b> in the panel at the bottom: revenue target, working days, and fallback average sales. Working days default to the weekdays in the month &mdash; knock off holidays by hand.</li>
+      <li><b>Set the month's lead plan</b> in the panel below that: TGL leads, marketed leads, and each consultant's daily appointment bar. Working days divides the plan into the daily pace, so fix that number first. Full detail in <a href="#" onclick="return guideJump('g-leads')">The lead plan</a>.</li>
       <li><b>Read the tiles.</b> Target, days logged, days remaining, revenue to date, and the daily revenue needed to land on target.</li>
       <li><b>Read the scenarios.</b> Base case runs the current close rate and average sale forward across the remaining days. Best case adds 20% to the close rate (capped at 70%) and 5% to the ticket; worst case takes 15% off the close rate and 5% off the ticket.</li>
     </ol>
@@ -1539,6 +1612,7 @@
     <div class="g-slug">Needs a prior-year baseline for the month you're viewing</div>
     <p class="g-lede">This month against the same month last year, matched period for period &mdash; the comparison runs only through the latest day logged, so a half-logged month is never compared against a full one.</p>
     <ul class="g-plain">
+      <li><b>Lead tiles</b> &mdash; TGL, marketed and total appointments run through the latest day logged, each against the same days last year and against this month's plan.</li>
       <li><b>Tiles</b> &mdash; revenue, both close rates, overall close and both average sales, each with last year underneath and the gap in points or percent.</li>
       <li><b>Day table</b> &mdash; last year's revenue and this year's, the daily difference, both running month-to-date totals, and the percentage gap.</li>
       <li><b>Close rate &amp; ticket by day</b> &mdash; TGL and marketed side by side across both years. Read the TOTAL row; single days swing on one deal.</li>
@@ -2893,7 +2967,8 @@ function weekTot(mk,rep){
   });
 }
 
-/* ---- month settings (target, workdays, fallback tickets) ---- */
+/* ---- month settings (target, workdays, fallback tickets, lead plan) ---- */
+const LEAD_DEFAULTS={tglLeads:101, mktLeads:24, apptsPerDay:2};
 function monthCfg(mk){
   state.config.monthly=state.config.monthly||{};
   let c=state.config.monthly[mk];
@@ -2905,8 +2980,62 @@ function monthCfg(mk){
     state.config.monthly[mk]=c;
   }
   if(!c.workdays) c.workdays=weekdaysIn(mk);
+  /* Lead plan added after the fact: a month saved before this existed carries
+     the previous month's plan forward rather than showing a zero target. */
+  if(c.tglLeads==null||c.mktLeads==null){
+    const prior=Object.keys(state.config.monthly)
+      .filter(k=>k<mk&&state.config.monthly[k]&&state.config.monthly[k].tglLeads!=null).sort().pop();
+    const b=prior?state.config.monthly[prior]:LEAD_DEFAULTS;
+    if(c.tglLeads==null) c.tglLeads=b.tglLeads;
+    if(c.mktLeads==null) c.mktLeads=b.mktLeads;
+  }
+  if(!c.apptsPerDay) c.apptsPerDay=LEAD_DEFAULTS.apptsPerDay;
   return c;
 }
+
+/* =================== LEAD PLAN ===================
+   How many appointments the team has to run this month, by category, and
+   whether we are ahead of or behind that pace. The plan is a monthly count;
+   the pace line is that count spread evenly across the budgeted working
+   days, so "expected by now" is perDay x days logged. Every tab that shows
+   leads reads these four functions, so the plan can only be stated once. */
+function leadPlan(mk){
+  const c=monthCfg(mk);
+  const tgl=num(c.tglLeads)||0, mkt=num(c.mktLeads)||0;
+  const tot=num(c.totalLeads)||(tgl+mkt);
+  const wd=Math.max(1,num(c.workdays)||weekdaysIn(mk));
+  return {tgl,mkt,tot,wd,bar:num(c.apptsPerDay)||LEAD_DEFAULTS.apptsPerDay,
+          perDay:{tgl:tgl/wd, mkt:mkt/wd, tot:tot/wd}};
+}
+/* Leads run through a given day of the month (inclusive), by category. */
+function leadsThrough(mk,day){
+  const o={tgl:0,mkt:0,tot:0};
+  for(let d=1;d<=day;d++){
+    const r=dayReps(mk,d);
+    for(const v of Object.values(r)){o.tgl+=num(v.tglAppts)||0; o.mkt+=num(v.mktAppts)||0;}
+  }
+  o.tot=o.tgl+o.mkt; return o;
+}
+/* Where we stand: actual, what the pace says we should have by now, the gap. */
+function leadVar(mk){
+  const plan=leadPlan(mk), days=daysLogged(mk).length, t=mtdTot(mk);
+  const act={tgl:t.tglAppts, mkt:t.mktAppts, tot:t.appts};
+  const exp={tgl:plan.perDay.tgl*days, mkt:plan.perDay.mkt*days, tot:plan.perDay.tot*days};
+  const left=Math.max(0,plan.wd-days);
+  return {plan,days,act,exp,left,
+    d:{tgl:act.tgl-exp.tgl, mkt:act.mkt-exp.mkt, tot:act.tot-exp.tot},
+    need:{tgl:left?Math.max(0,plan.tgl-act.tgl)/left:0,
+          mkt:left?Math.max(0,plan.mkt-act.mkt)/left:0,
+          tot:left?Math.max(0,plan.tot-act.tot)/left:0}};
+}
+/* A count that reads as ahead/behind. Anything inside half a lead is "on pace". */
+function signed(n,dec){
+  const v=Math.abs(n)<0.05?0:n;
+  const s=dec?Math.abs(v).toFixed(1):String(Math.round(Math.abs(v)));
+  return (v>0?'+':v<0?'−':'±')+s;
+}
+function varCls(n){return n>=0.5?'ok':n>=-0.5?'watch':'sub';}
+function leadTag(n,dec){return `<span class="lead-var ${varCls(n)}">${signed(n,dec)}</span>`;}
 
 /* ---- small formatters (kept separate from the hub's fmt) ---- */
 function tMoney(n){return '$'+Math.round(n||0).toLocaleString();}
@@ -2966,6 +3095,20 @@ function renderOverview(){
     statCard('Marketed avg ticket',t.mktSold?tMoney(t.mktRev/t.mktSold):'\u2014',`${t.mktSold} sold &middot; ${tMoney(t.mktRev)}`)+
     statCard('Cumulative avg ticket',t.sold?tMoney(t.rev/t.sold):'\u2014',`${t.sold} sold &middot; ${tMoney(t.rev)}`);
 
+  /* leads against the monthly lead plan */
+  const lv=leadVar(mk);
+  const leadCard=(label,a,exp,plan,dv)=>statCard(label,a,
+    `${leadTag(dv,true)} vs pace &middot; ${Math.round(exp*10)/10} expected &middot; plan ${plan}`,varCls(dv));
+  $('ovLeadCards').innerHTML=
+    leadCard('TGL leads run',lv.act.tgl,lv.exp.tgl,lv.plan.tgl,lv.d.tgl)+
+    leadCard('Marketed leads run',lv.act.mkt,lv.exp.mkt,lv.plan.mkt,lv.d.mkt)+
+    leadCard('Total leads run',lv.act.tot,lv.exp.tot,lv.plan.tot,lv.d.tot)+
+    statCard('Leads a day needed',lv.left?(Math.round(lv.need.tot*10)/10):'—',
+      lv.left?`over the ${lv.left} working day${lv.left===1?'':'s'} left`:'no working days left');
+  $('ovLeadSub').innerHTML=lv.days
+    ? `Plan is ${lv.plan.tgl} TGL and ${lv.plan.mkt} marketed &mdash; ${lv.plan.tot} leads across ${lv.plan.wd} working days, or ${(Math.round(lv.plan.perDay.tot*100)/100)} a day. Measured through ${lv.days} logged day${lv.days===1?'':'s'}.`
+    : `Plan is ${lv.plan.tgl} TGL and ${lv.plan.mkt} marketed &mdash; ${lv.plan.tot} leads across ${lv.plan.wd} working days. Nothing logged yet.`;
+
   /* pace alert */
   let alert='';
   if(logged.length){
@@ -2975,6 +3118,14 @@ function renderOverview(){
     else if(left===0) alert=`<div class="t-alert sub">No working days left and ${tMoney(gap)} short of ${tMoney(cfg.target)}.</div>`;
     else if(need>pace*1.5) alert=`<div class="t-alert sub">Behind pace &mdash; ${tMoney(need)} a day for the ${left} day${left===1?'':'s'} left to hit target. Running at ${tMoney(pace)} a day.</div>`;
     else alert=`<div class="t-alert warn">On track &mdash; ${tMoney(need)} a day over the ${left} day${left===1?'':'s'} left. Running at ${tMoney(pace)} a day.</div>`;
+  }
+  if(logged.length){
+    const d=lv.d.tot;
+    alert+= d>=0.5
+      ? `<div class="t-alert ok">Ahead on leads &mdash; ${lv.act.tot} run against ${Math.round(lv.exp.tot*10)/10} expected by now (${signed(d,1)}). TGL ${signed(lv.d.tgl,1)} &middot; Marketed ${signed(lv.d.mkt,1)}.</div>`
+      : d<=-0.5
+      ? `<div class="t-alert sub">Behind on leads &mdash; ${lv.act.tot} run against ${Math.round(lv.exp.tot*10)/10} expected by now (${signed(d,1)}). TGL ${signed(lv.d.tgl,1)} &middot; Marketed ${signed(lv.d.mkt,1)}.${lv.left?' Needs '+(Math.round(lv.need.tot*10)/10)+' a day over the '+lv.left+' day'+(lv.left===1?'':'s')+' left.':''}</div>`
+      : `<div class="t-alert warn">On lead pace &mdash; ${lv.act.tot} run against ${Math.round(lv.exp.tot*10)/10} expected. TGL ${signed(lv.d.tgl,1)} &middot; Marketed ${signed(lv.d.mkt,1)}.</div>`;
   }
   $('ovAlert').innerHTML=alert;
 
@@ -3043,15 +3194,34 @@ function renderDailyLog(){
   $('dlBody').style.display=managerOn?'':'none';
   if(!managerOn) return;
   const logged=daysLogged(mk), t=mtdTot(mk);
-  $('dlSummary').innerHTML=`${logged.length} of ${daysInMonth(mk)} days logged &middot; ${tMoney(t.rev)} &middot; ${t.sold} sold`;
+  const lvD=leadVar(mk);
+  $('dlSummary').innerHTML=`${logged.length} of ${daysInMonth(mk)} days logged &middot; ${tMoney(t.rev)} &middot; ${t.sold} sold &middot; ${t.appts} leads run ${leadTag(lvD.d.tot,1)} vs pace`;
   const reps=state.config.reps;
-  let html='';
+  const plan=leadPlan(mk);
+  $('dlPlanLine').innerHTML=`Lead plan: <b>${plan.tgl}</b> TGL &middot; <b>${plan.mkt}</b> marketed &middot; <b>${plan.tot}</b> total, over ${plan.wd} working days &mdash; <b>${Math.round(plan.perDay.tot*100)/100}</b> a day (TGL ${Math.round(plan.perDay.tgl*100)/100}, marketed ${Math.round(plan.perDay.mkt*100)/100}). Each consultant's bar is ${plan.bar} a day.`;
+  let html='', loggedSoFar=0, cum={tgl:0,mkt:0,tot:0};
   for(let d=1;d<=daysInMonth(mk);d++){
     const rec=dayReps(mk,d), has=dayHasData(mk,d);
     const rev=Object.values(rec).reduce((s,r)=>s+(num(r.tglRev)||0)+(num(r.mktRev)||0),0);
     const ly=yoyDay(mk,d);
+    /* leads run this day, and where the month stands after it */
+    const dayL={tgl:0,mkt:0};
+    for(const v of Object.values(rec)){dayL.tgl+=num(v.tglAppts)||0; dayL.mkt+=num(v.mktAppts)||0;}
+    dayL.tot=dayL.tgl+dayL.mkt;
+    let leadLine='';
+    if(has){
+      loggedSoFar++;
+      cum.tgl+=dayL.tgl; cum.mkt+=dayL.mkt; cum.tot+=dayL.tot;
+      const dv=dayL.tot-plan.perDay.tot;
+      const cv=cum.tot-plan.perDay.tot*loggedSoFar;
+      leadLine=`<div class="t-dleads">
+        <div class="ln"><span>Leads run</span><span><b>${dayL.tot}</b> &middot; TGL ${dayL.tgl} &middot; Mkt ${dayL.mkt} ${leadTag(dv,1)}</span></div>
+        <div class="ln"><span>Month to date</span><span><b>${cum.tot}</b> of ${plan.tot} ${leadTag(cv,1)}</span></div>
+      </div>`;
+    }
     html+=`<div class="t-day ${has?'has':'none'}${isWeekend(mk,d)?' wknd':''}">
       <h4><span>${mAbbr(mk)} ${d}</span><span class="r">${has?tMoney(rev)+' &middot; '+dayCalls(mk,d)+' calls':'Nothing logged'}${ly?'<br>LY '+tMoney(ly.tglRev+ly.mktRev):''}</span></h4>
+      ${leadLine}
       ${has?`<div class="t-drow t-dhead"><div>&nbsp;</div><div class="c">TGA</div><div class="c">TGS</div><div class="c">MKA</div><div class="c">MKS</div><div class="m">Revenue</div></div>`+
         reps.filter(r=>rec[r]&&rowLive(rec[r])).map(r=>{const v=rec[r];
           return `<div class="t-drow"><b>${r}</b>
@@ -3142,6 +3312,31 @@ function renderTeamPerf(){
     return `<tr><td>${rep}</td><td class="mid">${badge(r.tglSold,r.tglAppts)}</td>
       <td class="mid">${badge(r.mktSold,r.mktAppts)}</td><td class="mid">${badge(r.sold,r.appts)}</td></tr>`;
   }).join('');
+  /* leads against the bar: every consultant is expected to run `bar` a day */
+  const lv=leadVar(mk), plan=lv.plan;
+  $('tmLeadSub').innerHTML=`Each consultant's bar is <b>${plan.bar} appointments a day</b> &mdash; ${plan.bar*plan.wd} over ${plan.wd} working days. The team plan is <b>${plan.tgl}</b> TGL and <b>${plan.mkt}</b> marketed, <b>${plan.tot}</b> in all. Measured through ${lv.days} logged day${lv.days===1?'':'s'}.`;
+  const expRep=plan.bar*lv.days, expRepMo=plan.bar*plan.wd;
+  $('tmLeads').querySelector('tbody').innerHTML=reps.map(rep=>{
+    const r=repTot(mk,rep), dv=r.appts-expRep;
+    const pct=expRepMo?Math.min(100,Math.round(100*r.appts/expRepMo)):0;
+    return `<tr><td><b>${rep}</b></td>
+      <td class="num">${r.tglAppts}</td><td class="num">${r.mktAppts}</td>
+      <td class="num"><b>${r.appts}</b></td>
+      <td class="num">${Math.round(expRep*10)/10}</td>
+      <td class="num">${leadTag(dv,1)}</td>
+      <td class="num">${expRepMo}</td>
+      <td class="num"><div style="display:flex;align-items:center;gap:7px;justify-content:flex-end">${pct}%
+        <div class="t-prog" style="width:64px"><i class="${dv>=0?'ok':dv<=-2?'sub':''}" style="width:${pct}%"></i></div></div></td></tr>`;
+  }).join('');
+  $('tmLeads').querySelector('tfoot').innerHTML=`<tr class="t-total"><td>TEAM</td>
+    <td class="num">${lv.act.tgl} <span class="hint">/ ${plan.tgl}</span></td>
+    <td class="num">${lv.act.mkt} <span class="hint">/ ${plan.mkt}</span></td>
+    <td class="num"><b>${lv.act.tot}</b> <span class="hint">/ ${plan.tot}</span></td>
+    <td class="num">${Math.round(lv.exp.tot*10)/10}</td>
+    <td class="num">${leadTag(lv.d.tot,1)}</td>
+    <td class="num">${plan.tot}</td>
+    <td class="num">${plan.tot?Math.round(100*lv.act.tot/plan.tot):0}%</td></tr>`;
+
   $('tmContrib').querySelector('tbody').innerHTML=reps.map(rep=>{
     const r=repTot(mk,rep), c=t.rev?Math.round(100*r.rev/t.rev):0;
     return `<tr><td>${rep}</td><td class="num">${tMoney(r.rev)}</td>
@@ -3186,6 +3381,30 @@ function renderForecast(){
   const mk=ctxMK(), cfg=monthCfg(mk), t=mtdTot(mk), logged=daysLogged(mk).length;
   $('fcTarget').value=cfg.target; $('fcWorkdays').value=cfg.workdays;
   $('fcTglAvg').value=cfg.tglAvg; $('fcMktAvg').value=cfg.mktAvg;
+  $('fcTglLeads').value=cfg.tglLeads; $('fcMktLeads').value=cfg.mktLeads;
+  $('fcTotLeads').value=cfg.totalLeads??''; $('fcApptsDay').value=cfg.apptsPerDay;
+
+  /* leads against plan, and where the lead count lands at this run rate */
+  const lv=leadVar(mk), plan=lv.plan;
+  const runRate=lv.days?lv.act.tot/lv.days:0;
+  const projLeads=lv.act.tot+runRate*lv.left;
+  $('fcTotLeadsHint').textContent=cfg.totalLeads?`Overriding the sum (${plan.tgl+plan.mkt}). Clear to go back to the sum.`:`Auto: TGL + marketed = ${plan.tgl+plan.mkt}.`;
+  $('fcLeadCards').innerHTML=
+    statCard('Leads run to date',lv.act.tot,`TGL ${lv.act.tgl} &middot; Marketed ${lv.act.mkt}`)+
+    statCard('Against pace',signed(lv.d.tot,1),`${Math.round(lv.exp.tot*10)/10} expected through ${lv.days} day${lv.days===1?'':'s'}`,varCls(lv.d.tot))+
+    statCard('Leads a day needed',lv.left?Math.round(lv.need.tot*10)/10:'—',lv.left?`to reach ${plan.tot}`:'no working days left')+
+    statCard('Projected leads',lv.days?Math.round(projLeads):'—',
+      lv.days?`${signed(projLeads-plan.tot,0)} vs a plan of ${plan.tot}`:'nothing logged yet',
+      lv.days?varCls(projLeads-plan.tot):'');
+  $('fcLeadRows').innerHTML=[
+    ['TGL',lv.act.tgl,lv.exp.tgl,lv.d.tgl,plan.tgl,plan.perDay.tgl,lv.need.tgl],
+    ['Marketed',lv.act.mkt,lv.exp.mkt,lv.d.mkt,plan.mkt,plan.perDay.mkt,lv.need.mkt],
+    ['Total',lv.act.tot,lv.exp.tot,lv.d.tot,plan.tot,plan.perDay.tot,lv.need.tot]
+  ].map((r,i)=>`<tr${i===2?' class="t-total"':''}><td>${i===2?'<b>Total</b>':r[0]}</td>
+    <td class="num">${r[4]}</td><td class="num">${Math.round(r[5]*100)/100}</td>
+    <td class="num">${r[1]}</td><td class="num">${Math.round(r[2]*10)/10}</td>
+    <td class="num">${leadTag(r[3],1)}</td>
+    <td class="num">${lv.left?Math.round(r[6]*100)/100:'—'}</td></tr>`).join('');
   const left=Math.max(0,cfg.workdays-logged);
   const gap=Math.max(0,cfg.target-t.rev);
   const need=left>0?gap/left:0;
@@ -3221,6 +3440,12 @@ async function fcSaveCfg(){
   c.workdays=num($('fcWorkdays').value)||c.workdays;
   c.tglAvg=num($('fcTglAvg').value)||c.tglAvg;
   c.mktAvg=num($('fcMktAvg').value)||c.mktAvg;
+  c.tglLeads=num($('fcTglLeads').value)??c.tglLeads;
+  c.mktLeads=num($('fcMktLeads').value)??c.mktLeads;
+  /* an empty total means "use the sum", so it has to be deletable, not zero */
+  const tl=$('fcTotLeads').value.trim();
+  if(tl==='') delete c.totalLeads; else c.totalLeads=num(tl)||0;
+  c.apptsPerDay=num($('fcApptsDay').value)||c.apptsPerDay;
   await push('saveConfig',{config:state.config});
   renderNumbers();
 }
@@ -3252,6 +3477,23 @@ function renderYoY(){
     const d=(c==null||l==null||!l)?'':` (${c-l>=0?'+':'\u2212'}${Math.abs(Math.round(100*(c/l-1)))}%)`;
     return statCard(label,c==null?'\u2014':tMoney(c),`Last year: ${l==null?'\u2014':tMoney(l)}${d}`,cls);
   };
+  /* lead counts: this year vs last year over the same days, and vs this year's plan */
+  const lv=leadVar(mk);
+  const cntCard=(label,now,ly,planN)=>{
+    const d=(ly==null)?null:now-ly;
+    const sub=(ly==null)?`Plan ${planN}`:`Last year: ${ly} (${signed(d,0)}) &middot; plan ${planN}`;
+    return statCard(label,now,sub,d==null?'':(d>=0?'ok':'sub'));
+  };
+  $('yoyLeadSub').innerHTML=cmp&&md
+    ? `Appointments run through the ${md}${ord(md)}, against the same days last year and against this month's lead plan of ${lv.plan.tgl} TGL / ${lv.plan.mkt} marketed / ${lv.plan.tot} total.`
+    : `This month's lead plan is ${lv.plan.tgl} TGL / ${lv.plan.mkt} marketed / ${lv.plan.tot} total. A prior-year baseline is needed for the comparison.`;
+  $('yoyLeadCards').innerHTML=
+    cntCard('TGL leads run',lv.act.tgl,cmp&&md?cmp.tglAppts:null,lv.plan.tgl)+
+    cntCard('Marketed leads run',lv.act.mkt,cmp&&md?cmp.mktAppts:null,lv.plan.mkt)+
+    cntCard('Total leads run',lv.act.tot,cmp&&md?cmp.appts:null,lv.plan.tot)+
+    statCard('Against this year’s pace',signed(lv.d.tot,1),
+      `${Math.round(lv.exp.tot*10)/10} expected through ${lv.days} logged day${lv.days===1?'':'s'}`,varCls(lv.d.tot));
+
   if(!cmp||!md){ $('yoyCards').innerHTML=''; }
   else{
     const diff=t.rev-cmp.rev, p=cmp.rev?Math.round(100*diff/cmp.rev):0;
