@@ -217,6 +217,36 @@
   .dpill.sold{background:var(--red);color:#fff}
   .dpill.pending{background:var(--tan);color:var(--ink)}
   .dpill.nosale{background:var(--terracotta);color:#fff}
+  /* expandable debrief rows */
+  .hist-item{border-bottom:1px solid var(--line)}
+  .hist-item:last-child{border-bottom:none}
+  .hist-item .hist-row{border-bottom:none;cursor:pointer}
+  .hist-item .hcar{display:inline-block;width:10px;color:var(--maroon);transition:transform .15s;font-size:.7rem}
+  .hist-item.open .hcar{transform:rotate(90deg)}
+  .hist-detail{display:none;padding:2px 0 12px}
+  .hist-item.open .hist-detail{display:block}
+  .hd-row{display:flex;gap:10px;padding:5px 0;border-top:1px dotted var(--line);font-size:.85rem;align-items:flex-start}
+  .hd-row .k{flex:0 0 112px;font-weight:800;color:var(--maroon);font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;padding-top:2px}
+  .hd-row .v{flex:1;font-weight:600;min-width:0;overflow-wrap:anywhere}
+  .hd-quote{background:var(--tan-soft);border-left:3px solid var(--tan);border-radius:0 8px 8px 0;
+    padding:8px 11px;margin:0;font-style:italic;font-weight:600;line-height:1.45}
+  .hd-none{color:var(--terracotta);font-weight:800}
+  .dbweek{display:flex;gap:8px;align-items:center;margin:4px 0 10px}
+  .dbweek select{flex:1;min-width:0}
+  .cov-line{border-radius:10px;padding:9px 12px;font-size:.84rem;font-weight:700;margin:2px 0 10px}
+  .cov-line.ok{background:var(--sage);color:#fff}
+  .cov-line.owe{background:#FFF3EE;border:1.5px solid var(--terracotta);color:var(--maroon)}
+  .cov-line.none{background:var(--tan-soft);color:var(--maroon);font-weight:600}
+  .cov-tbl{width:100%;border-collapse:collapse;font-size:.82rem}
+  .cov-tbl th,.cov-tbl td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
+  .cov-tbl th{font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;color:var(--maroon)}
+  .cov-tbl td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .cov-tbl tr.miss td{background:#FFF3EE}
+  .cov-tbl tr.dupe td{background:var(--tan-soft)}
+  .cov-flag{font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em}
+  .cov-flag.miss{color:var(--terracotta)}
+  .cov-flag.dupe{color:var(--maroon)}
+  .cov-flag.ok{color:var(--sage-deep)}
   .result-chip{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:10px;color:#fff}
   .result-chip.worked{background:var(--sage-deep)} .result-chip.partial{background:var(--terracotta)} .result-chip.didnt{background:var(--red)}
   /* ---------- tables ---------- */
@@ -625,6 +655,9 @@
       <label for="dbCust">Customer <span class="hint">(first name is plenty)</span></label>
       <input type="text" id="dbCust" autocomplete="off" placeholder="e.g., Linda">
 
+      <label for="dbDate">Day the appointment ran <span class="hint">(change it if you're catching up)</span></label>
+      <input type="date" id="dbDate">
+
       <label>How did it end?</label>
       <div class="dseg c3">
         <button data-cls="sold" onclick="dbPick('outcome','sold',this)">Sold</button>
@@ -678,9 +711,12 @@
     </div>
 
     <div class="card">
-      <div class="eyebrow">My week so far</div>
+      <div class="eyebrow" id="dbHistTitle">My week so far</div>
+      <div class="dbweek"><select id="dbWeekSel" onchange="renderDebriefHistory()"></select></div>
+      <div id="dbCover" style="display:none"></div>
       <div class="statline" id="weekStats">No calls logged yet this week.</div>
       <div id="histList" style="margin-top:8px"></div>
+      <p class="hint" id="dbHistHint" style="margin-top:10px">Tap any call to open the full debrief.</p>
       <button class="btn ghost small" style="margin-top:12px" onclick="dbCheckpoint()">Text Nels my checkpoint</button>
     </div>
   </div>
@@ -1022,6 +1058,7 @@
     </div>
     <p class="hint" id="dlPlanLine" style="margin:-4px 0 12px"></p>
     <div id="dlChecks" style="margin-bottom:14px"></div>
+    <div id="dlCoverage" style="margin-bottom:14px"></div>
     <div class="t-daygrid" id="dlGrid"></div>
   </div>
   <div class="t-modal" id="dlModal">
@@ -3489,6 +3526,7 @@ function renderDailyLog(){
   const lvD=leadVar(mk);
   $('dlSummary').innerHTML=`${logged.length} logged of ${lvD.progress.elapsed} working day${lvD.progress.elapsed===1?'':'s'} elapsed &middot; ${tMoney(t.rev)} &middot; ${t.sold} sold &middot; ${lvD.act.tot} leads run ${leadTag(lvD.d.tot,1)} vs pace`;
   renderChecks();
+  renderDebriefCoverage();
   const reps=state.config.reps;
   const plan=leadPlan(mk), prD=monthProgress(mk);
   $('dlPlanLine').innerHTML=`Lead plan: <b>${plan.tgl}</b> TGL &middot; <b>${plan.mkt}</b> marketed &middot; <b>${plan.tot}</b> total, plus <b>${plan.sg}</b> self-gen, over ${plan.wd} working days &mdash; <b>${Math.round(plan.perDay.tot*100)/100}</b> a day (TGL ${Math.round(plan.perDay.tgl*100)/100}, marketed ${Math.round(plan.perDay.mkt*100)/100}). Each consultant's bar is ${plan.bar} a day.`;
@@ -4133,6 +4171,7 @@ function dbChip(btn){
 function dbReset(){
   dbPicks={outcome:null,focus:null,nod:null,hazt:null}; dbWho='';
   ['dbCust','dbWords','dbAmt','dbOpt','dbHold'].forEach(id=>$(id).value='');
+  if($('dbDate')) $('dbDate').value=dbLocalISO(new Date());
   document.querySelectorAll('#view-debrief .dseg button').forEach(b=>b.className='');
   document.querySelectorAll('#haztWho button').forEach(b=>b.classList.remove('on'));
   $('soldWrap').style.display='none'; $('unsoldWrap').style.display='none';
@@ -4148,6 +4187,7 @@ async function dbSave(){
   if(dbPicks.outcome!=='sold' && !dbPicks.hazt){toast('HA/ZT call — made, scheduled, or not yet?');return;}
   const call={
     ts:Date.now(), rep, week:wk,
+    date:$('dbDate').value||dbLocalISO(new Date()),
     customer:$('dbCust').value.trim(),
     outcome:dbPicks.outcome,
     focus:plan?.behavior ? (dbPicks.focus==='yes') : null,
@@ -4164,6 +4204,7 @@ async function dbSave(){
   e.debriefs=e.debriefs||[]; e.debriefs.push(call);
   await push('saveEntry',{entry:e});
   toast('Saved — nice work, next one');
+  dbHistWeek=wk; if($('dbWeekSel')) $('dbWeekSel').value='';   // jump the history back to this week
   dbReset(); renderDebrief();
   window.scrollTo({top:0});
 }
@@ -4192,8 +4233,89 @@ function renderDebrief(){
     $('focusCard').style.display='none'; $('noPlanCard').style.display='';
     $('qFocus').style.display='none';
   }
-  const calls=dbCalls(rep);
-  if(!calls.length){ $('weekStats').textContent='No calls logged yet this week.'; $('histList').innerHTML=''; return; }
+  renderDebriefHistory();
+}
+
+/* ---------- individual debriefs: week picker + expandable rows ---------- */
+let dbHistWeek=null;
+function dbEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function dbWeeksFor(rep){
+  const ws=state.entries.filter(e=>e.rep===rep&&(e.debriefs||[]).length).map(e=>e.week);
+  return [...new Set(ws)].sort().reverse();
+}
+function dbCallsIn(rep,wk){
+  if(wk==='all') return state.entries.filter(e=>e.rep===rep)
+    .flatMap(e=>(e.debriefs||[]).map(c=>Object.assign({week:e.week},c)));
+  return (entryFor(rep,wk)?.debriefs)||[];
+}
+function dbWeekLabel(wk){
+  const s=new Date(wk+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'});
+  return wk===thisWeek() ? ('This week \u2014 '+s) : ('Week of '+s);
+}
+function dbDetailRows(c){
+  const R=[];
+  const d=new Date(c.ts);
+  R.push(['When', d.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'})
+    +' \u00B7 '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})]);
+  R.push(['Consultant', dbEsc(c.rep||'\u2014')]);
+  if(c.date && c.date!==dbLocalISO(d))
+    R.push(['Appointment ran', new Date(c.date+'T12:00:00').toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'})+' <span class="hint">(logged later)</span>']);
+  if(c.outcome==='sold'){
+    if(c.amount) R.push(['Amount','$'+Number(c.amount).toLocaleString()]);
+    if(c.option) R.push(['Option sold',dbEsc(c.option)]);
+  }else{
+    const h=c.hazt==='made'?'Made':c.hazt==='sched'?'Scheduled'
+      :c.hazt==='none'?'<span class="hd-none">Not yet \u2014 still owed</span>':'\u2014';
+    R.push(['HA/ZT call', h+(c.haztWho?(' \u00B7 '+dbEsc(c.haztWho)):'')]);
+  }
+  if(c.focus!==null&&c.focus!==undefined)
+    R.push(['Focus behavior', c.focus?'Ran it':'<span class="hd-none">Missed it</span>']);
+  R.push(['Restate-to-nod', c.nod?'Yes':'<span class="hd-none">No</span>']);
+  if(c.words) R.push(['Their words','<div class="hd-quote">\u201C'+dbEsc(c.words)+'\u201D</div>']);
+  if(c.holdback) R.push(['Holding back','<div class="hd-quote">\u201C'+dbEsc(c.holdback)+'\u201D</div>']);
+  return R;
+}
+function dbRowHTML(c,i){
+  const cls=c.outcome==='sold'?'sold':c.outcome==='pending'?'pending':'nosale';
+  const txt=c.outcome==='sold'?('SOLD'+(c.amount?(' $'+Number(c.amount).toLocaleString()):''))
+    :c.outcome==='pending'?'PENDING':'NO SALE';
+  const when=new Date(c.ts).toLocaleDateString(undefined,{weekday:'short',month:'numeric',day:'numeric'});
+  return '<div class="hist-item" id="hi'+i+'">'
+    +'<div class="hist-row" onclick="dbToggle('+i+')" role="button" tabindex="0">'
+    +'<span><span class="hcar">\u25B6</span> '+dbEsc(c.customer||'\u2014')
+    +' <span class="hint">'+when+'</span></span>'
+    +'<span class="dpill '+cls+'">'+txt+'</span></div>'
+    +'<div class="hist-detail">'
+    +dbDetailRows(c).map(r=>'<div class="hd-row"><span class="k">'+r[0]+'</span><span class="v">'+r[1]+'</span></div>').join('')
+    +'</div></div>';
+}
+function dbToggle(i){ const el=$('hi'+i); if(el) el.classList.toggle('open'); }
+function renderDebriefHistory(){
+  const rep=$('dbRep').value, sel=$('dbWeekSel');
+  if(!rep||!sel||!repAuthed(rep)) return;
+  const cur=thisWeek(), weeks=dbWeeksFor(rep), opts=[];
+  if(!weeks.includes(cur)) opts.push([cur,dbWeekLabel(cur)+' (0)']);
+  weeks.forEach(w=>opts.push([w,dbWeekLabel(w)+' ('+dbCallsIn(rep,w).length+')']));
+  if(weeks.length>1) opts.push(['all','All weeks ('+dbCallsIn(rep,'all').length+')']);
+  const has=v=>opts.some(o=>o[0]===v);
+  // fall back to the newest week that actually has calls, not an empty current week
+  const want = has(sel.value)?sel.value : (has(dbHistWeek)?dbHistWeek : (weeks.length?weeks[0]:cur));
+  sel.innerHTML=opts.map(o=>'<option value="'+o[0]+'">'+dbEsc(o[1])+'</option>').join('');
+  sel.value=want; dbHistWeek=want;
+  const mine = !managerOn || repOn===rep;
+  $('dbHistTitle').textContent = want==='all' ? ('Every debrief \u2014 '+rep)
+    : want===cur ? (mine?'My week so far':rep+' \u2014 this week')
+    : (dbWeekLabel(want)+(mine?'':' \u2014 '+rep));
+  const calls=dbCallsIn(rep,want).slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
+  if(!calls.length){
+    $('weekStats').textContent = want===cur ? 'No calls logged yet this week.' : 'No calls logged for this week.';
+    $('histList').innerHTML=''; $('dbHistHint').style.display='none';
+    renderRepCoverage(rep); return;
+  }
+  $('dbHistHint').style.display='';
+  $('dbHistHint').textContent = managerOn
+    ? 'Tap any call to open the full debrief. Manager mode \u2014 switch consultants above.'
+    : 'Tap any call to open the full debrief.';
   const sold=calls.filter(c=>c.outcome==='sold');
   const uns=calls.filter(c=>c.outcome!=='sold');
   const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;
@@ -4204,11 +4326,89 @@ function renderDebrief(){
     '<span><b>'+sold.length+'</b> sold'+(rev?(' \u00B7 $'+rev.toLocaleString()):'')+'</span>'+
     '<span>Nod <b>'+nods+'/'+calls.length+'</b></span>'+
     '<span>HA/ZT <b>'+cov+'/'+uns.length+'</b></span>';
-  $('histList').innerHTML=calls.slice().reverse().map(c=>
-    '<div class="hist-row"><span>'+(c.customer||'\u2014')+' <span class="hint">'+new Date(c.ts).toLocaleDateString(undefined,{weekday:'short'})+'</span></span>'+
-    '<span class="dpill '+(c.outcome==='sold'?'sold':c.outcome==='pending'?'pending':'nosale')+'">'+
-    (c.outcome==='sold'?('SOLD'+(c.amount?(' $'+c.amount.toLocaleString()):'')):c.outcome==='pending'?'PENDING':'NO SALE')+'</span></div>'
-  ).join('');
+  $('histList').innerHTML=calls.map((c,i)=>dbRowHTML(c,i)).join('');
+  renderRepCoverage(rep);
+}
+
+/* ---------- debriefs vs appointments run ---------- */
+function dbLocalISO(d){
+  const p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+}
+/* Older debriefs predate the date field — fall back to when they were saved. */
+function dbDayOf(c){ return c.date || dbLocalISO(new Date(c.ts)); }
+function debriefsOn(rep,iso){
+  return state.entries.filter(e=>e.rep===rep)
+    .flatMap(e=>e.debriefs||[]).filter(c=>dbDayOf(c)===iso);
+}
+/* null = that day isn't in the daily log yet, so there is nothing to check against. */
+function apptsOn(rep,iso){
+  const mk=iso.slice(0,7), d=parseInt(iso.slice(8,10),10);
+  if(!dayHasData(mk,d)) return null;
+  const row=dayReps(mk,d)[rep];
+  if(!row) return 0;
+  const a=deriveKpis(row).appts;
+  return a==null?0:a;
+}
+function renderRepCoverage(rep){
+  const box=$('dbCover'); if(!box) return;
+  const iso=dbLocalISO(new Date());
+  const n=debriefsOn(rep,iso).length, a=apptsOn(rep,iso);
+  if(a===null){
+    if(!n){ box.style.display='none'; return; }
+    box.style.display=''; box.className='cov-line none';
+    box.textContent=n+' debrief'+(n===1?'':'s')+" logged today. Today isn't in the daily log yet, so there's nothing to check against.";
+    return;
+  }
+  if(!a && !n){ box.style.display='none'; return; }
+  box.style.display='';
+  if(a===n){ box.className='cov-line ok';
+    box.textContent='All '+a+" of today's appointments are debriefed."; }
+  else if(a>n){ box.className='cov-line owe';
+    box.textContent='The daily log shows '+a+' appointment'+(a===1?'':'s')+" today — you've debriefed "+n+'. '+(a-n)+' still owed.'; }
+  else { box.className='cov-line none';
+    box.textContent=n+' debriefs today against '+a+' appointment'+(a===1?'':'s')+' in the log — worth checking for a double-save.'; }
+}
+/* Manager grid: one row per consultant per day, from the first debrief ever
+   logged onward. Days before that predate the debrief tool and are not misses. */
+function renderDebriefCoverage(){
+  const box=$('dlCoverage'); if(!box) return;
+  const mk=ctxMK();
+  const all=state.entries.flatMap(e=>e.debriefs||[]);
+  if(!all.length){ box.innerHTML=''; return; }
+  const first=all.map(dbDayOf).sort()[0];
+  const rows=[]; let tA=0,tD=0;
+  for(let d=1;d<=daysInMonth(mk);d++){
+    const iso=mk+'-'+String(d).padStart(2,'0');
+    if(iso<first) continue;
+    const recs=dayReps(mk,d), logged=dayHasData(mk,d);
+    const names=new Set(Object.keys(recs));
+    state.config.reps.forEach(r=>{ if(debriefsOn(r,iso).length) names.add(r); });
+    [...names].sort().forEach(rep=>{
+      const n=debriefsOn(rep,iso).length;
+      const a=logged?(apptsOn(rep,iso)||0):null;
+      if(!n && !a) return;
+      tA+=(a||0); tD+=n;
+      const flag = a===null ? ['','not logged yet']
+        : a===n ? ['ok','matched']
+        : a>n ? ['miss',(a-n)+' missing']
+        : ['dupe',(n-a)+' extra'];
+      rows.push({iso,rep,a,n,cls:flag[0],txt:flag[1]});
+    });
+  }
+  if(!rows.length){ box.innerHTML=''; return; }
+  const bad=rows.filter(r=>r.cls==='miss'||r.cls==='dupe').length;
+  box.className='t-alert '+(bad?'warn':'ok');
+  box.innerHTML='<b>Debrief coverage &mdash; '+tD+' debrief'+(tD===1?'':'s')+' against '+tA+' appointment'+(tA===1?'':'s')+' run'
+    +(bad?', '+bad+' day'+(bad===1?'':'s')+' out of step':', one for one')+'</b>'
+    +'<p class="hint" style="margin:4px 0 8px">From '+new Date(first+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'})
+    +' &mdash; the first debrief ever logged. Earlier days predate the tool.</p>'
+    +'<div class="tbl-wrap"><table class="cov-tbl"><thead><tr><th>Day</th><th>Consultant</th>'
+    +'<th class="num">Appts</th><th class="num">Debriefs</th><th></th></tr></thead><tbody>'
+    +rows.map(r=>'<tr class="'+r.cls+'"><td>'+new Date(r.iso+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',month:'numeric',day:'numeric'})
+      +'</td><td>'+dbEsc(r.rep)+'</td><td class="num">'+(r.a===null?'&mdash;':r.a)+'</td><td class="num">'+r.n
+      +'</td><td><span class="cov-flag '+r.cls+'">'+r.txt+'</span></td></tr>').join('')
+    +'</tbody></table></div>';
 }
 function dbCheckpoint(){
   const rep=$('dbRep').value;
@@ -4337,6 +4537,7 @@ function dbDaySend(){
   fillRepSelects();
   if(repOn && state.config.reps.includes(repOn)){ $('tbRep').value=repOn; $('trRep').value=repOn; $('dbRep').value=repOn; }
   loadForm();
+  if($('dbDate')) $('dbDate').value=dbLocalISO(new Date());
   renderNumbers(); renderGuide();
   if(location.hash==='#guide') showView('guide');
   if(location.hash==='#debrief') showView('debrief');
