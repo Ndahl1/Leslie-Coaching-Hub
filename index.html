@@ -239,7 +239,8 @@
   .cov-line.none{background:var(--tan-soft);color:var(--maroon);font-weight:600}
   .cov-tbl{width:100%;border-collapse:collapse;font-size:.82rem}
   .cov-tbl th,.cov-tbl td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
-  .cov-tbl th{font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;color:var(--maroon)}
+  .cov-tbl th{font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;
+    background:var(--ink);color:var(--tan)}
   .cov-tbl td.num{text-align:right;font-variant-numeric:tabular-nums}
   .cov-tbl tr.miss td{background:#FFF3EE}
   .cov-tbl tr.dupe td{background:var(--tan-soft)}
@@ -247,6 +248,15 @@
   .cov-flag.miss{color:var(--terracotta)}
   .cov-flag.dupe{color:var(--maroon)}
   .cov-flag.ok{color:var(--sage-deep)}
+  .rc-sec{margin:0 0 20px}
+  .rc-sec h3{font-size:.95rem;margin:0 0 8px}
+  .rc-narr{font-size:.86rem}
+  .rc-narr .rc-rep{font-weight:800;margin:12px 0 4px;color:var(--maroon)}
+  .rc-narr ol{margin:0 0 4px 18px;padding:0}
+  .rc-narr li{margin:3px 0}
+  .rc-narr .rc-q{font-style:italic;color:var(--muted);display:block;margin:2px 0 0}
+  .rc-open{background:#FFF3EE;border:1.5px solid var(--terracotta);border-radius:10px;
+    padding:10px 12px;font-size:.85rem;font-weight:700;color:var(--maroon);margin-top:10px}
   .result-chip{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:10px;color:#fff}
   .result-chip.worked{background:var(--sage-deep)} .result-chip.partial{background:var(--terracotta)} .result-chip.didnt{background:var(--red)}
   /* ---------- tables ---------- */
@@ -486,6 +496,7 @@
     <span class="grp-label">Numbers</span>
     <button data-v="overview" onclick="showView('overview')">Scoreboard</button>
     <button data-v="daily" onclick="showView('daily')">Daily Log</button>
+    <button data-v="recap" onclick="showView('recap')">Daily Recap</button>
     <button data-v="team" onclick="showView('team')">Team</button>
     <button data-v="forecast" onclick="showView('forecast')">Forecast</button>
     <button data-v="yoy" onclick="showView('yoy')">Year over Year</button>
@@ -725,7 +736,7 @@
     <div class="eyebrow">End of day &mdash; Nels only</div>
     <div class="statline" id="dayStats"></div>
     <p class="hint" id="dayHint" style="margin:6px 0 12px"></p>
-    <button class="btn small" onclick="dbDaySend()">Send today&rsquo;s team rollup to Gabe &amp; Brendan</button>
+    <button class="btn small" onclick="showView('recap')">Open the Daily Recap &rarr;</button>
   </div>
 </section>
 
@@ -1042,6 +1053,23 @@
   <h3 style="font-size:.95rem;margin-bottom:4px">Weekly close rate by consultant</h3>
   <p class="hint" style="margin-bottom:10px">TGL and Marketed combined. Hover a week for the split. <b style="color:var(--sage-deep)">&ge;50%</b> &middot; <b style="color:var(--terracotta)">35&ndash;49%</b> &middot; <b style="color:var(--red)">&lt;35%</b></p>
   <div id="ovRepWeekly"></div>
+  </div>
+</section>
+
+<!-- ============ DAILY RECAP ============ -->
+<section class="view" id="view-recap">
+  <h2>Daily Recap <span id="rcDateName"></span></h2>
+  <p class="t-sub">The whole day in one place &mdash; every KPI off the daily log, debrief coverage, where the month stands, and what the team heard in the field. Built to be read, then sent.</p>
+  <div id="rcLocked" class="locked" style="display:none">&#128274; The daily recap is manager-only. Use the <b>Manager</b> button up top.</div>
+  <div id="rcBody">
+    <div class="bar">
+      <div style="min-width:auto"><label for="rcDate" style="display:none">Day</label>
+        <input type="date" id="rcDate" onchange="renderRecap()"></div>
+      <div style="min-width:auto"><button class="btn ghost small" onclick="rcSetToday()">Today</button></div>
+      <div style="min-width:auto"><button class="btn small" onclick="rcSend()">Send to Gabe &amp; Brendan</button></div>
+    </div>
+    <div id="rcEmpty" class="t-alert" style="display:none"></div>
+    <div id="rcContent"></div>
   </div>
 </section>
 
@@ -2057,6 +2085,7 @@ function showView(v){
   if(v==='pace') renderPaceView();
   if(v==='overview') renderOverview();
   if(v==='daily') renderDailyLog();
+  if(v==='recap') renderRecap();
   if(v==='team') renderTeamPerf();
   if(v==='forecast') renderForecast();
   if(v==='yoy') renderYoY();
@@ -4098,7 +4127,7 @@ function renderNumbers(){
 
 /* =================== built-in guide =================== */
 const GUIDE_ANCHOR={mytb:'g-mytb',debrief:'g-debrief',review:'g-review',track:'g-track',
-  coach:'g-coach',overview:'g-scoreboard',daily:'g-daily',team:'g-team',forecast:'g-forecast',
+  coach:'g-coach',overview:'g-scoreboard',daily:'g-daily',recap:'g-daily',team:'g-team',forecast:'g-forecast',
   yoy:'g-yoy',pace:'g-pace',import:'g-import',guide:'g-rhythm'};
 let guideRole=localStorage.getItem('leslie_tb_guiderole')||null;
 function guideRoleEff(){ return managerOn ? (guideRole||'m') : 'c'; }
@@ -4430,6 +4459,332 @@ function dbCheckpoint(){
   ].filter(Boolean).join('\n');
   if(navigator.share){ navigator.share({text:msg}).catch(()=>{}); }
   else{ navigator.clipboard.writeText(msg).then(()=>toast('Checkpoint copied — paste it into a text to Nels')); }
+}
+
+/* =================== DAILY RECAP ===================
+   One tab that answers "how did today go" from both halves of the hub: the
+   daily log for what was run and sold, the debriefs for what was heard, and
+   the two checked against each other. renderRecap() draws it, rcLines()
+   builds the same thing as text so what gets sent matches what was read. */
+function rcDay(){ const el=$('rcDate'); return (el&&el.value)||dbLocalISO(new Date()); }
+function rcSetToday(){ const el=$('rcDate'); if(el){ el.value=dbLocalISO(new Date()); renderRecap(); } }
+
+/* Month totals through a chosen day. mtdTot() sums the whole month, which is
+   right for "today" and wrong the moment you open a past day's recap. */
+function rcMtdThrough(mk,thru){
+  const t=blankTot(); t.calls=0;
+  for(let d=1;d<=thru;d++){
+    t.calls+=dayCalls(mk,d);
+    for(const r of Object.values(dayReps(mk,d)))
+      ALL_FIELDS.forEach(f=>{t[f.key]+=num(r[f.key])||0;});
+  }
+  return seal(t);
+}
+/* Same rule monthProgress uses: a day counts as elapsed if it was worked, or
+   if it is a working day at or before the one being reported on. */
+function rcElapsedThrough(mk,thru){
+  let n=0;
+  for(let d=1;d<=thru;d++) if(dayHasData(mk,d)||!isWeekend(mk,d)) n++;
+  return n;
+}
+function rcData(iso){
+  const mk=iso.slice(0,7), d=parseInt(iso.slice(8,10),10);
+  const logged=dayHasData(mk,d);
+  const recs=dayReps(mk,d);
+  const names=new Set(Object.keys(recs));
+  state.config.reps.forEach(r=>{ if(debriefsOn(r,iso).length) names.add(r); });
+  const rows=[...names].sort().map(rep=>{
+    const raw=recs[rep]||{};
+    const k=deriveKpis(raw);
+    const t=seal({tglAppts:num(raw.tglAppts)||0,tglSold:num(raw.tglSold)||0,tglRev:num(raw.tglRev)||0,
+      mktAppts:num(raw.mktAppts)||0,mktSold:num(raw.mktSold)||0,mktRev:num(raw.mktRev)||0,
+      sgAppts:num(raw.sgAppts)||0,sgSold:num(raw.sgSold)||0,sgRev:num(raw.sgRev)||0});
+    const appts=k.appts==null?t.appts:k.appts;
+    const calls=debriefsOn(rep,iso);
+    return {rep,t,appts,calls,
+      close: appts?Math.round(100*t.sold/appts):null,
+      ticket: t.sold?Math.round(t.rev/t.sold):null,
+      cov: !logged?null : (appts===calls.length?'ok':appts>calls.length?'miss':'dupe'),
+      gap: appts-calls.length};
+  });
+  const team=seal(rows.reduce((a,r)=>{ Object.keys(a).forEach(k=>{a[k]+=r.t[k];}); return a; },blankTot()));
+  team.appointments=rows.reduce((n,r)=>n+r.appts,0);
+  const all=rows.flatMap(r=>r.calls);
+  const quiet=state.config.reps.filter(r=>!rows.some(x=>x.rep===r));
+  return {iso,mk,d,logged,rows,team,all,quiet,
+    svcCalls:dayCalls(mk,d),
+    open:all.filter(c=>c.outcome!=='sold'&&!(c.hazt==='made'||c.hazt==='sched')),
+    nods:all.filter(c=>c.nod).length,
+    mtd:rcMtdThrough(mk,d), elapsed:rcElapsedThrough(mk,d),
+    plan:leadPlan(mk), cfg:monthCfg(mk), cp:closePlan(mk)};
+}
+
+/* Close rate and average ticket for one bucket. Null denominators stay null
+   rather than becoming 0% — an untouched lead type has no rate, and printing
+   one reads as a failure that never happened. */
+function rcRate(appts,sold,rev){
+  return {close: appts?100*sold/appts:null, ticket: sold?rev/sold:null};
+}
+function rcRates(t,appts){
+  return {
+    tgl:  rcRate(t.tglAppts,t.tglSold,t.tglRev),
+    mkt:  rcRate(t.mktAppts,t.mktSold,t.mktRev),
+    sg:   rcRate(t.sgAppts,t.sgSold,t.sgRev),
+    all:  rcRate(appts==null?t.appts:appts,t.sold,t.rev)
+  };
+}
+/* Colour against the month's own plan, not a fixed scale. */
+function rcCls(actual,plan){
+  if(actual==null||!plan) return '';
+  const r=actual/plan;
+  return r>=1?'ok':r>=0.85?'watch':'sub';
+}
+function rcPctTxt(v){ return v==null?'—':Math.round(v)+'%'; }
+function rcMoneyTxt(v){ return v==null?'—':'$'+Math.round(v).toLocaleString(); }
+/* One strip of six: close and ticket for TGL, Marketed, and overall. */
+function rcRateCards(t,appts,cp,cfg){
+  const R=rcRates(t,appts);
+  const money=n=>'$'+Math.round(n||0).toLocaleString();
+  const blend=(cfg.tglAvg||0)&&(cfg.mktAvg||0)
+    ? ((cfg.tglAvg*(t.tglSold||0)+cfg.mktAvg*(t.mktSold||0))/Math.max(1,(t.tglSold||0)+(t.mktSold||0)))
+    : (cfg.tglAvg||cfg.mktAvg||0);
+  return statCard('TGL close',rcPctTxt(R.tgl.close),cp.tgl?('Plan '+Math.round(cp.tgl*10)/10+'%'):'',rcCls(R.tgl.close,cp.tgl))
+    +statCard('TGL avg ticket',rcMoneyTxt(R.tgl.ticket),cfg.tglAvg?('Plan '+money(cfg.tglAvg)):'',rcCls(R.tgl.ticket,cfg.tglAvg))
+    +statCard('Marketed close',rcPctTxt(R.mkt.close),cp.mkt?('Plan '+Math.round(cp.mkt*10)/10+'%'):'',rcCls(R.mkt.close,cp.mkt))
+    +statCard('Marketed avg ticket',rcMoneyTxt(R.mkt.ticket),cfg.mktAvg?('Plan '+money(cfg.mktAvg)):'',rcCls(R.mkt.ticket,cfg.mktAvg))
+    +statCard('Overall close',rcPctTxt(R.all.close),cp.all?('Plan '+Math.round(cp.all*10)/10+'%'):'',rcCls(R.all.close,cp.all))
+    +statCard('Overall avg ticket',rcMoneyTxt(R.all.ticket),blend?('Plan '+money(blend)):'',rcCls(R.all.ticket,blend));
+}
+
+function renderRecap(){
+  if(!viewGate('rc')) return;
+  const el=$('rcDate'); if(el && !el.value) el.value=dbLocalISO(new Date());
+  const iso=rcDay(), R=rcData(iso);
+  $('rcDateName').innerHTML='<span class="t-src">'+new Date(iso+'T12:00:00')
+    .toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})+'</span>';
+  const box=$('rcEmpty');
+  if(!R.logged && !R.all.length){
+    box.style.display=''; box.className='t-alert warn';
+    box.innerHTML='Nothing for this day yet &mdash; it isn’t in the daily log and no debriefs were logged against it. '
+      +'<a href="#" onclick="showView(\'daily\');return false">Open the Daily Log</a> to enter it.';
+    $('rcContent').innerHTML=''; return;
+  }
+  box.style.display='none';
+  const T=R.team, money=n=>'$'+Math.round(n||0).toLocaleString();
+  const close=R.team.appointments?Math.round(100*T.sold/R.team.appointments):null;
+  const ticket=T.sold?Math.round(T.rev/T.sold):null;
+  let h='';
+
+  /* --- the day at a glance --- */
+  h+='<div class="rc-sec"><div class="pace-strip">'
+    +statCard('Appointments run',R.team.appointments,'TGL '+T.tglAppts+' · Mkt '+T.mktAppts+(T.sgAppts?(' · Self gen '+T.sgAppts):''))
+    +statCard('Sold',T.sold,close==null?'':close+'% close',rateCls(close))
+    +statCard('Revenue',money(T.rev),ticket?('Avg ticket '+money(ticket)):'')
+    +statCard('Service calls',R.svcCalls||'—','Calls ran that day')
+    +'</div></div>';
+
+  /* --- close rates and average tickets, this day --- */
+  h+='<div class="rc-sec"><h3>Close rates &amp; average tickets &mdash; this day</h3>'
+    +'<div class="pace-strip">'+rcRateCards(T,R.team.appointments,R.cp,R.cfg)+'</div>'
+    +'<p class="hint" style="margin-top:8px">Against '+monthName(R.mk,true)+'&rsquo;s plan. '
+    +'A lead type with no appointments shows a dash rather than 0%.</p></div>';
+
+  /* --- every KPI, per consultant --- */
+  const anySG=R.rows.some(r=>r.t.sgAppts||r.t.sgSold);
+  const cell=(v,fmt,appts,sold)=>'<td class="num"'
+    +(appts?(' title="'+sold+' of '+appts+'"'):'')+'>'+fmt(v)+'</td>';
+  h+='<div class="rc-sec"><h3>By consultant</h3><div class="tbl-wrap"><table class="cov-tbl">'
+    +'<thead><tr><th>Consultant</th><th class="num">Appts</th><th class="num">Sold</th>'
+    +'<th class="num">TGL close</th><th class="num">TGL ticket</th>'
+    +'<th class="num">Mkt close</th><th class="num">Mkt ticket</th>'
+    +(anySG?'<th class="num">Self gen close</th><th class="num">Self gen ticket</th>':'')
+    +'<th class="num">Overall close</th><th class="num">Overall ticket</th>'
+    +'<th class="num">Revenue</th></tr></thead><tbody>';
+  const rowCells=(t,appts)=>{
+    const q=rcRates(t,appts);
+    return cell(q.tgl.close,rcPctTxt,t.tglAppts,t.tglSold)+cell(q.tgl.ticket,rcMoneyTxt)
+      +cell(q.mkt.close,rcPctTxt,t.mktAppts,t.mktSold)+cell(q.mkt.ticket,rcMoneyTxt)
+      +(anySG?(cell(q.sg.close,rcPctTxt,t.sgAppts,t.sgSold)+cell(q.sg.ticket,rcMoneyTxt)):'')
+      +cell(q.all.close,rcPctTxt,appts,t.sold)+cell(q.all.ticket,rcMoneyTxt);
+  };
+  R.rows.forEach(r=>{
+    h+='<tr><td>'+dbEsc(r.rep)+'</td><td class="num">'+r.appts+'</td><td class="num">'+r.t.sold+'</td>'
+      +rowCells(r.t,r.appts)
+      +'<td class="num">'+money(r.t.rev)+'</td></tr>';
+  });
+  h+='<tr><td><b>Team</b></td><td class="num"><b>'+R.team.appointments+'</b></td>'
+    +'<td class="num"><b>'+T.sold+'</b></td>'
+    +rowCells(T,R.team.appointments).replace(/>([^<]*)<\/td>/g,'><b>$1</b></td>')
+    +'<td class="num"><b>'+money(T.rev)+'</b></td></tr>';
+  h+='</tbody></table></div>'
+    +'<p class="hint" style="margin-top:8px">Close rates, not counts &mdash; hover any rate for the '
+    +'sold-of-appointments behind it. A lead type with no appointments shows a dash rather than 0%. '
+    +'One day is a small sample: a single call swings a rate to 0% or 100%, so judge anybody on the '
+    +'month strip below rather than this table.</p></div>';
+
+  /* --- debrief coverage for this day --- */
+  h+='<div class="rc-sec"><h3>Debrief coverage</h3>';
+  if(!R.logged){
+    h+='<p class="hint">This day isn’t in the daily log yet, so there’s nothing to check '
+      +R.all.length+' debrief'+(R.all.length===1?'':'s')+' against.</p>';
+  }else{
+    const off=R.rows.filter(r=>r.cov!=='ok');
+    h+='<div class="t-alert '+(off.length?'warn':'ok')+'" style="margin-bottom:8px"><b>'
+      +R.all.length+' debrief'+(R.all.length===1?'':'s')+' against '+R.team.appointments
+      +' appointment'+(R.team.appointments===1?'':'s')+(off.length?' — '+off.length+' consultant'+(off.length===1?'':'s')+' out of step':' — one for one')
+      +'</b></div>';
+    h+='<div class="tbl-wrap"><table class="cov-tbl"><thead><tr><th>Consultant</th>'
+      +'<th class="num">Appts</th><th class="num">Debriefs</th><th></th></tr></thead><tbody>';
+    R.rows.forEach(r=>{
+      const txt=r.cov==='ok'?'matched':r.cov==='miss'?(r.gap+' missing'):((-r.gap)+' extra');
+      h+='<tr class="'+(r.cov==='ok'?'':r.cov)+'"><td>'+dbEsc(r.rep)+'</td><td class="num">'+r.appts
+        +'</td><td class="num">'+r.calls.length+'</td><td><span class="cov-flag '+r.cov+'">'+txt+'</span></td></tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+  if(R.quiet.length) h+='<p class="hint" style="margin-top:8px">Nothing at all from '+R.quiet.map(dbEsc).join(', ')+'</p>';
+  h+='</div>';
+
+  /* --- where the month stands --- */
+  const pct=R.cfg.target?Math.round(100*R.mtd.rev/R.cfg.target):null;
+  const expA=R.plan.perDay.all*R.elapsed, dA=R.mtd.appts-expA;
+  h+='<div class="rc-sec"><h3>'+monthName(R.mk,true)+' through this day</h3><div class="pace-strip">'
+    +statCard('Revenue',money(R.mtd.rev),R.cfg.target?(pct+'% of '+money(R.cfg.target)):'')
+    +statCard('Appointments',R.mtd.appts,'Plan '+Math.round(expA)+' by now '+leadTag(dA,1))
+    +statCard('Sold',R.mtd.sold,R.mtd.appts?(Math.round(100*R.mtd.sold/R.mtd.appts)+'% close'):'')
+    +statCard('Service calls',R.mtd.calls||'—',R.elapsed+' day'+(R.elapsed===1?'':'s')+' elapsed')
+    +'</div>'
+    +'<div class="pace-strip" style="margin-top:12px">'+rcRateCards(R.mtd,null,R.cp,R.cfg)+'</div></div>';
+
+  /* --- what the team heard --- */
+  if(R.all.length){
+    h+='<div class="rc-sec"><h3>From the field</h3><div class="rc-narr">';
+    const HAZT={made:'HA/ZT made',sched:'HA/ZT scheduled',none:'HA/ZT not yet'};
+    R.rows.filter(r=>r.calls.length).forEach(r=>{
+      const rs=r.calls.filter(c=>c.outcome==='sold');
+      const rrev=rs.reduce((s,c)=>s+(c.amount||0),0);
+      h+='<div class="rc-rep">'+dbEsc(r.rep)+' — '+r.calls.length+' call'+(r.calls.length===1?'':'s')
+        +' · '+rs.length+' sold'+(rrev?(' ('+money(rrev)+')'):'')+'</div><ol>';
+      r.calls.forEach(c=>{
+        h+='<li>'+dbEsc(c.customer||'(no name)')+' — '
+          +(c.outcome==='sold'?('<b>SOLD</b>'+(c.amount?(' '+money(c.amount)):'')+(c.option?(' · '+dbEsc(c.option)):''))
+            :(c.outcome==='pending'?'PENDING':'NO SALE')+' · '+(HAZT[c.hazt]||'—')+(c.haztWho?(' — '+dbEsc(c.haztWho)):''))
+          +(c.words?('<span class="rc-q">“'+dbEsc(c.words)+'”</span>'):'')
+          +(c.holdback?('<span class="rc-q">Holding them back: “'+dbEsc(c.holdback)+'”</span>'):'')
+          +'</li>';
+      });
+      h+='</ol>';
+    });
+    h+='</div>';
+    if(R.open.length) h+='<div class="rc-open">Needs coverage tonight: '
+      +R.open.map(c=>dbEsc(c.customer||'(no name)')+' ('+dbEsc(c.rep)+')').join(', ')+'</div>';
+    h+='<p class="hint" style="margin-top:8px">Restate-to-nod: '+R.nods+'/'+R.all.length+'</p></div>';
+  }
+  $('rcContent').innerHTML=h;
+}
+
+/* The text that gets sent. Same figures, same order as the screen. */
+function rcLines(iso){
+  const R=rcData(iso), T=R.team, money=n=>'$'+Math.round(n||0).toLocaleString();
+  const HAZT={made:'HA/ZT made',sched:'HA/ZT scheduled',none:'HA/ZT not yet'};
+  const close=R.team.appointments?Math.round(100*T.sold/R.team.appointments):null;
+  const ticket=T.sold?Math.round(T.rev/T.sold):null;
+  const L=[];
+  L.push('DAILY RECAP — SALES — '+new Date(iso+'T12:00:00')
+    .toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}));
+  L.push('For: Gabe & Brendan · from Nels');
+  L.push('');
+  L.push('THE DAY');
+  L.push('Appointments '+R.team.appointments+' (TGL '+T.tglAppts+' · Mkt '+T.mktAppts
+    +(T.sgAppts?(' · Self gen '+T.sgAppts):'')+')');
+  L.push('Sold '+T.sold+(close==null?'':' · close '+close+'%')+' · Revenue '+money(T.rev)
+    +(ticket?(' · avg ticket '+money(ticket)):''));
+  if(R.svcCalls) L.push('Service calls ran: '+R.svcCalls);
+  L.push('');
+  L.push('CLOSE RATES & TICKETS — THIS DAY');
+  L.push(rcRateLines(T,R.team.appointments,R.cp,R.cfg));
+  L.push('');
+  L.push('BY CONSULTANT');
+  R.rows.forEach(r=>{
+    L.push('  '+r.rep+' — '+r.appts+' appt'+(r.appts===1?'':'s')+' · '+r.t.sold+' sold'
+      +(r.close==null?'':' · '+r.close+'%')+' · '+money(r.t.rev)
+      +(r.ticket?(' · ticket '+money(r.ticket)):''));
+    const q=rcRates(r.t,r.appts), bits=[];
+    if(q.tgl.close!=null) bits.push('TGL '+rcPctTxt(q.tgl.close)+(q.tgl.ticket!=null?(' @ '+rcMoneyTxt(q.tgl.ticket)):''));
+    if(q.mkt.close!=null) bits.push('Mkt '+rcPctTxt(q.mkt.close)+(q.mkt.ticket!=null?(' @ '+rcMoneyTxt(q.mkt.ticket)):''));
+    if(q.sg.close!=null)  bits.push('Self gen '+rcPctTxt(q.sg.close)+(q.sg.ticket!=null?(' @ '+rcMoneyTxt(q.sg.ticket)):''));
+    if(bits.length) L.push('      '+bits.join(' · '));
+  });
+  if(R.quiet.length) L.push('  Nothing at all from '+R.quiet.join(', '));
+  L.push('');
+  L.push('DEBRIEF COVERAGE');
+  if(!R.logged){
+    L.push('  Day not in the daily log yet — '+R.all.length+' debrief'+(R.all.length===1?'':'s')+' logged, nothing to check against.');
+  }else{
+    L.push('  '+R.all.length+' debrief'+(R.all.length===1?'':'s')+' against '+R.team.appointments+' appointment'+(R.team.appointments===1?'':'s'));
+    R.rows.forEach(r=>{
+      if(r.cov==='ok') return;
+      L.push('  '+r.rep+': '+r.appts+' appts, '+r.calls.length+' debriefs — '
+        +(r.cov==='miss'?(r.gap+' missing'):((-r.gap)+' extra')));
+    });
+    if(R.rows.every(r=>r.cov==='ok')) L.push('  One for one.');
+  }
+  L.push('');
+  const expA=R.plan.perDay.all*R.elapsed, dA=R.mtd.appts-expA;
+  L.push(monthName(R.mk,true).toUpperCase()+' THROUGH THIS DAY');
+  L.push('  Revenue '+money(R.mtd.rev)+(R.cfg.target?(' of '+money(R.cfg.target)+' ('+Math.round(100*R.mtd.rev/R.cfg.target)+'%)'):''));
+  L.push('  Appointments '+R.mtd.appts+' vs plan '+Math.round(expA)+' by now ('+(dA>=0?'+':'')+Math.round(dA*10)/10+')');
+  L.push('  Sold '+R.mtd.sold+(R.mtd.appts?(' · close '+Math.round(100*R.mtd.sold/R.mtd.appts)+'%'):''));
+  if(R.mtd.calls) L.push('  Service calls '+R.mtd.calls);
+  L.push(rcRateLines(R.mtd,null,R.cp,R.cfg));
+  if(R.all.length){
+    L.push('');
+    L.push('FROM THE FIELD');
+    R.rows.filter(r=>r.calls.length).forEach(r=>{
+      const rs=r.calls.filter(c=>c.outcome==='sold');
+      const rrev=rs.reduce((s,c)=>s+(c.amount||0),0);
+      L.push('');
+      L.push(r.rep.toUpperCase()+' — '+r.calls.length+' call'+(r.calls.length===1?'':'s')+' · '+rs.length+' sold'+(rrev?(' ('+money(rrev)+')'):''));
+      r.calls.forEach((c,i)=>{
+        L.push('  '+(i+1)+'. '+(c.customer||'(no name)')+' — '
+          +(c.outcome==='sold'?('SOLD'+(c.amount?(' '+money(c.amount)):'')+(c.option?(' · '+c.option):''))
+            :(c.outcome==='pending'?'PENDING':'NO SALE')+' · '+(HAZT[c.hazt]||'—')+(c.haztWho?(' — '+c.haztWho):'')));
+        if(c.words) L.push('     “'+c.words+'”');
+        if(c.holdback) L.push('     Holding them back: “'+c.holdback+'”');
+      });
+    });
+    L.push('');
+    L.push('Restate-to-nod: '+R.nods+'/'+R.all.length);
+    if(R.open.length) L.push('Needs coverage tonight: '+R.open.map(c=>(c.customer||'(no name)')+' ('+c.rep+')').join(', '));
+  }
+  return L.join('\n');
+}
+/* The rate block as text, actual against the month's plan. */
+function rcRateLines(t,appts,cp,cfg){
+  const R=rcRates(t,appts);
+  const money=n=>'$'+Math.round(n).toLocaleString();
+  const pair=(label,val,plan,fmt)=>'  '+label+' '+(val==null?'—':fmt(val))
+    +(plan?(' (plan '+fmt(plan)+')'):'');
+  const pct=v=>Math.round(v*10)/10+'%';
+  const blend=(cfg.tglAvg||0)&&(cfg.mktAvg||0)
+    ? ((cfg.tglAvg*(t.tglSold||0)+cfg.mktAvg*(t.mktSold||0))/Math.max(1,(t.tglSold||0)+(t.mktSold||0)))
+    : (cfg.tglAvg||cfg.mktAvg||0);
+  return [
+    pair('TGL close',R.tgl.close,cp.tgl,pct)+' · ticket '+(R.tgl.ticket==null?'—':money(R.tgl.ticket))+(cfg.tglAvg?(' (plan '+money(cfg.tglAvg)+')'):''),
+    pair('Marketed close',R.mkt.close,cp.mkt,pct)+' · ticket '+(R.mkt.ticket==null?'—':money(R.mkt.ticket))+(cfg.mktAvg?(' (plan '+money(cfg.mktAvg)+')'):''),
+    pair('Overall close',R.all.close,cp.all,pct)+' · ticket '+(R.all.ticket==null?'—':money(R.all.ticket))+(blend?(' (plan '+money(blend)+')'):'')
+  ].join('\n');
+}
+function rcSend(){
+  if(!managerOn){ toast('Manager mode required'); return; }
+  if(!unlockOwner()) return;
+  const iso=rcDay(), R=rcData(iso);
+  if(!R.logged && !R.all.length){ toast('Nothing logged for that day yet'); return; }
+  const msg=rcLines(iso);
+  if(navigator.share){ navigator.share({title:'Daily recap — sales', text:msg}).catch(()=>{}); }
+  else{ navigator.clipboard.writeText(msg)
+    .then(()=>toast('Recap copied — send it to Gabe & Brendan'))
+    .catch(()=>toast('Copy failed — try again')); }
 }
 
 /* ---------- end-of-day rollup (manager mode + owner PIN) ---------- */
