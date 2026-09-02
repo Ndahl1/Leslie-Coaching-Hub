@@ -197,6 +197,8 @@
   .sp-foot{font-size:.71rem;color:var(--muted);margin-top:5px}
   .sp-empty{font-size:.78rem;color:var(--muted);padding:14px 0}
 
+  .dpill.dup{background:var(--terracotta);color:#fff}
+  .hist-item.dupe{box-shadow:inset 3px 0 0 var(--terracotta)}
   .pace-mode{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:4px}
   .pace-mode button{border:0;background:#fff;padding:7px 14px;font:inherit;font-size:.82rem;font-weight:600;
     color:var(--muted);cursor:pointer}
@@ -798,12 +800,7 @@
           <button data-cls="mid" onclick="dbPick('hazt','sched',this)">Scheduled</button>
           <button data-cls="bad" onclick="dbPick('hazt','none',this)">Not yet</button>
         </div>
-        <div class="dchips" id="haztWho" style="display:none">
-          <button onclick="dbChip(this)">Nels</button>
-          <button onclick="dbChip(this)">Dennis</button>
-          <button onclick="dbChip(this)">Gabe</button>
-          <button onclick="dbChip(this)">Kristina</button>
-        </div>
+        <div class="dchips" id="haztWho" style="display:none"></div>
         <div class="nudge" id="haztNudge" style="display:none">An unsold call without an HA/ZT call is a skipped step — it's the fastest money in the building. Who's making it, and when?</div>
         <label for="dbHold">What's holding them back — their words</label>
         <textarea id="dbHold" placeholder='e.g., "We want to see one more quote."'></textarea>
@@ -817,6 +814,7 @@
       <div class="dbweek"><select id="dbWeekSel" onchange="renderDebriefHistory()"></select></div>
       <div id="dbCover" style="display:none"></div>
       <div class="statline" id="weekStats">No calls logged yet this week.</div>
+      <div id="dbDupes" style="margin-top:10px"></div>
       <div id="histList" style="margin-top:8px"></div>
       <p class="hint" id="dbHistHint" style="margin-top:10px">Tap any call to open the full debrief.</p>
       <button class="btn ghost small" style="margin-top:12px" onclick="dbCheckpoint()">Text Nels my checkpoint</button>
@@ -841,6 +839,7 @@
     </div>
   </div>
   <div id="revLocked" class="locked" style="display:none">&#128274; The Monday board shows every consultant's week, including manager notes. It is manager-only &mdash; use the <b>Manager</b> button up top. Your own one-on-one notes are on <b>My Week</b>.</div>
+  <div id="revCoverage"></div>
   <div class="rev-grid" id="revGrid"></div>
 </section>
 
@@ -1095,14 +1094,20 @@
           <input type="text" id="cfgCode" placeholder="Shared code set in Script Properties">
         </div>
         <div>
-          <label for="cfgPin">Manager PIN</label>
-          <input type="text" id="cfgPin" placeholder="Gates this tab">
+          <label for="cfgPin">Shared manager PIN (fallback)</label>
+          <input type="text" id="cfgPin" placeholder="Opens the tab, then asks who you are">
         </div>
         <div>
           <label for="cfgOwnerPin">End-of-day PIN (Nels)</label>
           <input type="text" id="cfgOwnerPin" placeholder="Gates the team rollup">
         </div>
       </div>
+      <div class="hint" style="margin:10px 0 4px">The shared PIN still works, but it can't say who ran a call &mdash; it asks for a name and takes &ldquo;nobody&rdquo; for an answer. Give each manager their own PIN below and the name comes for free.</div>
+      <label for="cfgMgrs" style="margin-top:10px">Managers who take HA/ZT calls</label>
+      <input type="text" id="cfgMgrs" placeholder="Nels, Dennis, Gabe, Kristina">
+      <div class="hint">Comma separated. This is also the list the consultant picks from on the Debrief tab.</div>
+      <div class="row" id="mgrPinGrid" style="margin-top:10px"></div>
+      <div class="hint">A manager with no PIN can't unlock on their own &mdash; they'd have to use the shared one, and the call saves unattributed.</div>
       <div class="hint" style="margin:8px 0 12px">Leave the URL blank to run local-only on this device. With a URL + team code, the whole team syncs to your Google Sheet.</div>
       <button class="btn ghost small" onclick="saveSetup()">Save setup</button>
     </div>
@@ -1163,7 +1168,7 @@
 <!-- ============ DAILY RECAP ============ -->
 <section class="view" id="view-recap">
   <h2>Yesterday <span id="rcDateName"></span></h2>
-  <p class="t-sub">The whole day in one place &mdash; every KPI off the daily log, debrief coverage, where the month stands, and what the team heard in the field. Built to be read, then sent.</p>
+  <p class="t-sub">The whole day in one place &mdash; every KPI off the daily log, debrief coverage, where the month stands, and what the team heard in the field. All of it is for you.</p>
   <div id="rcLocked" class="locked" style="display:none">&#128274; The daily recap is manager-only. Use the <b>Manager</b> button up top.</div>
   <div id="rcBody">
     <div class="bar">
@@ -1172,6 +1177,7 @@
       <div style="min-width:auto"><button class="btn ghost small" onclick="rcSetToday()">Today</button></div>
       <div style="min-width:auto"><button class="btn small" onclick="rcSend()">Send to Gabe &amp; Brendan</button></div>
     </div>
+    <p class="hint" style="margin:-4px 0 12px">What gets sent is the team's numbers for the day and the same numbers by consultant &mdash; nothing more. Coverage, month-to-date and the field notes below stay on this tab.</p>
     <div id="rcEmpty" class="t-alert" style="display:none"></div>
     <div id="rcContent"></div>
   </div>
@@ -1604,7 +1610,7 @@
       <li><b>Your PIN.</b> Pick your name in the Consultant dropdown; the hub asks for your PIN the first time you open your own touch base or track record. It holds for that browser session. PINs aren't printed anywhere &mdash; ask Nels if you've lost yours. They exist so somebody else's honest self-score doesn't get saved under your name on a shared office tablet.</li>
       <li><b>The month box.</b> One picker drives The Board, The Log, The Team, Where We Land and vs Last Year together. It does <em>not</em> drive the coaching tabs &mdash; those follow their own week pickers, so last week's touch bases can be reviewed against this month's numbers.</li>
       <li><b>The sync dot.</b> Green means the Google Sheet has everything. Red means the hub is working from the copy on this device and will push when the connection returns &mdash; keep going, nothing is lost.</li>
-      <li data-g="m"><b>Manager.</b> Press it, enter the manager PIN, and it turns red. That unlocks The Log, Import, Setup and Call Coach, adds the notes boxes to the Monday board, and opens any consultant's form without their PIN. It lasts for the browser session only, which is what you want on a shared machine. The end-of-day team rollup has its own separate PIN so a borrowed laptop can't send it.</li>
+      <li data-g="m"><b>Manager.</b> Press it, enter your PIN, and it turns red and shows your name. That unlocks The Log, Import, Setup and Call Coach, adds the notes boxes to the Monday board, and opens any consultant's form without their PIN. It lasts for the browser session only, which is what you want on a shared machine. The end-of-day team rollup has its own separate PIN so a borrowed laptop can't send it.<br><b>Your PIN also says who you are.</b> Whoever it resolves to gets stamped on every coached call you run and on the debrief that call clears &mdash; that is what makes the coverage block on the Monday board mean anything. The old shared PIN still opens the tab, but it has to ask for a name, and it accepts no answer: those calls save unattributed and are counted separately. Individual PINs are assigned on Setup.</li>
     </ol>
   </div>
 
@@ -1738,6 +1744,10 @@
       <li><b>Zero Ticket:</b> the five-part brief first &mdash; anything not green, ask for it before you take the customer, especially what they think the <em>real</em> objection is. Then the wheel: open warm, acknowledge and empathize and by-pass, name the spoke and run its play, ask for the business, set a dated next step.</li>
       <li><b>Record the outcome</b>, write the one coaching note, and press <span class="g-tab">End call</span>. Copy the record into Teams or ServiceTitan if you want it there too &mdash; it's already saved to the consultant's week.</li>
     </ol>
+    <div class="g-note">
+      <span class="gl">Who ran it</span>
+      <p>The call saves under whichever manager the PIN identified, and clearing a debrief off the queue stamps that same name over whoever the consultant said would call. So the two accounts can be compared: the consultant's chip on the Debrief tab says who they expected, the coached-call record says who actually did it. <b>Coaching coverage</b> at the top of the Monday board totals it up for the week &mdash; HA and ZT per manager, how many consultants each reached, and how many unsold appointments are still uncovered.</p>
+    </div>
     <div class="g-note calm">
       <span class="gl">One note, not five</span>
       <p>The note box is deliberately singular. A consultant who gets one specific correction after a coached call changes one thing; a consultant who gets five changes nothing.</p>
@@ -2027,6 +2037,17 @@ const DEFAULT_CONFIG = {
   reps:['Jeremy M.','Justin B.','Tom O.','Kevin L.','Tony P.'],
   targets:{appts:25, tglClose:55, mktClose:40, tglTicket:12500, mktTicket:11000},
   managerPin:'1928',
+  /* Who is allowed behind the manager button, and the PIN that says which one
+     you are. The PIN is not just a door any more: whoever it resolves to gets
+     stamped on every coached call and on the debrief it clears, so the record
+     of who ran a call and the consultant's account of it can be compared.
+     Only Nels carries a PIN out of the box — the rest are assigned on Setup. */
+  managers:['Nels','Dennis','Gabe','Kristina'],
+  /* Deliberately empty. Everyone shares 1928 today, so seeding it against a
+     name would stamp every manager's calls with that name — worse than an
+     honest blank. Until PINs are handed out on Setup the shared PIN opens the
+     door and asks who you are. */
+  managerPins:{},
   repPins:{'Jeremy M.':'4125','Justin B.':'6832','Tom O.':'6967','Kevin L.':'8645','Tony P.':'8895'},
   ownerPin:'7391'
 };
@@ -2041,6 +2062,9 @@ if(!state.config.targets) state.config.targets = structuredClone(DEFAULT_CONFIG.
 if(!state.config.reps || !state.config.reps.length) state.config.reps = structuredClone(DEFAULT_CONFIG.reps);
 if(!state.config.repPins) state.config.repPins = structuredClone(DEFAULT_CONFIG.repPins);
 let managerOn = sessionStorage.getItem('leslie_tb_mgr')==='1';
+/* Which manager is behind the button this session. '' means authorised but
+   unattributed — an old shared-PIN unlock that nobody put a name to. */
+let managerWho = sessionStorage.getItem('leslie_tb_mgrwho')||'';
 let repOn = sessionStorage.getItem('leslie_tb_rep') || null;
 
 /* =================== consultant PIN auth =================== */
@@ -2243,14 +2267,63 @@ function showView(v){
   if(v==='import') renderImportView();
   if(v==='guide') renderGuide();
 }
+/* ---- who is behind the manager button ---- */
+function mgrRoster(){
+  const r=state.config.managers;
+  return (Array.isArray(r)&&r.length)?r:DEFAULT_CONFIG.managers.slice();
+}
+function mgrPinOf(name){
+  const m=state.config.managerPins||DEFAULT_CONFIG.managerPins;
+  const v=m&&m[name]; return v==null?'':String(v).trim();
+}
+/* First manager whose PIN matches. A blank PIN never matches, so an unassigned
+   manager cannot be impersonated by pressing enter on an empty prompt. */
+function mgrForPin(pin){
+  const p=String(pin||'').trim();
+  if(!p) return null;
+  return mgrRoster().find(n=>mgrPinOf(n)&&mgrPinOf(n)===p)||null;
+}
+function legacyMgrPin(){return String(state.config.managerPin||DEFAULT_CONFIG.managerPin).trim();}
+/* The shared PIN still opens the door, because a hub in the field cannot be
+   allowed to lock everyone out on an upgrade — but it asks who you are, and
+   an unanswered prompt leaves the session unattributed rather than guessing. */
+function askManagerName(){
+  const roster=mgrRoster();
+  const ans=prompt('Who is running this session?\n\n'+roster.map((n,i)=>(i+1)+'. '+n).join('\n')+
+    '\n\nType a number or a name (blank = leave unattributed):');
+  if(ans===null) return '';
+  const t=String(ans).trim();
+  if(!t) return '';
+  if(/^\d+$/.test(t)&&roster[+t-1]) return roster[+t-1];
+  return roster.find(n=>n.toLowerCase()===t.toLowerCase())||'';
+}
+function setManagerWho(name){
+  managerWho=name||'';
+  if(managerWho) sessionStorage.setItem('leslie_tb_mgrwho',managerWho);
+  else sessionStorage.removeItem('leslie_tb_mgrwho');
+}
+function mgrLabel(){return managerOn?('Manager'+(managerWho?' \u00b7 '+managerWho:' \u00b7 unnamed')):'Manager';}
 function toggleManager(){
-  if(managerOn){ managerOn=false; sessionStorage.removeItem('leslie_tb_mgr'); sessionStorage.removeItem('leslie_tb_owner'); }
+  if(managerOn){
+    managerOn=false; setManagerWho('');
+    sessionStorage.removeItem('leslie_tb_mgr'); sessionStorage.removeItem('leslie_tb_owner');
+  }
   else{
     const pin=prompt('Manager PIN:');
-    if(pin===String(state.config.managerPin||DEFAULT_CONFIG.managerPin)){ managerOn=true; sessionStorage.setItem('leslie_tb_mgr','1'); }
-    else if(pin!==null){ toast('Incorrect PIN'); }
+    if(pin===null){ /* cancelled */ }
+    else{
+      const who=mgrForPin(pin);
+      if(who){ managerOn=true; sessionStorage.setItem('leslie_tb_mgr','1'); setManagerWho(who); toast('Manager \u00b7 '+who); }
+      else if(String(pin).trim()===legacyMgrPin()){
+        managerOn=true; sessionStorage.setItem('leslie_tb_mgr','1');
+        setManagerWho(askManagerName());
+        if(!managerWho) toast('Manager \u2014 unnamed. Coached calls will save without a coach.');
+      }
+      else toast('Incorrect PIN');
+    }
   }
   $('mgrBtn').classList.toggle('on',managerOn);
+  $('mgrBtn').textContent=mgrLabel();
   renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach(); renderDebrief(); renderNumbers();
   renderGuide();
 }
@@ -2434,10 +2507,59 @@ async function saveEntry(){
 }
 
 /* =================== team review =================== */
+/* ---- who ran the coaching this week ----
+   Reads the coached-call records the Call Coach tab writes. Calls saved before
+   the PIN carried a name come back as "Manager" and are counted as unattributed
+   rather than quietly assigned to whoever is most likely — the point of the
+   block is to show the gap, not to paper over it. */
+function renderCoverage(week){
+  const box=$('revCoverage'); if(!box) return;
+  const tally={}, add=(who,c)=>{
+    const k=(!who||who==='Manager')?'':who;
+    const t=tally[k]||(tally[k]={ha:0,zt:0,sold:0,next:0,no:0,reps:new Set()});
+    t[c.mode==='ha'?'ha':'zt']++;
+    if(t[c.outcome]!=null) t[c.outcome]++;
+    t.reps.add(c.rep);
+  };
+  let total=0;
+  state.entries.filter(e=>e.week===week).forEach(e=>{
+    (e.coachCalls||[]).forEach(c=>{add(c.coach,{...c,rep:e.rep}); total++;});
+  });
+  /* unsold debriefs still waiting on a call — the other half of the picture */
+  let owed=0;
+  state.entries.filter(e=>e.week===week).forEach(e=>{
+    (e.debriefs||[]).forEach(d=>{ if(d.outcome!=='sold'&&d.hazt!=='made') owed++; });
+  });
+  if(!total&&!owed){ box.innerHTML=''; return; }
+  const names=mgrRoster().filter(n=>tally[n]).concat(Object.keys(tally).filter(n=>n&&!mgrRoster().includes(n)));
+  const peak=Math.max(1,...Object.values(tally).map(t=>t.ha+t.zt));
+  const row=(name,t)=>{
+    const n=t.ha+t.zt, sold=t.sold||0;
+    return `<div class="lb-row">
+      <div class="lb-rank">${n}</div>
+      <div>
+        <div class="lb-top"><span class="lb-name">${name||'<i style="font-weight:600;color:var(--muted)">Not named</i>'}</span>
+          <span class="lb-fig">HA ${t.ha} &middot; ZT ${t.zt} &middot; ${t.reps.size} consultant${t.reps.size===1?'':'s'}
+            ${pill(sold+' sold',sold?'ok':'flat')}</span></div>
+        <div class="lb-track"><i class="${name?'ok':'watch'}" style="width:${(100*n/peak).toFixed(1)}%"></i></div>
+      </div></div>`;
+  };
+  const idle=mgrRoster().filter(n=>!tally[n]);
+  box.innerHTML=`<div class="card" style="margin-bottom:16px">
+    <h3 style="font-size:.95rem;margin-bottom:2px">Coaching coverage &mdash; who ran the calls</h3>
+    <p class="hint" style="margin-bottom:10px">Coached calls saved this week, by the manager the PIN identified.
+      ${owed?`<b>${owed} unsold appointment${owed===1?'':'s'}</b> still without an HA/ZT call.`:'Every unsold appointment has been covered.'}</p>
+    ${names.map(n=>row(n,tally[n])).join('')||''}
+    ${tally['']?row('',tally['']):''}
+    ${idle.length?`<p class="hint" style="margin-top:10px">No calls logged this week by ${idle.join(', ')}.</p>`:''}
+    ${tally['']?`<p class="hint" style="margin-top:6px">Unnamed calls came in on the shared PIN. Give each manager their own on <b>Setup</b> and the name lands by itself.</p>`:''}
+  </div>`;
+}
 function renderReview(){
   $('revLocked').style.display=managerOn?'none':'';
-  if(!managerOn){ $('revGrid').innerHTML=''; return; }
+  if(!managerOn){ $('revGrid').innerHTML=''; const rc=$('revCoverage'); if(rc) rc.innerHTML=''; return; }
   const week=$('revWeek').value; if(!week) return;
+  renderCoverage(week);
   const grid=$('revGrid'); grid.innerHTML='';
   state.config.reps.forEach(rep=>{
     const e=entryFor(rep,week);
@@ -2767,7 +2889,7 @@ async function ccEnd(){
     hits:rows.filter(([k])=>cc.marks[k]==='hit').map(([k])=>k),
     misses:rows.filter(([k])=>cc.marks[k]==='miss').map(([k])=>k),
     briefNotes:cc.mode==='zt'?$('ccBriefNotes').value.trim():'',
-    coachNote:note, coach:'Manager'
+    coachNote:note, coach:managerWho||'Manager'
   };
   let e=entryFor(rep,wk);
   if(!e){ e={id:rep+'|'+wk, rep, week:wk, ts:Date.now(), kpis:{}, steps:{}, debriefs:[], coachCalls:[]}; state.entries.push(e); }
@@ -2775,14 +2897,17 @@ async function ccEnd(){
   if(cc.queueRef){
     const qe=entryFor(cc.queueRef.rep, cc.queueRef.week);
     const dc=qe && (qe.debriefs||[])[cc.queueRef.idx];
-    if(dc){ dc.hazt='made'; dc.haztWho=dc.haztWho||'Nels'; if(qe!==e) await push('saveEntry',{entry:qe}); }
+    /* whoever actually ran it wins over whoever the consultant said would —
+       this used to be hardcoded to Nels, which is why the two never disagreed */
+    if(dc){ dc.hazt='made'; dc.haztWho=managerWho||dc.haztWho||''; if(qe!==e) await push('saveEntry',{entry:qe}); }
     cc.queueRef=null;
   }
   await push('saveEntry',{entry:e});
   const L=[];
   L.push((cc.mode==='ha'?'HIGH AUTHORITY CALL':'ZERO TICKET CALL')+' — LIVE COACH DEBRIEF');
   L.push('Consultant: '+rep+'  |  Customer: '+(call.customer||'—'));
-  L.push('Date: '+new Date().toLocaleString()+'  |  Call length: '+dur);
+  L.push('Coach: '+(call.coach&&call.coach!=='Manager'?call.coach:'not named')+
+         '  |  Date: '+new Date().toLocaleString()+'  |  Call length: '+dur);
   L.push('Outcome: '+oTxt);
   if(cc.mode==='ha'&&q&&a) L.push('Numbers: quoted $'+q.toLocaleString()+' · asked $'+a.toLocaleString());
   if(cc.mode==='zt'&&cc.spoke) L.push('Objection spoke: '+CC_SPOKES[cc.spoke]);
@@ -3114,6 +3239,11 @@ function renderSetup(){
   $('cfgCode').value=settings.teamCode||'';
   $('cfgPin').value=state.config.managerPin||'';
   $('cfgOwnerPin').value=state.config.ownerPin||'';
+  $('cfgMgrs').value=mgrRoster().join(', ');
+  $('mgrPinGrid').innerHTML=mgrRoster().map((m,i)=>`<div>
+      <label for="mgrPin${i}">${m}</label>
+      <input type="text" id="mgrPin${i}" data-mgr="${m}" class="mgr-pin" inputmode="numeric" maxlength="6" value="${mgrPinOf(m)}" placeholder="No PIN (shared only)">
+    </div>`).join('');
   $('pinGrid').innerHTML=state.config.reps.map((r,i)=>`<div>
       <label for="repPin${i}">${r}</label>
       <input type="text" id="repPin${i}" data-rep="${r}" class="rep-pin" inputmode="numeric" maxlength="6" value="${(state.config.repPins||{})[r]||''}" placeholder="No PIN (open)">
@@ -3123,6 +3253,15 @@ async function saveSetup(){
   state.config.reps=$('cfgReps').value.split(',').map(s=>s.trim()).filter(Boolean);
   state.config.managerPin=$('cfgPin').value.trim()||DEFAULT_CONFIG.managerPin;
   state.config.ownerPin=$('cfgOwnerPin').value.trim()||DEFAULT_CONFIG.ownerPin;
+  const mgrs=$('cfgMgrs').value.split(',').map(x=>x.trim()).filter(Boolean);
+  state.config.managers=mgrs.length?mgrs:DEFAULT_CONFIG.managers.slice();
+  const mpins={};
+  document.querySelectorAll('.mgr-pin').forEach(inp=>{ const v=inp.value.trim(); if(v) mpins[inp.dataset.mgr]=v; });
+  state.config.managerPins=mpins;
+  /* a PIN that opens two doors is worse than no PIN — say so rather than
+     silently letting the first name in the list win every time */
+  const dupe=Object.values(mpins).find((v,i,a)=>a.indexOf(v)!==i);
+  if(dupe) toast('Two managers share the PIN '+dupe+' — the first one listed wins. Give them different PINs.');
   const pins={};
   document.querySelectorAll('.rep-pin').forEach(inp=>{ const v=inp.value.trim(); if(v) pins[inp.dataset.rep]=v; });
   state.config.repPins=pins;
@@ -4678,6 +4817,13 @@ async function dbSave(){
 }
 function renderDebrief(){
   renderDayCard();
+  /* the chips are built from the manager roster, so adding a manager on Setup
+     adds them here too rather than leaving a name only the code knows about */
+  const chips=$('haztWho');
+  if(chips){
+    const on=[...chips.querySelectorAll('button.on')].map(b=>b.textContent);
+    chips.innerHTML=mgrRoster().map(n=>`<button class="${on.includes(n)?'on':''}" onclick="dbChip(this)">${n}</button>`).join('');
+  }
   const rep=$('dbRep').value;
   if(!repAuthed(rep)){
     $('dbBody').style.display='none'; $('dbLock').style.display='';
@@ -4743,19 +4889,63 @@ function dbDetailRows(c){
   if(c.holdback) R.push(['Holding back','<div class="hd-quote">\u201C'+dbEsc(c.holdback)+'\u201D</div>']);
   return R;
 }
-function dbRowHTML(c,i){
+/* ---- the same customer logged twice ----
+   A double-entry is not a rounding error: it counts twice in the week's calls,
+   sold and revenue, drags the nod rate, and if it is unsold it sits in the Call
+   Coach queue asking to be covered a second time. Match on the customer name
+   with punctuation and casing thrown away; a blank name is never a duplicate of
+   another blank name, because that is how half of them are typed. */
+function dbNormCust(n){
+  return String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+}
+function dbDupeMap(calls){
+  const by={};
+  calls.forEach(c=>{const k=dbNormCust(c.customer); if(!k) return; (by[k]=by[k]||[]).push(c);});
+  const out={};
+  Object.keys(by).forEach(k=>{ if(by[k].length>1) out[k]=by[k]; });
+  return out;
+}
+function dbRowHTML(c,i,wk,dupe){
   const cls=c.outcome==='sold'?'sold':c.outcome==='pending'?'pending':'nosale';
   const txt=c.outcome==='sold'?('SOLD'+(c.amount?(' $'+Number(c.amount).toLocaleString()):''))
     :c.outcome==='pending'?'PENDING':'NO SALE';
   const when=new Date(c.ts).toLocaleDateString(undefined,{weekday:'short',month:'numeric',day:'numeric'});
-  return '<div class="hist-item" id="hi'+i+'">'
+  const cw=c.week||wk;
+  const rm = managerOn
+    ? '<div class="hd-row"><span class="k">Remove</span><span class="v">'
+      +'<button class="btn ghost small" style="padding:3px 10px" onclick="event.stopPropagation();dbRemove(\''+dbEsc(cw)+'\','+(c.ts||0)+')">Delete this debrief</button>'
+      +'</span></div>'
+    : '';
+  return '<div class="hist-item'+(dupe?' dupe':'')+'" id="hi'+i+'">'
     +'<div class="hist-row" onclick="dbToggle('+i+')" role="button" tabindex="0">'
     +'<span><span class="hcar">\u25B6</span> '+dbEsc(c.customer||'\u2014')
-    +' <span class="hint">'+when+'</span></span>'
+    +' <span class="hint">'+when+'</span>'
+    +(dupe?' <span class="dpill dup">DUPLICATE</span>':'')+'</span>'
     +'<span class="dpill '+cls+'">'+txt+'</span></div>'
     +'<div class="hist-detail">'
     +dbDetailRows(c).map(r=>'<div class="hd-row"><span class="k">'+r[0]+'</span><span class="v">'+r[1]+'</span></div>').join('')
+    +rm
     +'</div></div>';
+}
+/* Manager only, and hard: the record goes. Identified by its timestamp, which
+   is stamped at save and is what makes two otherwise identical rows tellable
+   apart. Everything downstream re-derives, so the week's stats, the coverage
+   queue and the Monday board all settle by themselves. */
+async function dbRemove(wk,ts){
+  if(!managerOn){toast('Manager PIN required to remove a debrief');return;}
+  const rep=$('dbRep').value;
+  const e=entryFor(rep,wk);
+  const i=(e?.debriefs||[]).findIndex(c=>(c.ts||0)===Number(ts));
+  if(i<0){toast('That debrief is already gone');renderDebrief();return;}
+  const c=e.debriefs[i];
+  const when=new Date(c.ts).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  const what=c.outcome==='sold'?('SOLD'+(c.amount?' $'+Number(c.amount).toLocaleString():'')):c.outcome==='pending'?'PENDING':'NO SALE';
+  if(!confirm('Delete this debrief for good?\n\n'+(c.customer||'(no customer name)')+'  \u00b7  '+what+
+    '\nLogged '+when+' by '+rep+'\n\nThis cannot be undone.')) return;
+  e.debriefs.splice(i,1);
+  await push('saveEntry',{entry:e});
+  toast('Debrief removed'+(managerWho?' by '+managerWho:''));
+  renderDebrief(); renderCoach(); renderReview();
 }
 function dbToggle(i){ const el=$('hi'+i); if(el) el.classList.toggle('open'); }
 function renderDebriefHistory(){
@@ -4778,6 +4968,7 @@ function renderDebriefHistory(){
   if(!calls.length){
     $('weekStats').textContent = want===cur ? 'No calls logged yet this week.' : 'No calls logged for this week.';
     $('histList').innerHTML=''; $('dbHistHint').style.display='none';
+    if($('dbDupes')) $('dbDupes').innerHTML='';
     renderRepCoverage(rep); return;
   }
   $('dbHistHint').style.display='';
@@ -4794,7 +4985,24 @@ function renderDebriefHistory(){
     '<span><b>'+sold.length+'</b> sold'+(rev?(' \u00B7 $'+rev.toLocaleString()):'')+'</span>'+
     '<span>Nod <b>'+nods+'/'+calls.length+'</b></span>'+
     '<span>HA/ZT <b>'+cov+'/'+uns.length+'</b></span>';
-  $('histList').innerHTML=calls.map((c,i)=>dbRowHTML(c,i)).join('');
+  const dupes=dbDupeMap(calls);
+  const dupTs=new Set(Object.values(dupes).flat().map(c=>c.ts));
+  const dupBox=$('dbDupes');
+  if(dupBox){
+    /* label the group with the fullest spelling anyone typed, not whichever
+       copy happens to be newest — "Mary J., Oak Park" reads better than "mary j" */
+    const names=Object.values(dupes).map(g=>
+      dbEsc(g.map(c=>c.customer||'').sort((a,b)=>b.length-a.length)[0])+' \u00d7'+g.length);
+    dupBox.innerHTML=names.length
+      ? '<div class="t-alert warn" style="margin-bottom:12px"><b>'+names.length+' customer'+(names.length===1?'':'s')+
+        ' logged more than once</b> \u2014 '+names.join(', ')+
+        '. Each copy counts again in the totals'+
+        (Object.values(dupes).flat().some(c=>c.outcome!=='sold')?' and can sit in the Call Coach queue twice':'')+
+        '. '+(managerOn?'Open one and use <b>Delete this debrief</b> to drop the extra.':'Ask a manager to remove the extra.')+
+        '</div>'
+      : '';
+  }
+  $('histList').innerHTML=calls.map((c,i)=>dbRowHTML(c,i,want,dupTs.has(c.ts))).join('');
   renderRepCoverage(rep);
 }
 
@@ -4938,7 +5146,12 @@ function rcData(iso){
     const t=seal({tglAppts:num(raw.tglAppts)||0,tglSold:num(raw.tglSold)||0,tglRev:num(raw.tglRev)||0,
       mktAppts:num(raw.mktAppts)||0,mktSold:num(raw.mktSold)||0,mktRev:num(raw.mktRev)||0,
       sgAppts:num(raw.sgAppts)||0,sgSold:num(raw.sgSold)||0,sgRev:num(raw.sgRev)||0});
-    const appts=k.appts==null?t.appts:k.appts;
+    /* deriveKpis counts TGL + Marketed only, but t.sold and t.rev include self
+       gen — so a day with a self-gen appointment divided seven sales by nine
+       appointments and could print a close rate over 100%. Take the sealed
+       total, which counts every lead type, and let an explicit "all leads run"
+       entry on the daily log override it the way it always could. */
+    const appts=num(raw.appts)!=null?num(raw.appts):t.appts;
     const calls=debriefsOn(rep,iso);
     return {rep,t,appts,calls,
       close: appts?Math.round(100*t.sold/appts):null,
@@ -5123,9 +5336,15 @@ function renderRecap(){
 }
 
 /* The text that gets sent. Same figures, same order as the screen. */
+/* What leaves the building.
+   Deliberately narrower than the Yesterday tab itself: the team's numbers for
+   the day and the same numbers per consultant, and nothing else. Coverage
+   checks, month-to-date pace and the field notes — customer names, their words,
+   what held them back — stay on the tab. Those are coaching material, and they
+   are nobody's business outside the sales floor. Change this and you are
+   changing what gets shared, not what gets tracked. */
 function rcLines(iso){
   const R=rcData(iso), T=R.team, money=n=>'$'+Math.round(n||0).toLocaleString();
-  const HAZT={made:'HA/ZT made',sched:'HA/ZT scheduled',none:'HA/ZT not yet'};
   const close=R.team.appointments?Math.round(100*T.sold/R.team.appointments):null;
   const ticket=T.sold?Math.round(T.rev/T.sold):null;
   const L=[];
@@ -5140,9 +5359,6 @@ function rcLines(iso){
     +(ticket?(' · avg ticket '+money(ticket)):''));
   if(R.svcCalls) L.push('Service calls ran: '+R.svcCalls);
   L.push('');
-  L.push('CLOSE RATES & TICKETS — THIS DAY');
-  L.push(rcRateLines(T,R.team.appointments,R.cp,R.cfg));
-  L.push('');
   L.push('BY CONSULTANT');
   R.rows.forEach(r=>{
     L.push('  '+r.rep+' — '+r.appts+' appt'+(r.appts===1?'':'s')+' · '+r.t.sold+' sold'
@@ -5155,64 +5371,7 @@ function rcLines(iso){
     if(bits.length) L.push('      '+bits.join(' · '));
   });
   if(R.quiet.length) L.push('  Nothing at all from '+R.quiet.join(', '));
-  L.push('');
-  L.push('DEBRIEF COVERAGE');
-  if(!R.logged){
-    L.push('  Day not in the daily log yet — '+R.all.length+' debrief'+(R.all.length===1?'':'s')+' logged, nothing to check against.');
-  }else{
-    L.push('  '+R.all.length+' debrief'+(R.all.length===1?'':'s')+' against '+R.team.appointments+' appointment'+(R.team.appointments===1?'':'s'));
-    R.rows.forEach(r=>{
-      if(r.cov==='ok') return;
-      L.push('  '+r.rep+': '+r.appts+' appts, '+r.calls.length+' debriefs — '
-        +(r.cov==='miss'?(r.gap+' missing'):((-r.gap)+' extra')));
-    });
-    if(R.rows.every(r=>r.cov==='ok')) L.push('  One for one.');
-  }
-  L.push('');
-  const expA=R.plan.perDay.all*R.elapsed, dA=R.mtd.appts-expA;
-  L.push(monthName(R.mk,true).toUpperCase()+' THROUGH THIS DAY');
-  L.push('  Revenue '+money(R.mtd.rev)+(R.cfg.target?(' of '+money(R.cfg.target)+' ('+Math.round(100*R.mtd.rev/R.cfg.target)+'%)'):''));
-  L.push('  Appointments '+R.mtd.appts+' vs plan '+Math.round(expA)+' by now ('+(dA>=0?'+':'')+Math.round(dA*10)/10+')');
-  L.push('  Sold '+R.mtd.sold+(R.mtd.appts?(' · close '+Math.round(100*R.mtd.sold/R.mtd.appts)+'%'):''));
-  if(R.mtd.calls) L.push('  Service calls '+R.mtd.calls);
-  L.push(rcRateLines(R.mtd,null,R.cp,R.cfg));
-  if(R.all.length){
-    L.push('');
-    L.push('FROM THE FIELD');
-    R.rows.filter(r=>r.calls.length).forEach(r=>{
-      const rs=r.calls.filter(c=>c.outcome==='sold');
-      const rrev=rs.reduce((s,c)=>s+(c.amount||0),0);
-      L.push('');
-      L.push(r.rep.toUpperCase()+' — '+r.calls.length+' call'+(r.calls.length===1?'':'s')+' · '+rs.length+' sold'+(rrev?(' ('+money(rrev)+')'):''));
-      r.calls.forEach((c,i)=>{
-        L.push('  '+(i+1)+'. '+(c.customer||'(no name)')+' — '
-          +(c.outcome==='sold'?('SOLD'+(c.amount?(' '+money(c.amount)):'')+(c.option?(' · '+c.option):''))
-            :(c.outcome==='pending'?'PENDING':'NO SALE')+' · '+(HAZT[c.hazt]||'—')+(c.haztWho?(' — '+c.haztWho):'')));
-        if(c.words) L.push('     “'+c.words+'”');
-        if(c.holdback) L.push('     Holding them back: “'+c.holdback+'”');
-      });
-    });
-    L.push('');
-    L.push('Restate-to-nod: '+R.nods+'/'+R.all.length);
-    if(R.open.length) L.push('Needs coverage tonight: '+R.open.map(c=>(c.customer||'(no name)')+' ('+c.rep+')').join(', '));
-  }
   return L.join('\n');
-}
-/* The rate block as text, actual against the month's plan. */
-function rcRateLines(t,appts,cp,cfg){
-  const R=rcRates(t,appts);
-  const money=n=>'$'+Math.round(n).toLocaleString();
-  const pair=(label,val,plan,fmt)=>'  '+label+' '+(val==null?'—':fmt(val))
-    +(plan?(' (plan '+fmt(plan)+')'):'');
-  const pct=v=>Math.round(v*10)/10+'%';
-  const blend=(cfg.tglAvg||0)&&(cfg.mktAvg||0)
-    ? ((cfg.tglAvg*(t.tglSold||0)+cfg.mktAvg*(t.mktSold||0))/Math.max(1,(t.tglSold||0)+(t.mktSold||0)))
-    : (cfg.tglAvg||cfg.mktAvg||0);
-  return [
-    pair('TGL close',R.tgl.close,cp.tgl,pct)+' · ticket '+(R.tgl.ticket==null?'—':money(R.tgl.ticket))+(cfg.tglAvg?(' (plan '+money(cfg.tglAvg)+')'):''),
-    pair('Marketed close',R.mkt.close,cp.mkt,pct)+' · ticket '+(R.mkt.ticket==null?'—':money(R.mkt.ticket))+(cfg.mktAvg?(' (plan '+money(cfg.mktAvg)+')'):''),
-    pair('Overall close',R.all.close,cp.all,pct)+' · ticket '+(R.all.ticket==null?'—':money(R.all.ticket))+(blend?(' (plan '+money(blend)+')'):'')
-  ].join('\n');
 }
 function rcSend(){
   if(!managerOn){ toast('Manager mode required'); return; }
@@ -5328,6 +5487,7 @@ function dbDaySend(){
   $('tbWeek').value=mon; $('revWeek').value=mon; $('paceMonth').value=today;
   $('ctxMonth').value=ctxMK();
   $('mgrBtn').classList.toggle('on',managerOn);
+  $('mgrBtn').textContent=mgrLabel();
   fillRepSelects();
   if(repOn && state.config.reps.includes(repOn)){ $('tbRep').value=repOn; $('trRep').value=repOn; $('dbRep').value=repOn; }
   loadForm();
