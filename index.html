@@ -1104,10 +1104,13 @@
       </div>
       <div class="hint" style="margin:10px 0 4px">The shared PIN still works, but it can't say who ran a call &mdash; it asks for a name and takes &ldquo;nobody&rdquo; for an answer. Give each manager their own PIN below and the name comes for free.</div>
       <label for="cfgMgrs" style="margin-top:10px">Managers who take HA/ZT calls</label>
-      <input type="text" id="cfgMgrs" placeholder="Nels, Dennis, Gabe, Kristina">
+      <input type="text" id="cfgMgrs" placeholder="Nels, Dennis, Gabe, Brendan">
       <div class="hint">Comma separated. This is also the list the consultant picks from on the Debrief tab.</div>
       <div class="row" id="mgrPinGrid" style="margin-top:10px"></div>
       <div class="hint">A manager with no PIN can't unlock on their own &mdash; they'd have to use the shared one, and the call saves unattributed.</div>
+      <label for="cfgFull" style="margin-top:12px">Full access to the whole hub</label>
+      <input type="text" id="cfgFull" placeholder="Nels">
+      <div class="hint">Comma separated, and everyone left off gets <b>Call Coach only</b> &mdash; their PIN opens the coaching tab and nothing else. The numbers, the log, the plan, Setup and the Monday board stay closed to them. Leave this blank and nobody but the shared PIN gets in.</div>
       <div class="hint" style="margin:8px 0 12px">Leave the URL blank to run local-only on this device. With a URL + team code, the whole team syncs to your Google Sheet.</div>
       <button class="btn ghost small" onclick="saveSetup()">Save setup</button>
     </div>
@@ -1610,7 +1613,7 @@
       <li><b>Your PIN.</b> Pick your name in the Consultant dropdown; the hub asks for your PIN the first time you open your own touch base or track record. It holds for that browser session. PINs aren't printed anywhere &mdash; ask Nels if you've lost yours. They exist so somebody else's honest self-score doesn't get saved under your name on a shared office tablet.</li>
       <li><b>The month box.</b> One picker drives The Board, The Log, The Team, Where We Land and vs Last Year together. It does <em>not</em> drive the coaching tabs &mdash; those follow their own week pickers, so last week's touch bases can be reviewed against this month's numbers.</li>
       <li><b>The sync dot.</b> Green means the Google Sheet has everything. Red means the hub is working from the copy on this device and will push when the connection returns &mdash; keep going, nothing is lost.</li>
-      <li data-g="m"><b>Manager.</b> Press it, enter your PIN, and it turns red and shows your name. That unlocks The Log, Import, Setup and Call Coach, adds the notes boxes to the Monday board, and opens any consultant's form without their PIN. It lasts for the browser session only, which is what you want on a shared machine. The end-of-day team rollup has its own separate PIN so a borrowed laptop can't send it.<br><b>Your PIN also says who you are.</b> Whoever it resolves to gets stamped on every coached call you run and on the debrief that call clears &mdash; that is what makes the coverage block on the Monday board mean anything. The old shared PIN still opens the tab, but it has to ask for a name, and it accepts no answer: those calls save unattributed and are counted separately. Individual PINs are assigned on Setup.</li>
+      <li data-g="m"><b>Manager.</b> Press it, enter your PIN, and it turns red and shows your name. That unlocks The Log, Import, Setup and Call Coach, adds the notes boxes to the Monday board, and opens any consultant's form without their PIN. It lasts for the browser session only, which is what you want on a shared machine. The end-of-day team rollup has its own separate PIN so a borrowed laptop can't send it.<br><b>Your PIN also says who you are.</b> Whoever it resolves to gets stamped on every coached call you run and on the debrief that call clears &mdash; that is what makes the coverage block on the Monday board mean anything. The old shared PIN still opens the tab, but it has to ask for a name, and it accepts no answer: those calls save unattributed and are counted separately. Individual PINs are assigned on Setup.<br><b>Two levels of access.</b> A manager listed under <em>Full access</em> on Setup opens the whole hub. Everyone else opens <b>Call Coach</b> and nothing else &mdash; the numbers, the log, the plan, Setup and the Monday board stay shut, and their button reads <em>Coach</em> rather than <em>Manager</em>. Coaching a call has never needed the revenue, so the people running HA/ZT calls do not have to be handed it.</li>
     </ol>
   </div>
 
@@ -2042,7 +2045,11 @@ const DEFAULT_CONFIG = {
      stamped on every coached call and on the debrief it clears, so the record
      of who ran a call and the consultant's account of it can be compared.
      Only Nels carries a PIN out of the box — the rest are assigned on Setup. */
-  managers:['Nels','Dennis','Gabe','Kristina'],
+  managers:['Nels','Dennis','Gabe','Brendan'],
+  /* What a manager's PIN opens. 'full' is the whole hub; 'coach' is the Call
+     Coach tab and nothing else. Anyone missing from this map is a coach — the
+     safe way round, so adding a manager never quietly hands out the numbers. */
+  managerRoles:{'Nels':'full'},
   /* Deliberately empty. Everyone shares 1928 today, so seeding it against a
      name would stamp every manager's calls with that name — worse than an
      honest blank. Until PINs are handed out on Setup the shared PIN opens the
@@ -2065,6 +2072,7 @@ let managerOn = sessionStorage.getItem('leslie_tb_mgr')==='1';
 /* Which manager is behind the button this session. '' means authorised but
    unattributed — an old shared-PIN unlock that nobody put a name to. */
 let managerWho = sessionStorage.getItem('leslie_tb_mgrwho')||'';
+let managerRole = sessionStorage.getItem('leslie_tb_mgrrole')||'coach';
 let repOn = sessionStorage.getItem('leslie_tb_rep') || null;
 
 /* =================== consultant PIN auth =================== */
@@ -2073,7 +2081,7 @@ function repPin(rep){
   const s=p==null?'':String(p).trim();
   return s||null;
 }
-function repAuthed(rep){ return managerOn || repOn===rep || !repPin(rep); }
+function repAuthed(rep){ return canFull() || repOn===rep || !repPin(rep); }
 function unlockRep(rep){
   const pin=prompt('Enter the PIN for '+rep+':');
   if(pin===null) return false;
@@ -2272,6 +2280,22 @@ function mgrRoster(){
   const r=state.config.managers;
   return (Array.isArray(r)&&r.length)?r:DEFAULT_CONFIG.managers.slice();
 }
+function mgrRoleOf(name){
+  const m=state.config.managerRoles||DEFAULT_CONFIG.managerRoles;
+  return (m&&m[name])==='full'?'full':'coach';
+}
+/* The whole hub, or only the coaching tab. An unnamed shared-PIN session is a
+   coach: it cannot say who it is, so it does not get the numbers either. */
+function canFull(){ return managerOn && managerRole==='full'; }
+/* A coach is already through the door, so "use the Manager button" would be a
+   lie. Say what is actually true: this PIN opens Call Coach and stops there. */
+function lockNote(el,what){
+  if(!el) return;
+  el.innerHTML = managerOn && !canFull()
+    ? '&#128274; '+what+' is not part of Call Coach access.'+(managerWho?' '+managerWho+"'s":' Your')+
+      ' PIN opens the <b>Call Coach</b> tab only. Ask Nels if you need the numbers.'
+    : '&#128274; '+what+' is manager-only. Use the <b>Manager</b> button up top.';
+}
 function mgrPinOf(name){
   const m=state.config.managerPins||DEFAULT_CONFIG.managerPins;
   const v=m&&m[name]; return v==null?'':String(v).trim();
@@ -2299,10 +2323,14 @@ function askManagerName(){
 }
 function setManagerWho(name){
   managerWho=name||'';
-  if(managerWho) sessionStorage.setItem('leslie_tb_mgrwho',managerWho);
-  else sessionStorage.removeItem('leslie_tb_mgrwho');
+  managerRole=managerWho?mgrRoleOf(managerWho):'coach';
+  if(managerWho){ sessionStorage.setItem('leslie_tb_mgrwho',managerWho); sessionStorage.setItem('leslie_tb_mgrrole',managerRole); }
+  else { sessionStorage.removeItem('leslie_tb_mgrwho'); sessionStorage.removeItem('leslie_tb_mgrrole'); }
 }
-function mgrLabel(){return managerOn?('Manager'+(managerWho?' \u00b7 '+managerWho:' \u00b7 unnamed')):'Manager';}
+function mgrLabel(){
+  if(!managerOn) return 'Manager';
+  return (canFull()?'Manager':'Coach')+(managerWho?' \u00b7 '+managerWho:' \u00b7 unnamed');
+}
 function toggleManager(){
   if(managerOn){
     managerOn=false; setManagerWho('');
@@ -2313,7 +2341,11 @@ function toggleManager(){
     if(pin===null){ /* cancelled */ }
     else{
       const who=mgrForPin(pin);
-      if(who){ managerOn=true; sessionStorage.setItem('leslie_tb_mgr','1'); setManagerWho(who); toast('Manager \u00b7 '+who); }
+      if(who){
+        managerOn=true; sessionStorage.setItem('leslie_tb_mgr','1'); setManagerWho(who);
+        toast((canFull()?'Manager \u00b7 ':'Call Coach \u00b7 ')+who);
+        if(!canFull()) showView('coach');
+      }
       else if(String(pin).trim()===legacyMgrPin()){
         managerOn=true; sessionStorage.setItem('leslie_tb_mgr','1');
         setManagerWho(askManagerName());
@@ -2556,8 +2588,8 @@ function renderCoverage(week){
   </div>`;
 }
 function renderReview(){
-  $('revLocked').style.display=managerOn?'none':'';
-  if(!managerOn){ $('revGrid').innerHTML=''; const rc=$('revCoverage'); if(rc) rc.innerHTML=''; return; }
+  $('revLocked').style.display=canFull()?'none':''; lockNote($('revLocked'),'The Monday board');
+  if(!canFull()){ $('revGrid').innerHTML=''; const rc=$('revCoverage'); if(rc) rc.innerHTML=''; return; }
   const week=$('revWeek').value; if(!week) return;
   renderCoverage(week);
   const grid=$('revGrid'); grid.innerHTML='';
@@ -2574,7 +2606,7 @@ function renderReview(){
     const segs=STEPS.map(s=>{const v=e.steps?.[s]||0;return `<div class="seg${v?' s'+v:''}" title="${s}: ${v||'—'}/5"></div>`;}).join('');
     const pr=e.prior?.result;
     const prChip = pr?`<span class="result-chip ${pr}">${pr==='worked'?'Worked':pr==='partial'?'Partial':"Didn't work"}</span>`:'';
-    const mgrBlock = managerOn
+    const mgrBlock = canFull()
       ? `<div class="rev-sec"><div class="eyebrow">Manager notes</div>
           <textarea data-mn="${e.id}" style="min-height:56px">${e.managerNotes||''}</textarea>
           <div class="eyebrow" style="margin-top:8px">Skill practice — what we ran live + how it landed</div>
@@ -2939,9 +2971,9 @@ function ccReset(){
 
 /* =================== pace / setup =================== */
 function renderPaceView(){
-  $('paceLocked').style.display=managerOn?'none':'';
-  $('paceOpen').style.display=managerOn?'':'none';
-  if(managerOn){ renderPaceGrid(); renderTargets(); renderSetup(); }
+  $('paceLocked').style.display=canFull()?'none':''; lockNote($('paceLocked'),'Setup');
+  $('paceOpen').style.display=canFull()?'':'none';
+  if(canFull()){ renderPaceGrid(); renderTargets(); renderSetup(); }
 }
 let paceMode = localStorage.getItem('leslie_tb_pacemode') || 'raw';
 function setPaceMode(m){ paceMode=m; localStorage.setItem('leslie_tb_pacemode',m); renderPaceGrid(); }
@@ -3240,6 +3272,7 @@ function renderSetup(){
   $('cfgPin').value=state.config.managerPin||'';
   $('cfgOwnerPin').value=state.config.ownerPin||'';
   $('cfgMgrs').value=mgrRoster().join(', ');
+  $('cfgFull').value=mgrRoster().filter(m=>mgrRoleOf(m)==='full').join(', ');
   $('mgrPinGrid').innerHTML=mgrRoster().map((m,i)=>`<div>
       <label for="mgrPin${i}">${m}</label>
       <input type="text" id="mgrPin${i}" data-mgr="${m}" class="mgr-pin" inputmode="numeric" maxlength="6" value="${mgrPinOf(m)}" placeholder="No PIN (shared only)">
@@ -3258,6 +3291,10 @@ async function saveSetup(){
   const mpins={};
   document.querySelectorAll('.mgr-pin').forEach(inp=>{ const v=inp.value.trim(); if(v) mpins[inp.dataset.mgr]=v; });
   state.config.managerPins=mpins;
+  const fullNames=$('cfgFull').value.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
+  const roles={};
+  state.config.managers.forEach(m=>{ if(fullNames.includes(m.toLowerCase())) roles[m]='full'; });
+  state.config.managerRoles=roles;
   /* a PIN that opens two doors is worse than no PIN — say so rather than
      silently letting the first name in the list win every time */
   const dupe=Object.values(mpins).find((v,i,a)=>a.indexOf(v)!==i);
@@ -3559,9 +3596,10 @@ function leadTag(n,dec){return `<span class="lead-var ${varCls(n)}">${signed(n,d
    log directly and never went through these views. */
 function viewGate(prefix){
   const L=$(prefix+'Locked'), B=$(prefix+'Body');
-  if(L) L.style.display=managerOn?'none':'';
-  if(B) B.style.display=managerOn?'':'none';
-  return managerOn;
+  const WHAT={ov:'The Board',tm:'Team performance',fc:'Where We Land',yoy:'Year over year',rc:'The daily recap'};
+  if(L){ L.style.display=canFull()?'none':''; lockNote(L,WHAT[prefix]||'This tab'); }
+  if(B) B.style.display=canFull()?'':'none';
+  return canFull();
 }
 /* ---- small formatters (kept separate from the hub's fmt) ---- */
 function tMoney(n){return '$'+Math.round(n||0).toLocaleString();}
@@ -3665,7 +3703,7 @@ function barCheck(mk){
           agrees:Math.abs(implied-p.all)<=Math.max(4,p.all*0.05)};
 }
 async function applyPlanTargets(){
-  if(!managerOn){toast('Manager PIN required');return;}
+  if(!canFull()){toast('Manager PIN required');return;}
   const mk=ctxMK(), fixes=planIssues(mk);
   if(!fixes.length){toast('Targets already match the plan');return;}
   state.config.targets=state.config.targets||{};
@@ -4048,9 +4086,9 @@ function dlToday(){
 function renderDailyLog(){
   const mk=ctxMK();
   $('dlMonthName').innerHTML=`<span class="t-src">${monthName(mk,true)}</span>`;
-  $('dlLocked').style.display=managerOn?'none':'';
-  $('dlBody').style.display=managerOn?'':'none';
-  if(!managerOn) return;
+  $('dlLocked').style.display=canFull()?'none':''; lockNote($('dlLocked'),'The Log');
+  $('dlBody').style.display=canFull()?'':'none';
+  if(!canFull()) return;
   const logged=daysLogged(mk), t=mtdTot(mk);
   const lvD=leadVar(mk);
   $('dlSummary').innerHTML=`${logged.length} logged of ${lvD.progress.elapsed} working day${lvD.progress.elapsed===1?'':'s'} elapsed &middot; ${tMoney(t.rev)} &middot; ${t.sold} sold &middot; ${lvD.act.tot} leads run ${leadTag(lvD.d.tot,1)} vs pace`;
@@ -4101,7 +4139,7 @@ function renderDailyLog(){
 }
 let dlDay=null;
 function dlOpen(d){
-  if(!managerOn){toast('Manager PIN required to edit the daily log');return;}
+  if(!canFull()){toast('Manager PIN required to edit the daily log');return;}
   const mk=ctxMK(); dlDay=d;
   const rec=dayReps(mk,d);
   $('dlModalTitle').textContent=new Date(`${mk}-${String(d).padStart(2,'0')}T12:00:00`)
@@ -4158,7 +4196,7 @@ function renderTeamPerf(){
       <td class="num">${r.mktAppts}</td><td class="num">${r.mktSold}</td><td class="num">${tPct(r.mktSold,r.mktAppts)}</td>
       <td class="num">${r.sold}</td><td class="num">${tMoney(r.rev)}</td>
       <td class="num">${r.sold?tMoney(r.rev/r.sold):'\u2014'}</td><td class="num">${tPct(r.sold,r.appts)}</td>
-      <td class="mid">${managerOn?`<button class="btn ghost small" style="padding:3px 9px;font-size:.72rem" onclick="tmRename('${rep.replace(/'/g,"\\'")}')">Rename</button>`:''}</td></tr>`;
+      <td class="mid">${canFull()?`<button class="btn ghost small" style="padding:3px 9px;font-size:.72rem" onclick="tmRename('${rep.replace(/'/g,"\\'")}')">Rename</button>`:''}</td></tr>`;
   }).join('');
   $('tmTbl').querySelector('tfoot').innerHTML=`<tr class="t-total"><td>TOTAL</td>
     <td class="num">${t.tglAppts}</td><td class="num">${t.tglSold}</td><td class="num">${tPct(t.tglSold,t.tglAppts)}</td>
@@ -4216,7 +4254,7 @@ function renderTeamPerf(){
   }).join('');
 }
 async function tmAddRep(){
-  if(!managerOn){toast('Manager PIN required');return;}
+  if(!canFull()){toast('Manager PIN required');return;}
   const name=prompt('New consultant name:');
   if(!name||!name.trim()) return;
   const n=name.trim();
@@ -4226,7 +4264,7 @@ async function tmAddRep(){
   toast(n+' added'); refreshAll();
 }
 async function tmRename(oldName){
-  if(!managerOn){toast('Manager PIN required');return;}
+  if(!canFull()){toast('Manager PIN required');return;}
   const nn=prompt(`Rename "${oldName}" to:`,oldName);
   if(!nn||nn===oldName) return;
   const i=state.config.reps.indexOf(oldName);
@@ -4344,7 +4382,7 @@ function renderForecast(){
   }).join('');
 }
 async function fcSaveCfg(){
-  if(!managerOn){toast('Manager PIN required to change the plan');return;}
+  if(!canFull()){toast('Manager PIN required to change the plan');return;}
   const mk=ctxMK(), c=monthCfg(mk);
   c.target=num($('fcTarget').value)||c.target;
   c.workdays=num($('fcWorkdays').value)||c.workdays;
@@ -4487,8 +4525,8 @@ function tMsg(el,type,text){
   setTimeout(()=>{e.className='t-msg';},6000);
 }
 function renderImportView(){
-  $('impLocked').style.display=managerOn?'none':'';
-  $('impBody').style.display=managerOn?'':'none';
+  $('impLocked').style.display=canFull()?'none':''; lockNote($('impLocked'),'Importing');
+  $('impBody').style.display=canFull()?'':'none';
   const today=new Date().toISOString().slice(0,10);
   if(!$('impDate').value) $('impDate').value=today;
   if(!$('stDate').value) $('stDate').value=today;
@@ -4547,7 +4585,7 @@ function yoyParseDay(s,n){
   return null;
 }
 async function impYoY(){
-  if(!managerOn){toast('Manager PIN required');return;}
+  if(!canFull()){toast('Manager PIN required');return;}
   const pk=$('yoyImpMonth').value;
   if(!/^\d{4}-\d{2}$/.test(pk)){tMsg('yoyImpMsg','err','Pick the month this data belongs to.');return;}
   const raw=$('yoyImpPaste').value.trim();
@@ -4577,7 +4615,7 @@ async function impYoY(){
     (skipped.length?` Ignored ${skipped.length} row${skipped.length===1?'':'s'} with no readable day: ${skipped.slice(0,4).join(', ')}${skipped.length>4?'…':''}.`:''));
 }
 async function clearYoY(pk){
-  if(!managerOn){toast('Manager PIN required');return;}
+  if(!canFull()){toast('Manager PIN required');return;}
   if(!confirm(`Remove the ${monthName(pk,true)} baseline? vs Last Year falls back to the built-in figures if there are any.`)) return;
   delete state.pace[yoyKey(pk)];
   await push('savePace',{month:yoyKey(pk),data:{}});
@@ -4682,7 +4720,7 @@ function expDailyCSV(){
   toast('Daily log exported');
 }
 async function clearMonthDaily(){
-  if(!managerOn){toast('Manager PIN required');return;}
+  if(!canFull()){toast('Manager PIN required');return;}
   const mk=ctxMK();
   if(!confirm(`Clear every logged day in ${monthName(mk,true)}? Touch bases and debriefs are not affected.`)) return;
   for(let d=1;d<=daysInMonth(mk);d++){
@@ -4751,7 +4789,7 @@ function fillRepSelects(){
   ['tbRep','trRep','dbRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
 }
 function refreshAll(){
-  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); if(managerOn) renderPaceView();
+  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); if(canFull()) renderPaceView();
   renderNumbers();
 }
 /* =================== post-call debrief =================== */
@@ -4911,7 +4949,7 @@ function dbRowHTML(c,i,wk,dupe){
     :c.outcome==='pending'?'PENDING':'NO SALE';
   const when=new Date(c.ts).toLocaleDateString(undefined,{weekday:'short',month:'numeric',day:'numeric'});
   const cw=c.week||wk;
-  const rm = managerOn
+  const rm = canFull()
     ? '<div class="hd-row"><span class="k">Remove</span><span class="v">'
       +'<button class="btn ghost small" style="padding:3px 10px" onclick="event.stopPropagation();dbRemove(\''+dbEsc(cw)+'\','+(c.ts||0)+')">Delete this debrief</button>'
       +'</span></div>'
@@ -4932,7 +4970,7 @@ function dbRowHTML(c,i,wk,dupe){
    apart. Everything downstream re-derives, so the week's stats, the coverage
    queue and the Monday board all settle by themselves. */
 async function dbRemove(wk,ts){
-  if(!managerOn){toast('Manager PIN required to remove a debrief');return;}
+  if(!canFull()){toast('Manager PIN required to remove a debrief');return;}
   const rep=$('dbRep').value;
   const e=entryFor(rep,wk);
   const i=(e?.debriefs||[]).findIndex(c=>(c.ts||0)===Number(ts));
@@ -4960,7 +4998,7 @@ function renderDebriefHistory(){
   const want = has(sel.value)?sel.value : (has(dbHistWeek)?dbHistWeek : (weeks.length?weeks[0]:cur));
   sel.innerHTML=opts.map(o=>'<option value="'+o[0]+'">'+dbEsc(o[1])+'</option>').join('');
   sel.value=want; dbHistWeek=want;
-  const mine = !managerOn || repOn===rep;
+  const mine = !canFull() || repOn===rep;
   $('dbHistTitle').textContent = want==='all' ? ('Every debrief \u2014 '+rep)
     : want===cur ? (mine?'My week so far':rep+' \u2014 this week')
     : (dbWeekLabel(want)+(mine?'':' \u2014 '+rep));
@@ -4972,7 +5010,7 @@ function renderDebriefHistory(){
     renderRepCoverage(rep); return;
   }
   $('dbHistHint').style.display='';
-  $('dbHistHint').textContent = managerOn
+  $('dbHistHint').textContent = canFull()
     ? 'Tap any call to open the full debrief. Manager mode \u2014 switch consultants above.'
     : 'Tap any call to open the full debrief.';
   const sold=calls.filter(c=>c.outcome==='sold');
@@ -4998,7 +5036,7 @@ function renderDebriefHistory(){
         ' logged more than once</b> \u2014 '+names.join(', ')+
         '. Each copy counts again in the totals'+
         (Object.values(dupes).flat().some(c=>c.outcome!=='sold')?' and can sit in the Call Coach queue twice':'')+
-        '. '+(managerOn?'Open one and use <b>Delete this debrief</b> to drop the extra.':'Ask a manager to remove the extra.')+
+        '. '+(canFull()?'Open one and use <b>Delete this debrief</b> to drop the extra.':'Ask a manager to remove the extra.')+
         '</div>'
       : '';
   }
@@ -5374,7 +5412,7 @@ function rcLines(iso){
   return L.join('\n');
 }
 function rcSend(){
-  if(!managerOn){ toast('Manager mode required'); return; }
+  if(!canFull()){ toast('Manager mode required'); return; }
   if(!unlockOwner()) return;
   const iso=rcDay(), R=rcData(iso);
   if(!R.logged && !R.all.length){ toast('Nothing logged for that day yet'); return; }
@@ -5404,7 +5442,7 @@ function teamToday(){
 }
 function renderDayCard(){
   const card=$('dayCard');
-  if(!managerOn){ card.style.display='none'; return; }
+  if(!canFull()){ card.style.display='none'; return; }
   card.style.display='';
   const team=teamToday();
   const calls=team.reduce((n,r)=>n+r.calls.length,0);
@@ -5424,7 +5462,7 @@ function renderDayCard(){
   $('dayHint').textContent='Today across the team — send it to Gabe & Brendan before you head home.';
 }
 function dbDaySend(){
-  if(!managerOn){ toast('Manager mode required'); return; }
+  if(!canFull()){ toast('Manager mode required'); return; }
   if(!unlockOwner()) return;
   const team=teamToday();
   if(!team.length){ toast('No calls logged today yet'); return; }
