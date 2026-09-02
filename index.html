@@ -106,6 +106,97 @@
     background:#EFE9DD;color:var(--muted);border-radius:4px;padding:1px 4px;vertical-align:1px;cursor:help}
   .kpi .dir{display:block;margin-top:4px;font-size:.72rem;font-weight:700}
   .kpi .dir.up{color:var(--sage-deep)} .kpi .dir.down{color:var(--red)} .kpi .dir.flat{color:var(--muted)}
+
+  /* ---------- THE BOARD: hero, vs-plan bars, leaderboard, sparklines ---------- */
+  @keyframes bGrow{from{width:0}}
+  @keyframes bFade{from{opacity:0;transform:translateY(6px)}}
+  .b-hero{
+    background:linear-gradient(135deg,#3F3532 0%,var(--ink) 55%,#2C2523 100%);
+    color:#fff;border-radius:12px;padding:20px 22px;margin-bottom:16px;
+    display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;
+    box-shadow:0 2px 6px rgba(56,47,45,.18),0 10px 28px rgba(56,47,45,.14);
+    animation:bFade .5s ease-out both;
+  }
+  .b-hero .h-dial{position:relative;width:132px;height:132px;flex:none}
+  .b-hero .h-dial svg{transform:rotate(-90deg);display:block}
+  .b-hero .h-dial .dial-mid{position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center}
+  .b-hero .h-dial .dial-pct{font-size:1.7rem;font-weight:700;line-height:1}
+  .b-hero .h-dial .dial-cap{font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#BFB4A9;margin-top:3px}
+  .b-hero .h-lab{font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#BFB4A9}
+  .b-hero .h-rev{font-size:2.9rem;font-weight:700;line-height:1.05;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .b-hero .h-goal{font-size:.86rem;color:#DCD3C8;margin-top:2px}
+  .b-hero .h-goal b{color:var(--tan)}
+  .b-hero .h-facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+  .b-hero .h-fact{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);
+    border-radius:8px;padding:7px 12px;min-width:118px}
+  .b-hero .h-fact .f-l{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#BFB4A9}
+  .b-hero .h-fact .f-v{font-size:1.05rem;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+  .b-hero .h-fact .f-v.ok{color:#A9CBBB} .b-hero .h-fact .f-v.watch{color:#F0A87C} .b-hero .h-fact .f-v.sub{color:#F09099}
+  @media(max-width:700px){
+    .b-hero{grid-template-columns:1fr;justify-items:center;text-align:center}
+    .b-hero .h-rev{font-size:2.2rem}
+    .b-hero .h-facts{justify-content:center}
+  }
+
+  .b-bars{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px 6px;margin-bottom:14px}
+  .b-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.7rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .b-legend span{display:inline-flex;align-items:center;gap:5px}
+  .b-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .b-legend i.ok{background:var(--sage-deep)} .b-legend i.watch{background:var(--terracotta)} .b-legend i.sub{background:var(--red)}
+  .b-legend i.plan{width:2px;height:13px;border-radius:0;background:var(--ink);opacity:.6}
+
+  .vb{margin-bottom:16px}
+  .vb-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:5px}
+  .vb-name{font-size:.8rem;font-weight:700;color:var(--ink)}
+  .vb-right{font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+  .vb-right .vb-num{font-size:1.02rem}
+  .vb-track{position:relative;height:24px;background:#EFE8DD;border-radius:6px;
+    box-shadow:inset 0 1px 2px rgba(56,47,45,.07)}
+  .vb-fill{display:block;height:100%;border-radius:6px;animation:bGrow .75s cubic-bezier(.22,1,.36,1) both;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
+  .vb-fill.ok{background:linear-gradient(90deg,#8FB0A2,#5E8274)}
+  .vb-fill.watch{background:linear-gradient(90deg,#DB8A5C,#C05131)}
+  .vb-fill.sub{background:linear-gradient(90deg,#DC4257,#C8102E)}
+  .vb-fill.flat{background:linear-gradient(90deg,#B7ADA1,#8A7F76)}
+  .vb-plan{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink);opacity:.62;border-radius:1px}
+  .vb-plan::after{content:'';position:absolute;top:-4px;left:-3px;border-left:4px solid transparent;
+    border-right:4px solid transparent;border-top:5px solid var(--ink);opacity:.75}
+  .vb-foot{display:flex;justify-content:space-between;gap:10px;font-size:.72rem;color:var(--muted);margin-top:5px}
+  .vb-pill{display:inline-block;font-weight:700;font-variant-numeric:tabular-nums;
+    border-radius:999px;padding:1px 8px;font-size:.72rem;margin-left:7px}
+  .vb-pill.ok{background:#E9F2EE;color:var(--sage-deep)}
+  .vb-pill.watch{background:#FBEEE5;color:#9E4423}
+  .vb-pill.sub{background:#FBE9EC;color:var(--red)}
+  .vb-pill.flat{background:#F0EBE3;color:var(--muted)}
+
+  .lb-row{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:center;padding:7px 0;
+    border-bottom:1px solid #F0EAE0}
+  .lb-row:last-child{border-bottom:0}
+  .lb-rank{font-size:.78rem;font-weight:700;color:var(--muted);text-align:center;
+    background:#F4EFE6;border-radius:6px;padding:3px 0}
+  .lb-row.top .lb-rank{background:var(--tan);color:var(--maroon)}
+  .lb-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:3px}
+  .lb-name{font-size:.84rem;font-weight:700}
+  .lb-fig{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .lb-fig b{color:var(--ink);font-size:.86rem}
+  .lb-track{height:12px;background:#EFE8DD;border-radius:4px;overflow:hidden}
+  .lb-track i{display:block;height:100%;border-radius:4px;animation:bGrow .8s cubic-bezier(.22,1,.36,1) both;
+    background:linear-gradient(90deg,#8E5F55,var(--maroon))}
+  .lb-track i.ok{background:linear-gradient(90deg,#8FB0A2,#5E8274)}
+  .lb-track i.watch{background:linear-gradient(90deg,#DB8A5C,#C05131)}
+  .lb-track i.sub{background:linear-gradient(90deg,#DC4257,#C8102E)}
+
+  .b-spark{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:18px}
+  .sp-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .sp-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+  .sp-lab{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .sp-now{font-size:1.15rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .sp-card svg{display:block;width:100%;height:54px;overflow:visible}
+  .sp-foot{font-size:.71rem;color:var(--muted);margin-top:5px}
+  .sp-empty{font-size:.78rem;color:var(--muted);padding:14px 0}
+
   .pace-mode{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:4px}
   .pace-mode button{border:0;background:#fff;padding:7px 14px;font:inherit;font-size:.82rem;font-weight:600;
     color:var(--muted);cursor:pointer}
@@ -494,20 +585,20 @@
 <nav>
   <div class="nav-inner">
     <span class="grp-label">Numbers</span>
-    <button data-v="overview" onclick="showView('overview')">Scoreboard</button>
-    <button data-v="daily" onclick="showView('daily')">Daily Log</button>
-    <button data-v="recap" onclick="showView('recap')">Daily Recap</button>
-    <button data-v="team" onclick="showView('team')">Team</button>
-    <button data-v="forecast" onclick="showView('forecast')">Forecast</button>
-    <button data-v="yoy" onclick="showView('yoy')">Year over Year</button>
+    <button data-v="overview" onclick="showView('overview')">The Board</button>
+    <button data-v="daily" onclick="showView('daily')">The Log</button>
+    <button data-v="recap" onclick="showView('recap')">Yesterday</button>
+    <button data-v="team" onclick="showView('team')">The Team</button>
+    <button data-v="forecast" onclick="showView('forecast')">Where We Land</button>
+    <button data-v="yoy" onclick="showView('yoy')">vs Last Year</button>
     <div class="sep"></div><span class="grp-label">Coaching</span>
-    <button class="active" data-v="mytb" onclick="showView('mytb')">My Touch Base</button>
+    <button class="active" data-v="mytb" onclick="showView('mytb')">My Week</button>
     <button data-v="debrief" onclick="showView('debrief')">Debrief</button>
     <button data-v="review" onclick="showView('review')">Team Review</button>
     <button data-v="track" onclick="showView('track')">Track Record</button>
     <button data-v="coach" onclick="showView('coach')">Call Coach</button>
     <div class="sep"></div>
-    <button data-v="pace" onclick="showView('pace')">Pace &amp; Setup</button>
+    <button data-v="pace" onclick="showView('pace')">Setup</button>
     <button data-v="import" onclick="showView('import')">Import</button>
     <button data-v="guide" onclick="showView('guide')">Guide</button>
   </div>
@@ -517,7 +608,7 @@
 
 <!-- ============ MY TOUCH BASE ============ -->
 <section class="view active" id="view-mytb">
-  <h2>My Weekly Touch Base</h2>
+  <h2>My Week</h2>
   <p class="lead">Complete this <b>before</b> your Monday touch base. You bring the plan — Nels brings the questions. Target: 10 minutes of prep, 30 minutes together.</p>
 
   <div class="card">
@@ -543,7 +634,7 @@
 
   <div id="tbBody">
   <div class="card">
-    <h3><span class="stepnum">1</span> Scoreboard — this month's pace</h3>
+    <h3><span class="stepnum">1</span> The Board — this month's pace</h3>
     <div class="hint" style="margin-bottom:10px" id="paceSrc"></div>
     <div class="pace-strip" id="paceStrip"></div>
   </div>
@@ -736,7 +827,7 @@
     <div class="eyebrow">End of day &mdash; Nels only</div>
     <div class="statline" id="dayStats"></div>
     <p class="hint" id="dayHint" style="margin:6px 0 12px"></p>
-    <button class="btn small" onclick="showView('recap')">Open the Daily Recap &rarr;</button>
+    <button class="btn small" onclick="showView('recap')">Open Yesterday &rarr;</button>
   </div>
 </section>
 
@@ -749,7 +840,7 @@
       <input type="date" id="revWeek" onchange="snapMondayRev();renderReview()">
     </div>
   </div>
-  <div id="revLocked" class="locked" style="display:none">&#128274; The Monday board shows every consultant's week, including manager notes. It is manager-only &mdash; use the <b>Manager</b> button up top. Your own one-on-one notes are on <b>My Touch Base</b>.</div>
+  <div id="revLocked" class="locked" style="display:none">&#128274; The Monday board shows every consultant's week, including manager notes. It is manager-only &mdash; use the <b>Manager</b> button up top. Your own one-on-one notes are on <b>My Week</b>.</div>
   <div class="rev-grid" id="revGrid"></div>
 </section>
 
@@ -1020,32 +1111,45 @@
 
 <!-- ============ OVERVIEW ============ -->
 <section class="view" id="view-overview">
-  <h2>Scoreboard <span id="ovSrc" class="t-src"></span></h2>
+  <h2>The Board <span id="ovSrc" class="t-src"></span></h2>
   <p class="t-sub" id="ovSub">Month to date, straight off the daily log.</p>
   <div id="ovLocked" class="locked" style="display:none">&#128274; The team scoreboard is manager-only. Use the <b>Manager</b> button up top.</div>
   <div id="ovBody">
+  <div id="ovHero"></div>
   <div class="pace-strip" id="ovCards" style="margin-bottom:14px"></div>
   <div class="pace-strip" id="ovAvgCards" style="margin-bottom:14px"></div>
-  <h3 style="font-size:.95rem;margin:18px 0 4px">Leads vs plan</h3>
-  <p class="hint" id="ovLeadSub" style="margin-bottom:10px"></p>
-  <div class="pace-strip" id="ovLeadCards" style="margin-bottom:14px"></div>
-  <h3 style="font-size:.95rem;margin:18px 0 4px">Close rate vs plan</h3>
-  <p class="hint" id="ovCloseSub" style="margin-bottom:10px"></p>
-  <div class="pace-strip" id="ovCloseCards" style="margin-bottom:14px"></div>
-  <div id="ovChecks"></div>
-  <div id="ovAlert"></div>
+
   <div class="t-2col">
     <div>
-      <h3 style="font-size:.95rem;margin-bottom:8px">By consultant</h3>
-      <div class="tbl-wrap"><table id="ovRepTbl">
-        <thead><tr><th>Consultant</th><th class="num">TGL Appts</th><th class="num">TGL Sold</th><th class="num">Mkt Appts</th><th class="num">Mkt Sold</th><th class="num">Revenue</th><th class="num">Close</th></tr></thead>
-        <tbody></tbody><tfoot></tfoot></table></div>
+      <h3 style="font-size:.95rem;margin-bottom:8px">Leaderboard</h3>
+      <div id="ovBoard"></div>
     </div>
     <div>
       <h3 style="font-size:.95rem;margin-bottom:8px">Monthly progress</h3>
       <div id="ovProgress"></div>
     </div>
   </div>
+
+  <h3 style="font-size:.95rem;margin:22px 0 4px">Close rate vs plan</h3>
+  <p class="hint" id="ovCloseSub" style="margin-bottom:10px"></p>
+  <div class="b-bars" id="ovCloseBars"></div>
+  <div class="pace-strip" id="ovCloseCards" style="margin-bottom:14px"></div>
+
+  <h3 style="font-size:.95rem;margin:22px 0 8px">Week by week</h3>
+  <div class="b-spark" id="ovSpark"></div>
+
+  <h3 style="font-size:.95rem;margin:22px 0 4px">Leads vs plan</h3>
+  <p class="hint" id="ovLeadSub" style="margin-bottom:10px"></p>
+  <div class="b-bars" id="ovLeadBars"></div>
+  <div class="pace-strip" id="ovLeadCards" style="margin-bottom:14px"></div>
+
+  <div id="ovChecks"></div>
+  <div id="ovAlert"></div>
+
+  <h3 style="font-size:.95rem;margin-bottom:8px">By consultant</h3>
+  <div class="tbl-wrap" style="margin-bottom:18px"><table id="ovRepTbl">
+    <thead><tr><th>Consultant</th><th class="num">TGL Appts</th><th class="num">TGL Sold</th><th class="num">Mkt Appts</th><th class="num">Mkt Sold</th><th class="num">Revenue</th><th class="num">Close</th></tr></thead>
+    <tbody></tbody><tfoot></tfoot></table></div>
   <h3 style="font-size:.95rem;margin-bottom:8px">Weekly breakdown</h3>
   <div class="tbl-wrap" style="margin-bottom:18px"><table id="ovWeekly">
     <thead><tr><th>Week &amp; close rate</th><th class="num">TGL Appts</th><th class="num">TGL Sold</th><th class="num">Mkt Appts</th><th class="num">Mkt Sold</th><th class="num">Revenue</th></tr></thead>
@@ -1058,7 +1162,7 @@
 
 <!-- ============ DAILY RECAP ============ -->
 <section class="view" id="view-recap">
-  <h2>Daily Recap <span id="rcDateName"></span></h2>
+  <h2>Yesterday <span id="rcDateName"></span></h2>
   <p class="t-sub">The whole day in one place &mdash; every KPI off the daily log, debrief coverage, where the month stands, and what the team heard in the field. Built to be read, then sent.</p>
   <div id="rcLocked" class="locked" style="display:none">&#128274; The daily recap is manager-only. Use the <b>Manager</b> button up top.</div>
   <div id="rcBody">
@@ -1075,7 +1179,7 @@
 
 <!-- ============ DAILY LOG ============ -->
 <section class="view" id="view-daily">
-  <h2>Daily Log <span id="dlMonthName"></span></h2>
+  <h2>The Log <span id="dlMonthName"></span></h2>
   <p class="t-sub">Every number in this hub rolls up from these days. Click <b>Edit</b> on a day to enter or correct it &mdash; it syncs to the team the moment you save.</p>
   <div id="dlLocked" class="locked" style="display:none">&#128274; The daily log is manager-only. Use the <b>Manager</b> button up top.</div>
   <div id="dlBody">
@@ -1108,7 +1212,7 @@
 
 <!-- ============ TEAM ============ -->
 <section class="view" id="view-team">
-  <h2>Team Performance <span id="teamSrc" class="t-src"></span></h2>
+  <h2>The Team <span id="teamSrc" class="t-src"></span></h2>
   <p class="t-sub">Month to date. Add or rename a consultant here and every view follows.</p>
   <div id="tmLocked" class="locked" style="display:none">&#128274; Team performance is manager-only. Use the <b>Manager</b> button up top.</div>
   <div id="tmBody">
@@ -1142,7 +1246,7 @@
 
 <!-- ============ FORECAST ============ -->
 <section class="view" id="view-forecast">
-  <h2>Forecast</h2>
+  <h2>Where We Land</h2>
   <p class="t-sub">Where the month lands if the current appointment pace holds.</p>
   <div id="fcLocked" class="locked" style="display:none">&#128274; The forecast is manager-only. Use the <b>Manager</b> button up top.</div>
   <div id="fcBody">
@@ -1172,7 +1276,7 @@
   <p class="hint" id="fcBridgeNote" style="margin-bottom:18px"></p>
   <div class="card">
     <h3>Assumptions</h3>
-    <p class="hint">Set per month. Working days default to the weekdays in the month &mdash; drop it for holidays. Everything on this tab, the Scoreboard, the Daily Log, Team and Year over Year reads these four numbers.</p>
+    <p class="hint">Set per month. Working days default to the weekdays in the month &mdash; drop it for holidays. Everything on this tab, the Board, the Log, the Team and vs Last Year reads these four numbers.</p>
     <div class="t-assume">
       <div><label for="fcTarget">Monthly revenue target</label><input type="number" id="fcTarget" onchange="fcSaveCfg()"></div>
       <div><label for="fcWorkdays">Working days</label><input type="number" id="fcWorkdays" onchange="fcSaveCfg()"></div>
@@ -1190,7 +1294,7 @@
       <div><label for="fcApptsDay">Appointments a day, per consultant</label><input type="number" min="0" step="any" id="fcApptsDay" onchange="fcSaveCfg()"></div>
     </div>
     <h3 style="margin-top:16px">Planned close rates</h3>
-    <p class="hint">What the plan assumes each lead type converts at. The Scoreboard and the Team close-rate matrix measure against these.</p>
+    <p class="hint">What the plan assumes each lead type converts at. The Board and the Team close-rate matrix measure against these.</p>
     <div class="t-assume">
       <div><label for="fcTglClose">TGL close %</label><input type="number" min="0" max="100" step="any" id="fcTglClose" onchange="fcSaveCfg()"></div>
       <div><label for="fcMktClose">Marketed close %</label><input type="number" min="0" max="100" step="any" id="fcMktClose" onchange="fcSaveCfg()"></div>
@@ -1202,7 +1306,7 @@
 
 <!-- ============ YEAR OVER YEAR ============ -->
 <section class="view" id="view-yoy">
-  <h2>Year over Year <span id="yoyTitle"></span></h2>
+  <h2>vs Last Year <span id="yoyTitle"></span></h2>
   <p class="t-sub" id="yoySub"></p>
   <div id="yoyLocked" class="locked" style="display:none">&#128274; Year over year is manager-only. Use the <b>Manager</b> button up top.</div>
   <div id="yoyBody">
@@ -1317,6 +1421,41 @@
   </div>
 
   <div class="card">
+    <h3>Prior-year baseline &mdash; for vs Last Year</h3>
+    <div class="t-help">
+      <strong>One paste per month, one row per day.</strong> This is what the <em>vs Last Year</em> tab
+      compares against. It is team totals, not per consultant &mdash; last year's rows do not have to match
+      this year's roster.<br><br>
+      1. Open that month's <em>Sales Manager Pace Report</em>.<br>
+      2. Build one row per day: the day, then TGL and Marketed appointments, sold and revenue.<br>
+      3. Paste below, pick the month, and click <strong>Save baseline</strong>.<br>
+      4. Check the totals it reports back against the report's monthly actuals before you trust it.
+      <div class="t-colmap">
+        <div><span>Col 1</span> &mdash; Day (1, 1st, 1-Sep or 9/1/2025)</div>
+        <div><span>Col 2</span> &mdash; TGL appointments</div>
+        <div><span>Col 3</span> &mdash; TGL sold</div>
+        <div><span>Col 4</span> &mdash; TGL revenue</div>
+        <div><span>Col 5</span> &mdash; Marketed appointments</div>
+        <div><span>Col 6</span> &mdash; Marketed sold</div>
+        <div><span>Col 7</span> &mdash; Marketed revenue</div>
+      </div>
+      Days with nothing on them can be left out. Saving replaces that month's baseline outright.
+    </div>
+    <div class="bar">
+      <div style="min-width:auto"><label for="yoyImpMonth">Month being loaded</label>
+        <input type="month" id="yoyImpMonth"></div>
+    </div>
+    <textarea id="yoyImpPaste" class="t-paste" placeholder="1&#9;3&#9;2&#9;28500&#9;1&#9;0&#9;0&#10;2&#9;4&#9;2&#9;31000&#9;2&#9;1&#9;12500&#10;..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn small" onclick="impYoY()">Save baseline</button>
+      <button class="btn ghost small" onclick="$('yoyImpPaste').value=''">Clear</button>
+    </div>
+    <div class="t-msg" id="yoyImpMsg"></div>
+    <h4 style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 8px">Baselines the hub is holding</h4>
+    <div id="yoyImpList"></div>
+  </div>
+
+  <div class="card">
     <h3>Backup</h3>
     <p class="hint" style="margin-bottom:10px">Everything the hub holds &mdash; daily log, monthly pace, touch bases, debriefs, settings &mdash; in one JSON file.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1364,7 +1503,7 @@
     <h4 data-g="m">For Nels &mdash; five moments</h4>
     <div class="g-rhythm c5" data-g="m">
       <div><div class="gw">Every workday</div><div class="gt">Log the day</div>
-        <p>Two minutes in the Daily Log, or paste it from a report. The only data-entry job that matters.</p></div>
+        <p>Two minutes in the Log, or paste it from a report. The only data-entry job that matters.</p></div>
       <div><div class="gw">Every afternoon</div><div class="gt">Clear the queue</div>
         <p>Call Coach lists unsold appointments with no HA/ZT made. Empty it before you leave.</p></div>
       <div><div class="gw">Wednesday midday</div><div class="gt">Take the pulse</div>
@@ -1463,15 +1602,15 @@
     <p class="g-lede">The hub opens on a shared link &mdash; no account, no password. Three controls in the header govern everything below them.</p>
     <ol class="g-steps">
       <li><b>Your PIN.</b> Pick your name in the Consultant dropdown; the hub asks for your PIN the first time you open your own touch base or track record. It holds for that browser session. PINs aren't printed anywhere &mdash; ask Nels if you've lost yours. They exist so somebody else's honest self-score doesn't get saved under your name on a shared office tablet.</li>
-      <li><b>The month box.</b> One picker drives Scoreboard, Daily Log, Team, Forecast and Year over Year together. It does <em>not</em> drive the coaching tabs &mdash; those follow their own week pickers, so last week's touch bases can be reviewed against this month's numbers.</li>
+      <li><b>The month box.</b> One picker drives The Board, The Log, The Team, Where We Land and vs Last Year together. It does <em>not</em> drive the coaching tabs &mdash; those follow their own week pickers, so last week's touch bases can be reviewed against this month's numbers.</li>
       <li><b>The sync dot.</b> Green means the Google Sheet has everything. Red means the hub is working from the copy on this device and will push when the connection returns &mdash; keep going, nothing is lost.</li>
-      <li data-g="m"><b>Manager.</b> Press it, enter the manager PIN, and it turns red. That unlocks Daily Log, Import, Pace &amp; Setup and Call Coach, adds the notes boxes to the Monday board, and opens any consultant's form without their PIN. It lasts for the browser session only, which is what you want on a shared machine. The end-of-day team rollup has its own separate PIN so a borrowed laptop can't send it.</li>
+      <li data-g="m"><b>Manager.</b> Press it, enter the manager PIN, and it turns red. That unlocks The Log, Import, Setup and Call Coach, adds the notes boxes to the Monday board, and opens any consultant's form without their PIN. It lasts for the browser session only, which is what you want on a shared machine. The end-of-day team rollup has its own separate PIN so a borrowed laptop can't send it.</li>
     </ol>
   </div>
 
   <!-- ---------- my touch base ---------- -->
   <div class="g-sec" id="g-mytb" data-g="b">
-    <h3>My Touch Base <span class="g-who">Consultant</span></h3>
+    <h3>My Week <span class="g-who">Consultant</span></h3>
     <div class="g-slug">Before Monday &middot; about 10 minutes &middot; saving again for the same week updates it</div>
     <p class="g-lede">You bring the plan; Nels brings the questions. Ten minutes of prep buys a conversation about your process instead of a conversation about your numbers.</p>
     <ol class="g-steps">
@@ -1498,7 +1637,7 @@
     </div>
     <div class="g-wiring">
       <div class="gin"><h5>What it reads</h5><ul>
-        <li>Month-to-date numbers from the <span class="g-tab">Daily Log</span></li>
+        <li>Month-to-date numbers from the <span class="g-tab">The Log</span></li>
         <li>Last week's plan, so it can be graded</li>
         <li>Nels's notes from the one-on-one</li>
       </ul></div>
@@ -1537,7 +1676,7 @@
     <p data-g="m">A card at the bottom of the same tab, gated by the end-of-day PIN, covering today only across the whole team: calls, sold and revenue, pending, no-sale, restate-to-nod, HA/ZT coverage with anything still open named, then a short block per consultant with each call's customer words and holdback &mdash; and finally who logged nothing today. That last line is the useful one; a consultant who ran four appointments and logged none is invisible everywhere else.</p>
     <div class="g-wiring">
       <div class="gin"><h5>What it reads</h5><ul>
-        <li>Your focus behavior and trigger moment, from <span class="g-tab">My Touch Base</span></li>
+        <li>Your focus behavior and trigger moment, from <span class="g-tab">My Week</span></li>
       </ul></div>
       <div><h5>Where it goes</h5><ul>
         <li><span class="g-tab">Team Review</span> &mdash; calls, sold, focus hits, nod rate, coverage</li>
@@ -1607,7 +1746,7 @@
 
   <!-- ---------- scoreboard ---------- -->
   <div class="g-sec" id="g-scoreboard" data-g="m">
-    <h3>Scoreboard <span class="g-who mgr">Manager only</span></h3>
+    <h3>The Board <span class="g-who mgr">Manager only</span></h3>
     <div class="g-slug">The month at a glance &middot; the tab to open in a team meeting</div>
     <p class="g-lede">A badge next to the heading tells you whether you're looking at numbers derived from the daily log or at a month with nothing logged yet.</p>
     <div class="tbl-wrap"><table class="g-tbl">
@@ -1620,7 +1759,7 @@
       <tr><td>Weekly breakdown</td><td>Seven-day blocks &mdash; 1&ndash;7, 8&ndash;14, 15&ndash;21, 22&ndash;28, 29&ndash;end &mdash; with close rate split by lead type.</td></tr>
       <tr><td>Weekly close grid</td><td>Every consultant, every week, plus a month-to-date chip and a team row. Hover a chip for the TGL and marketed split. Green at 50%, amber 35&ndash;49, red below 35.</td></tr>
     </table></div>
-    <p>Consultants cannot open this tab &mdash; the team-wide numbers are behind the manager PIN. Their own figures on My Touch Base come from exactly the same daily log, so if the Scoreboard says someone ran fourteen appointments this month, their touch base says fourteen too. They can't disagree.</p>
+    <p>Consultants cannot open this tab &mdash; the team-wide numbers are behind the manager PIN. Their own figures on My Week come from exactly the same daily log, so if the Board says someone ran fourteen appointments this month, their touch base says fourteen too. They can't disagree.</p>
   </div>
 
   <!-- ---------- the lead plan ---------- -->
@@ -1637,31 +1776,31 @@
       <tr><td>Appointments a day, per consultant</td><td>The individual bar &mdash; what one consultant is expected to run on a working day.</td></tr>
       <tr><td>Planned close rates</td><td>What the plan assumes each lead type converts at. Revenue is leads &times; close &times; ticket, and this is the middle term.</td></tr>
     </table></div>
-    <p><b>Where the pace line comes from.</b> The monthly plan is divided by the budgeted working days on the Forecast tab. That gives a per-day rate for each category. &ldquo;Expected by now&rdquo; is that rate times the <b>working days elapsed</b>, and the green or red tag is what you've run minus what was expected. Anything inside half a lead reads as on pace.</p>
+    <p><b>Where the pace line comes from.</b> The monthly plan is divided by the budgeted working days on the Where We Land tab. That gives a per-day rate for each category. &ldquo;Expected by now&rdquo; is that rate times the <b>working days elapsed</b>, and the green or red tag is what you've run minus what was expected. Anything inside half a lead reads as on pace.</p>
     <div class="g-note">
       <span class="gl">Why elapsed, not logged</span>
-      <p>The divisor is the calendar, not the log. If a working day goes unlogged, it still counts as elapsed &mdash; otherwise skipping a day would remove its shortfall along with its leads and the team would look on pace for having no data. Unlogged working days are called out on the Scoreboard, marked in red on the Daily Log, and listed in the data check.</p>
+      <p>The divisor is the calendar, not the log. If a working day goes unlogged, it still counts as elapsed &mdash; otherwise skipping a day would remove its shortfall along with its leads and the team would look on pace for having no data. Unlogged working days are called out on the Board, marked in red on the Log, and listed in the data check.</p>
     </div>
     <div class="g-note calm">
       <span class="gl">Set it once</span>
-      <p>All four numbers live in <b>Forecast &rarr; Lead plan</b>, per month. Change them there and the Scoreboard, Daily Log, Team and Year over Year tabs all move together &mdash; there is nowhere else to enter them, so they cannot disagree.</p>
+      <p>All four numbers live in <b>Where We Land &rarr; Lead plan</b>, per month. Change them there and the Board, the Log, the Team and vs Last Year tabs all move together &mdash; there is nowhere else to enter them, so they cannot disagree.</p>
     </div>
     <div class="tbl-wrap"><table class="g-tbl">
       <tr><th>Tab</th><th>What it shows about leads</th></tr>
-      <tr><td>Scoreboard</td><td>Month-to-date leads by category against plan and pace, plus a plain-language ahead/behind line.</td></tr>
-      <tr><td>Daily Log</td><td>Leads run on each individual day by category, and the running month-to-date position after that day.</td></tr>
+      <tr><td>The Board</td><td>Month-to-date leads by category against plan and pace, plus a plain-language ahead/behind line.</td></tr>
+      <tr><td>The Log</td><td>Leads run on each individual day by category, and the running month-to-date position after that day.</td></tr>
       <tr><td>Team</td><td>Each consultant's leads run against their own daily bar, and the team against the plan.</td></tr>
-      <tr><td>Forecast</td><td>The plan itself, leads needed per remaining day, and where the lead count lands at the current run rate.</td></tr>
-      <tr><td>Year over Year</td><td>Leads run this year against the same days last year, with the plan alongside. Cross-year figures are TGL + marketed only &mdash; the prior-year baseline carries no self-gen.</td></tr>
+      <tr><td>Where We Land</td><td>The plan itself, leads needed per remaining day, and where the lead count lands at the current run rate.</td></tr>
+      <tr><td>vs Last Year</td><td>Leads run this year against the same days last year, with the plan alongside. Cross-year figures are TGL + marketed only &mdash; the prior-year baseline carries no self-gen.</td></tr>
     </table></div>
     <h4>Close rate against the plan</h4>
-    <p>The same treatment applies to conversion. Each planned close rate sits next to the actual on the Scoreboard, and the Team close-rate matrix shows every consultant's gap to plan in points. The Scoreboard also prices the gap: what the shortfall in close rate is worth in revenue on the leads already run, at the current ticket. That number is usually the shortest route to what Monday should be about.</p>
+    <p>The same treatment applies to conversion. Each planned close rate sits next to the actual on the Board, and the Team close-rate matrix shows every consultant's gap to plan in points. The Board also prices the gap: what the shortfall in close rate is worth in revenue on the leads already run, at the current ticket. That number is usually the shortest route to what Monday should be about.</p>
   </div>
 
   <!-- ---------- data check ---------- -->
   <div class="g-sec" id="g-check" data-g="m">
     <h3>The data check <span class="g-who mgr">Manager only</span></h3>
-    <div class="g-slug">Top of the Daily Log &middot; read it before you read anything else</div>
+    <div class="g-slug">Top of the Log &middot; read it before you read anything else</div>
     <p class="g-lede">Every number in the hub trusts the daily log, so the log is the one thing worth auditing. The check runs on whatever month is selected and reports in plain language.</p>
     <div class="tbl-wrap"><table class="g-tbl">
       <tr><th>What it catches</th><th>Why it matters</th></tr>
@@ -1672,12 +1811,12 @@
       <tr><td>The monthly paste disagreeing with the daily log</td><td>Two accounts of the same month. The daily log is what every tab shows, so the paste is the one to fix.</td></tr>
       <tr><td>A consultant with no logged activity</td><td>Either they genuinely ran nothing, or their days are going in under a different name.</td></tr>
     </table></div>
-    <p>Red items will skew a number if left alone. Amber items are worth understanding but may be perfectly correct. A count appears on the Scoreboard so you notice without opening the tab.</p>
+    <p>Red items will skew a number if left alone. Amber items are worth understanding but may be perfectly correct. A count appears on the Board so you notice without opening the tab.</p>
   </div>
 
   <!-- ---------- daily log ---------- -->
   <div class="g-sec" id="g-daily" data-g="m">
-    <h3>Daily Log <span class="g-who mgr">Manager only</span></h3>
+    <h3>The Log <span class="g-who mgr">Manager only</span></h3>
     <div class="g-slug">Every workday &middot; about 2 minutes &middot; the single source of truth</div>
     <p class="g-lede">One card per calendar day. Days with data carry a green edge, weekends sit on a tinted ground, and each card shows that day's revenue, the team's service calls, and last year's figure for the same date.</p>
     <p><b>Unlogged working days.</b> A working day the calendar has passed with nothing in it is edged in red and labelled. Fill it in, or accept that the month is running behind by that day's worth of leads &mdash; those are the only two honest options, and the hub will not quietly pick the flattering one for you.</p>
@@ -1685,7 +1824,7 @@
     <ol class="g-steps">
       <li><b>Check the month box first.</b> Everything on this tab belongs to the month in the header.</li>
       <li><b>Press <span class="g-tab">Log today</span></b>, or Edit on any day card.</li>
-      <li><b>Service calls.</b> The team's total calls run that day. It feeds the Scoreboard tile and nothing else &mdash; leave it at zero if you don't track it.</li>
+      <li><b>Service calls.</b> The team's total calls run that day. It feeds the Board tile and nothing else &mdash; leave it at zero if you don't track it.</li>
       <li><b>Fill the six columns per consultant.</b> TGL appointments, sold, revenue; then the same three for marketed. Revenue is the sold total for that lead type that day, not an average.</li>
       <li><b>Watch the warning line.</b> It flags sold exceeding appointments, or revenue booked with no sale, as you type. Those are the two mistakes that quietly corrupt a close rate.</li>
       <li><b>Save day.</b> It writes to the Google Sheet immediately and every other tab recalculates. Leave a consultant's row blank if they didn't run &mdash; a blank is different from a zero, and blanks keep them out of the day's averages.</li>
@@ -1694,12 +1833,12 @@
     <p>Open the day, change the number, save. There is nothing else to update: the month total, every consultant's touch-base scoreboard, the Monday board chips, the Track Record and the year-to-date all re-derive from the day you just fixed.</p>
     <div class="g-wiring">
       <div class="gin"><h5>What it reads</h5><ul>
-        <li>The roster from <span class="g-tab">Pace &amp; Setup</span></li>
+        <li>The roster from <span class="g-tab">Setup</span></li>
         <li>Last year's same-day revenue, for the card corner</li>
       </ul></div>
       <div><h5>Where it goes</h5><ul>
-        <li><span class="g-tab">Scoreboard</span>, <span class="g-tab">Team</span>, <span class="g-tab">Forecast</span>, <span class="g-tab">Year over Year</span></li>
-        <li><span class="g-tab">My Touch Base</span> &mdash; every consultant's KPI tiles and year-to-date</li>
+        <li><span class="g-tab">The Board</span>, <span class="g-tab">The Team</span>, <span class="g-tab">Where We Land</span>, <span class="g-tab">vs Last Year</span></li>
+        <li><span class="g-tab">My Week</span> &mdash; every consultant's KPI tiles and year-to-date</li>
         <li><span class="g-tab">Team Review</span> &mdash; the KPI chips on each Monday card</li>
         <li><span class="g-tab">Track Record</span> &mdash; monthly pace and four-week KPI movement</li>
       </ul></div>
@@ -1708,11 +1847,11 @@
 
   <!-- ---------- team ---------- -->
   <div class="g-sec" id="g-team" data-g="m">
-    <h3>Team <span class="g-who mgr">Manager only</span></h3>
+    <h3>The Team <span class="g-who mgr">Manager only</span></h3>
     <div class="g-slug">The month arranged for comparison</div>
     <p class="g-lede">Appointments, sold and close rate split by lead type, then total sold, revenue, average sale and overall close. Underneath: leads run against the daily bar, a close-rate matrix and each person's share of the month's revenue.</p>
     <p><b>The close-rate matrix</b> shows each consultant's rate on top and their gap to the month's planned close rate underneath, in points. Green is at or above plan.</p>
-    <p><b>Leads run vs the daily bar.</b> Every consultant is expected to run the same number of appointments a day &mdash; the bar set on the Forecast tab. This table shows what each has actually run, what the bar says they should have by now, and the gap. It is a volume conversation, not a conversion one: someone at 100% of the bar with a 30% close rate has a different problem from someone at 60% of the bar closing well.</p>
+    <p><b>Leads run vs the daily bar.</b> Every consultant is expected to run the same number of appointments a day &mdash; the bar set on the Where We Land tab. This table shows what each has actually run, what the bar says they should have by now, and the gap. It is a volume conversation, not a conversion one: someone at 100% of the bar with a 30% close rate has a different problem from someone at 60% of the bar closing well.</p>
     <ol class="g-steps" data-g="m">
       <li><b>Add a consultant.</b> Type the name as you want it shown everywhere &mdash; "Jeremy M." style keeps the tables narrow. They appear immediately in every dropdown, the day editor and the Monday board.</li>
       <li><b>Rename one.</b> This is a real migration, not a label change: the hub moves their PIN, every logged day, every monthly pace row and every touch base to the new name, then re-syncs all of it. Use it for a spelling fix &mdash; not to hand a seat to a new hire.</li>
@@ -1722,13 +1861,13 @@
 
   <!-- ---------- forecast ---------- -->
   <div class="g-sec" id="g-forecast" data-g="m">
-    <h3>Forecast <span class="g-who mgr">Manager only</span></h3>
+    <h3>Where We Land <span class="g-who mgr">Manager only</span></h3>
     <div class="g-slug">Assumptions are set per month</div>
     <p class="g-lede">Where the month lands if the current appointment pace holds. Three scenarios, all built from what's actually been logged rather than from a guess.</p>
     <ol class="g-steps">
       <li><b>Set the month's assumptions</b> in the panel at the bottom: revenue target, working days, and fallback average sales. Working days default to the weekdays in the month &mdash; knock off holidays by hand.</li>
       <li><b>Set the month's lead plan</b> in the panel below that: TGL leads, marketed leads, self-gen leads, and each consultant's daily appointment bar. Working days divides the plan into the daily pace, so fix that number first. Full detail in <a href="#" onclick="return guideJump('g-leads')">The lead plan</a>.</li>
-      <li><b>Set the planned close rates</b> in the last panel. These are what the Scoreboard and the Team matrix measure conversion against.</li>
+      <li><b>Set the planned close rates</b> in the last panel. These are what the Board and the Team matrix measure conversion against.</li>
       <li><b>Clear the banner at the top.</b> It lists any setting that contradicts the month's plan &mdash; a coaching ticket target below the plan's average sale, a close target below the plan's close rate, or a per-consultant bar that doesn't multiply out to the team plan. One button moves the coaching targets onto the plan; the bar and the plan are a judgement call and it only tells you they disagree.</li>
       <li><b>Read the plan bridge.</b> Revenue is leads &times; close &times; ticket. The bridge shows all three terms, plan against where the month lands at today's rates, so you can see which one is actually moving the revenue.</li>
       <li><b>Read the tiles.</b> Target, days logged, days remaining, revenue to date, and the daily revenue needed to land on target.</li>
@@ -1742,7 +1881,7 @@
 
   <!-- ---------- yoy ---------- -->
   <div class="g-sec" id="g-yoy" data-g="m">
-    <h3>Year over Year <span class="g-who mgr">Manager only</span></h3>
+    <h3>vs Last Year <span class="g-who mgr">Manager only</span></h3>
     <div class="g-slug">Needs a prior-year baseline for the month you're viewing</div>
     <p class="g-lede">This month against the same month last year, matched period for period &mdash; the comparison runs only through the latest day logged, so a half-logged month is never compared against a full one.</p>
     <ul class="g-plain">
@@ -1757,7 +1896,7 @@
 
   <!-- ---------- pace & setup ---------- -->
   <div class="g-sec" id="g-pace" data-g="m">
-    <h3>Pace &amp; Setup <span class="g-who mgr">Manager only</span></h3>
+    <h3>Setup <span class="g-who mgr">Manager only</span></h3>
     <div class="g-slug">Monthly, and whenever the team changes</div>
     <p class="g-lede">Four panels. The first is the fallback path for months without a daily log; the other three are the hub's settings.</p>
     <h4>Monthly pace report</h4>
@@ -1799,6 +1938,18 @@
       <span class="gl">Name matching</span>
       <p>Reports say "Jeremy Murray" or "Murray, Jeremy"; the hub says "Jeremy M." The importer matches on first name plus initial, either order. Anything it can't place is still imported under the name as typed and called out in the confirmation &mdash; so a new hire who isn't on the roster shows up as a stranger rather than silently vanishing. Add them on the Team tab and re-import that day.</p>
     </div>
+    <h4>Prior-year baseline</h4>
+    <ol class="g-steps">
+      <li><b>This is the only thing that feeds <span class="g-tab">vs Last Year</span>.</b> Without a baseline for the matching month last year, that tab's day-by-day comparison is empty.</li>
+      <li><b>One paste covers a whole month</b> &mdash; one row per day, in day order: the day, then TGL appointments, sold and revenue, then marketed appointments, sold and revenue. The day can be <em>7</em>, <em>7th</em>, <em>7-Sep</em> or <em>9/7/2025</em>.</li>
+      <li><b>It is team totals, not per consultant.</b> Last year's roster is not this year's, and every cross-year figure in the hub is a team figure on the TGL + marketed basis anyway.</li>
+      <li><b>Reconcile before you trust it.</b> Saving reports the month's leads, sold, revenue and close rate straight back &mdash; compare those against the pace report's monthly actuals. If they don't tie, a day is missing or doubled.</li>
+      <li><b>Saving replaces that month outright</b>, so a correction is a re-paste, not a merge. Months already loaded are listed underneath with a Remove button.</li>
+    </ol>
+    <div class="g-note">
+      <span class="gl">Why self-gen is not in it</span>
+      <p>The prior-year sheets don't carry self-gen, so every cross-year number in the hub &mdash; here, on the Board's <em>vs last year</em> tile, and on <span class="g-tab">vs Last Year</span> &mdash; is TGL + marketed only. That is the &ldquo;core&rdquo; basis the totals code keeps separate on purpose. Self-gen still counts everywhere else.</p>
+    </div>
     <h4>Backup</h4>
     <ul class="g-plain">
       <li><b>Download full backup</b> &mdash; one JSON file with the daily log, monthly pace, every touch base, debrief, coached call and setting. Worth doing at month end.</li>
@@ -1812,10 +1963,10 @@
     <h3>Month rollover <span class="g-who mgr">Manager only</span></h3>
     <p class="g-lede">Nothing breaks at midnight on the 1st &mdash; the hub is month-aware throughout. Five minutes of housekeeping keeps it clean.</p>
     <ol class="g-steps">
-      <li><b>Change the month box</b> to the new month. The Daily Log opens empty and waiting.</li>
-      <li><b>Set the Forecast assumptions</b> &mdash; the revenue target from the new pace report, and working days minus holidays. Everything else carries forward.</li>
+      <li><b>Change the month box</b> to the new month. The Log opens empty and waiting.</li>
+      <li><b>Set the Where We Land assumptions</b> &mdash; the revenue target from the new pace report, and working days minus holidays. Everything else carries forward.</li>
       <li><b>Download a full backup</b> from the Import tab for the month that just closed.</li>
-      <li><b>Check the closed month reconciles.</b> Open the Scoreboard on the old month and compare against the pace report's monthly actuals. If they differ, a day is missing or double-entered &mdash; the Daily Log shows which.</li>
+      <li><b>Check the closed month reconciles.</b> Open the Board on the old month and compare against the pace report's monthly actuals. If they differ, a day is missing or double-entered &mdash; the Log shows which.</li>
       <li><b>Load the prior-year baseline</b> for the new month if you want year-over-year.</li>
     </ol>
   </div>
@@ -1826,7 +1977,7 @@
     <div class="tbl-wrap"><table class="g-tbl">
       <tr><th>What you see</th><th>What it means</th></tr>
       <tr><td>Sync error</td><td>The hub is working from the copy on this device and will push when the connection is back. Keep going &mdash; nothing is lost. If it stays red all day, tell Nels.</td></tr>
-      <tr><td>Scoreboard all dashes</td><td>No days logged for that month yet. It fills in as the month goes.</td></tr>
+      <tr><td>The Board all dashes</td><td>No days logged for that month yet. It fills in as the month goes.</td></tr>
       <tr><td>No focus card on Debrief</td><td>No touch base submitted this week. Debriefs still save and still count &mdash; you just won't be asked the focus question.</td></tr>
       <tr><td>Numbers look off</td><td>Check the month box in the header first. Then tell Nels which day looks wrong &mdash; he can correct any single day and everything recalculates.</td></tr>
       <tr><td>PIN not accepted</td><td>Ask Nels. Don't use somebody else's &mdash; the entry saves under whoever's name is in the dropdown.</td></tr>
@@ -2904,7 +3055,7 @@ async function applyBackfill(){
   cache();
   backfill=null; $('impApply').style.display='none'; $('impApply').textContent='Apply to the grid';
   $('impPrev').innerHTML=`<p class="hint">Loaded ${cells} consultant-months across ${months} months. `+
-    `Open any week in <b>My Touch Base</b> to see year-to-date fill in.</p>`;
+    `Open any week in <b>My Week</b> to see year-to-date fill in.</p>`;
   toast('Backfill loaded — '+months+' months');
   renderPaceGrid(); renderPaceStrip&&renderPaceStrip();
 }
@@ -3019,6 +3170,7 @@ function weekdaysIn(mk){
 }
 function isWeekend(mk,d){const[y,m]=mk.split('-').map(Number);const w=new Date(y,m-1,d).getDay();return w===0||w===6;}
 function prevYearMK(mk){return (Number(mk.slice(0,4))-1)+mk.slice(4);}
+function nextYearMK(mk){return (Number(mk.slice(0,4))+1)+mk.slice(4);}
 function dayKey(mk,d){return mk+'~'+String(d).padStart(2,'0');}
 
 /* Self-gen is a third lead type. It is deliberately NOT in RAW_FIELDS: the
@@ -3240,6 +3392,12 @@ function closeVar(mk){
   Object.keys(act).forEach(k=>{d[k]=act[k]==null?null:act[k]-cp[k];});
   return {plan:cp,act,d};
 }
+/* Just the text of a points gap, for places that colour the wrapper themselves. */
+function ptsRaw(n){
+  if(n==null) return '—';
+  const v=Math.abs(n)<0.05?0:n;
+  return (v>0?'+':v<0?'−':'±')+Math.abs(v).toFixed(1)+' pts';
+}
 function ptsTag(n){
   if(n==null) return '<span class="lead-var">—</span>';
   const v=Math.abs(n)<0.05?0:n;
@@ -3256,9 +3414,9 @@ function leadTag(n,dec){return `<span class="lead-var ${varCls(n)}">${signed(n,d
 
 
 /* ---- manager gate for the numbers tabs ----
-   Same shape the hub already uses for Pace & Setup, Import and Call Coach: the
+   Same shape the hub already uses for Setup, Import and Call Coach: the
    tab stays in the bar, the content behind it does not render without the PIN.
-   Consultants keep their own figures on My Touch Base, which reads the daily
+   Consultants keep their own figures on My Week, which reads the daily
    log directly and never went through these views. */
 function viewGate(prefix){
   const L=$(prefix+'Locked'), B=$(prefix+'Body');
@@ -3272,6 +3430,68 @@ function tPct(a,b){return b?Math.round(100*a/b)+'%':'\u2014';}
 function rateCls(p){return p==null?'':p>=50?'ok':p>=35?'watch':'sub';}
 function statCard(label,value,sub,cls){
   return `<div class="kpi ${cls||''}"><div class="k-label">${label}</div><div class="k-val">${value}</div><div class="k-tgt">${sub||''}</div></div>`;
+}
+
+/* =================== THE BOARD — VISUALS ===================
+   One bar shape for everything measured against a plan: the fill is what has
+   actually happened, the notch on the track is where the plan says we should
+   be. Green means past the plan, orange means inside the tolerance band, red
+   means short of it. Nothing here computes a number — it only draws the ones
+   leadVar/closeVar/mtdTot already produce, so a bar can never disagree with
+   the tile above it. */
+function barCls(d,tol){
+  if(d==null) return 'flat';
+  const t=tol==null?1:tol;
+  return d>=t?'ok':d>=-t?'watch':'sub';
+}
+function planBar(o){
+  const f=Math.max(0,Math.min(100,o.fill||0)), p=o.plan==null?null:Math.max(0,Math.min(100,o.plan));
+  return `<div class="vb"${o.title?` title="${o.title}"`:''}>
+    <div class="vb-head"><span class="vb-name">${o.name}</span><span class="vb-right">${o.right||''}</span></div>
+    <div class="vb-track"><i class="vb-fill ${o.cls||'flat'}" style="width:${f.toFixed(1)}%"></i>${
+      p==null?'':`<span class="vb-plan" style="left:${p.toFixed(1)}%"></span>`}</div>
+    <div class="vb-foot"><span>${o.footL||''}</span><span>${o.footR||''}</span></div>
+  </div>`;
+}
+function barLegend(planLabel){
+  return `<div class="b-legend">
+    <span><i class="ok"></i>Above plan</span>
+    <span><i class="watch"></i>At plan</span>
+    <span><i class="sub"></i>Below plan</span>
+    <span><i class="plan"></i>${planLabel||'Plan'}</span>
+  </div>`;
+}
+function pill(txt,cls){return `<span class="vb-pill ${cls||'flat'}">${txt}</span>`;}
+/* A line for a handful of weekly points. preserveAspectRatio is off so the
+   card can be any width; the stroke is pinned so it does not stretch with it. */
+function sparkSVG(vals,cls){
+  const n=vals.length;
+  if(n<2) return '';
+  const W=100,H=40,pad=4;
+  const mx=Math.max(...vals), mn=Math.min(...vals), rng=(mx-mn)||1;
+  const X=i=>pad+(W-2*pad)*i/(n-1);
+  const Y=v=>pad+(H-2*pad)*(1-(v-mn)/rng);
+  const pts=vals.map((v,i)=>`${X(i).toFixed(2)},${Y(v).toFixed(2)}`).join(' ');
+  const col=cls==='ok'?'#5E8274':cls==='sub'?'#C8102E':cls==='watch'?'#C05131':'#6E3B34';
+  const dots=vals.map((v,i)=>`<circle cx="${X(i).toFixed(2)}" cy="${Y(v).toFixed(2)}" r="${i===n-1?2.6:1.7}"
+      fill="${i===n-1?col:'#fff'}" stroke="${col}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`).join('');
+  const uid='sp'+Math.random().toString(36).slice(2,8);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-hidden="true">
+    <defs><linearGradient id="${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${col}" stop-opacity=".22"/><stop offset="100%" stop-color="${col}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polygon points="${X(0).toFixed(2)},${H} ${pts} ${X(n-1).toFixed(2)},${H}" fill="url(#${uid})"/>
+    <polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    ${dots}
+  </svg>`;
+}
+function sparkCard(label,now,vals,cls,foot){
+  return `<div class="sp-card">
+    <div class="sp-head"><span class="sp-lab">${label}</span><span class="sp-now">${now}</span></div>
+    ${vals.length>1?sparkSVG(vals,cls):'<div class="sp-empty">Needs two logged weeks before a trend means anything.</div>'}
+    <div class="sp-foot">${foot||''}</div>
+  </div>`;
 }
 
 /* =================== SETTINGS THAT DISAGREE ===================
@@ -3376,7 +3596,7 @@ function renderChecks(){
   }
   const chip=$('ovChecks');
   if(chip) chip.innerHTML=ch.length
-    ? `<div class="t-alert ${bad?'sub':'warn'}">Data check: ${ch.length} item${ch.length===1?'':'s'} on the daily log${bad?`, ${bad} that will skew a number`:''}. <a href="#" onclick="showView('daily');return false">Open the Daily Log</a>.</div>`
+    ? `<div class="t-alert ${bad?'sub':'warn'}">Data check: ${ch.length} item${ch.length===1?'':'s'} on the daily log${bad?`, ${bad} that will skew a number`:''}. <a href="#" onclick="showView('daily');return false">Open the Log</a>.</div>`
     : '';
 }
 
@@ -3386,7 +3606,23 @@ function renderChecks(){
    (37 TGL + 18 Marketed deals, $826,532). Add a month here and the whole
    year-over-year view lights up for it. */
 const YOY_BASE = {"2025-08":{"1":{"tglAppts":5,"tglSold":3,"tglRev":43009,"mktAppts":0,"mktSold":0,"mktRev":0},"2":{"tglAppts":1,"tglSold":0,"tglRev":0,"mktAppts":0,"mktSold":0,"mktRev":0},"4":{"tglAppts":1,"tglSold":1,"tglRev":16000,"mktAppts":1,"mktSold":1,"mktRev":12500},"5":{"tglAppts":3,"tglSold":1,"tglRev":16500,"mktAppts":2,"mktSold":1,"mktRev":26000},"6":{"tglAppts":2,"tglSold":1,"tglRev":22000,"mktAppts":1,"mktSold":0,"mktRev":0},"7":{"tglAppts":3,"tglSold":2,"tglRev":32666,"mktAppts":1,"mktSold":0,"mktRev":0},"8":{"tglAppts":2,"tglSold":2,"tglRev":23000,"mktAppts":3,"mktSold":1,"mktRev":14000},"9":{"tglAppts":1,"tglSold":1,"tglRev":17000,"mktAppts":1,"mktSold":0,"mktRev":0},"10":{"tglAppts":2,"tglSold":2,"tglRev":21000,"mktAppts":0,"mktSold":0,"mktRev":0},"11":{"tglAppts":3,"tglSold":2,"tglRev":30768,"mktAppts":4,"mktSold":3,"mktRev":41250},"12":{"tglAppts":3,"tglSold":2,"tglRev":36000,"mktAppts":3,"mktSold":2,"mktRev":17900},"13":{"tglAppts":5,"tglSold":2,"tglRev":35365,"mktAppts":1,"mktSold":0,"mktRev":0},"14":{"tglAppts":3,"tglSold":1,"tglRev":12900,"mktAppts":1,"mktSold":0,"mktRev":0},"15":{"tglAppts":4,"tglSold":2,"tglRev":31000,"mktAppts":1,"mktSold":0,"mktRev":0},"16":{"tglAppts":2,"tglSold":1,"tglRev":23000,"mktAppts":0,"mktSold":0,"mktRev":0},"18":{"tglAppts":1,"tglSold":1,"tglRev":21000,"mktAppts":3,"mktSold":1,"mktRev":12000},"19":{"tglAppts":3,"tglSold":2,"tglRev":27696,"mktAppts":0,"mktSold":0,"mktRev":0},"20":{"tglAppts":6,"tglSold":2,"tglRev":52624,"mktAppts":1,"mktSold":1,"mktRev":16977},"21":{"tglAppts":4,"tglSold":0,"tglRev":0,"mktAppts":3,"mktSold":1,"mktRev":11500},"22":{"tglAppts":5,"tglSold":4,"tglRev":60738,"mktAppts":0,"mktSold":0,"mktRev":0},"23":{"tglAppts":1,"tglSold":0,"tglRev":0,"mktAppts":0,"mktSold":0,"mktRev":0},"25":{"tglAppts":1,"tglSold":1,"tglRev":15000,"mktAppts":4,"mktSold":1,"mktRev":13500},"26":{"tglAppts":2,"tglSold":0,"tglRev":0,"mktAppts":2,"mktSold":2,"mktRev":34700},"27":{"tglAppts":3,"tglSold":1,"tglRev":12709,"mktAppts":1,"mktSold":1,"mktRev":4500},"28":{"tglAppts":2,"tglSold":0,"tglRev":0,"mktAppts":3,"mktSold":2,"mktRev":24180},"29":{"tglAppts":2,"tglSold":2,"tglRev":25450,"mktAppts":2,"mktSold":0,"mktRev":0},"30":{"tglAppts":2,"tglSold":1,"tglRev":13900,"mktAppts":2,"mktSold":1,"mktRev":8200}}};
-function yoyMonth(mk){return YOY_BASE[prevYearMK(mk)]||null;}
+/* A baseline loaded through the Import tab lives in state.pace under "<month>~yoy".
+   That looks odd but it is deliberate: loadRemote() rebuilds state from {config,
+   pace, entries} and would drop anything kept anywhere else, and normPace keeps
+   any key containing a tilde intact. Day reads only ever ask for "<month>~01"
+   through "~31", so the two never meet. A loaded month wins over the built-in
+   block below, which stays as the fallback. */
+function yoyKey(pk){return pk+'~yoy';}
+function yoyLoaded(pk){
+  const m=state.pace[yoyKey(pk)];
+  return (m&&Object.keys(m).length)?m:null;
+}
+function yoyMonths(){
+  return Object.keys(state.pace).filter(k=>k.endsWith('~yoy')&&Object.keys(state.pace[k]||{}).length)
+    .map(k=>k.slice(0,-4)).sort();
+}
+function yoyMonth(mk){const pk=prevYearMK(mk);return yoyLoaded(pk)||YOY_BASE[pk]||null;}
+function yoySource(mk){const pk=prevYearMK(mk);return yoyLoaded(pk)?'imported':(YOY_BASE[pk]?'built in':null);}
 function yoyDay(mk,d){const m=yoyMonth(mk);return m?(m[String(d)]||null):null;}
 function yoyTot(mk,throughDay){
   const m=yoyMonth(mk)||{};
@@ -3412,8 +3648,47 @@ function renderOverview(){
     : `${monthName(mk,true)} has nothing in the daily log yet. Log a day, or paste one in from a report, and the whole hub follows.`;
   const prog=cfg.target?Math.min(100,Math.round(100*t.rev/cfg.target)):0;
 
+  /* ---- hero: the one number the month is judged on, against the calendar ----
+     The dial is revenue against target. It goes green only when the month is
+     at least as far along in dollars as it is in working days, so a 40% dial
+     on day two is not scolded and a 40% dial on day sixteen is. */
+  {
+    const perDay=pr.elapsed?t.rev/pr.elapsed:0;
+    const gap=Math.max(0,cfg.target-t.rev);
+    const need=pr.left?gap/pr.left:0;
+    const timePct=pr.wd?100*pr.elapsed/pr.wd:0;
+    const rawPct=cfg.target?100*t.rev/cfg.target:0;
+    const dialCls=!logged.length?'flat':barCls(rawPct-timePct,4);
+    const proj=perDay*pr.wd;
+    const R=54, C=2*Math.PI*R, dash=C*Math.min(1,rawPct/100);
+    const stroke=dialCls==='ok'?'#7A9B8E':dialCls==='sub'?'#DC4257':dialCls==='watch'?'#DB8A5C':'#8A7F76';
+    const needCls=!pr.left?(gap>0?'sub':'ok'):barCls(perDay-need,need*0.08||1);
+    const cv0=closeVar(mk);
+    $('ovHero').innerHTML=`<div class="b-hero">
+      <div class="h-dial">
+        <svg width="132" height="132" viewBox="0 0 132 132">
+          <circle cx="66" cy="66" r="${R}" fill="none" stroke="rgba(255,255,255,.13)" stroke-width="11"/>
+          ${dash>0.5?`<circle cx="66" cy="66" r="${R}" fill="none" stroke="${stroke}" stroke-width="11" stroke-linecap="round"
+            stroke-dasharray="${dash.toFixed(1)} ${(C-dash).toFixed(1)}"/>`:''}
+        </svg>
+        <div class="dial-mid"><div class="dial-pct">${prog}%</div><div class="dial-cap">of target</div></div>
+      </div>
+      <div>
+        <div class="h-lab">${monthName(mk,true)} revenue to date</div>
+        <div class="h-rev">${tMoney(t.rev)}</div>
+        <div class="h-goal">against a <b>${tMoney(cfg.target)}</b> target${gap>0?` &mdash; ${tMoney(gap)} to go`:' &mdash; cleared'}</div>
+        <div class="h-facts">
+          <div class="h-fact"><div class="f-l">Days elapsed</div><div class="f-v">${pr.elapsed} of ${pr.wd}</div></div>
+          <div class="h-fact"><div class="f-l">Running at</div><div class="f-v">${tMoney(perDay)}<span style="font-size:.7rem;font-weight:600">/day</span></div></div>
+          <div class="h-fact"><div class="f-l">Needed a day</div><div class="f-v ${needCls}">${pr.left?tMoney(need):'—'}<span style="font-size:.7rem;font-weight:600">${pr.left?'/day':''}</span></div></div>
+          <div class="h-fact"><div class="f-l">Lands at</div><div class="f-v ${barCls(proj-cfg.target,cfg.target*0.02||1)}">${logged.length?tMoney(proj):'—'}</div></div>
+          <div class="h-fact"><div class="f-l">Overall close</div><div class="f-v ${cv0.d.all==null?'':barCls(cv0.d.all,1)}">${tPct(t.sold,t.appts)}</div></div>
+        </div>
+      </div>
+    </div>`;
+  }
+
   $('ovCards').innerHTML=
-    statCard('Revenue month to date',tMoney(t.rev),`${prog}% of ${tMoney(cfg.target)}`,prog>=100?'ok':prog>=70?'watch':'sub')+
     statCard('Sold',t.sold,`TGL ${t.tglSold} &middot; Marketed ${t.mktSold}${t.sgSold?' &middot; Self-gen '+t.sgSold:''}`)+
     statCard('Overall close',tPct(t.sold,t.appts),`TGL ${tPct(t.tglSold,t.tglAppts)} &middot; Mkt ${tPct(t.mktSold,t.mktAppts)}`)+
     statCard('Appointments run',t.appts,`TGL ${t.tglAppts} &middot; Marketed ${t.mktAppts}${t.sgAppts?' &middot; Self-gen '+t.sgAppts:''}`)+
@@ -3443,18 +3718,57 @@ function renderOverview(){
     leadCard('Self-gen leads run',lv.act.sg,lv.exp.sg,lv.plan.sg,lv.d.sg)+
     statCard('Leads a day needed',lv.left?(Math.round(lv.need.tot*10)/10):'—',
       lv.left?`over the ${lv.left} working day${lv.left===1?'':'s'} left`:'no working days left');
+
+  /* ---- leads vs plan, as bars ----
+     The fill is leads actually run against the month's plan; the notch is
+     where the plan's per-day rate says the team should be by now. */
+  {
+    const rows=[['tgl','TGL leads'],['mkt','Marketed leads'],['tot','Total leads (TGL + marketed)'],['sg','Self-gen leads']];
+    $('ovLeadBars').innerHTML=barLegend('Expected by now')+rows.map(([k,name])=>{
+      const act=lv.act[k]||0, exp=lv.exp[k]||0, plan=lv.plan[k]||0, d=lv.d[k];
+      const scale=Math.max(act,exp,plan,1)*1.04;
+      const cls=!lv.days?'flat':varCls(d);
+      return planBar({
+        name, cls,
+        fill:100*act/scale, plan:100*exp/scale,
+        right:`<span class="vb-num">${act}</span> <span style="color:var(--muted);font-weight:600">of ${plan} planned</span>${
+          lv.days?pill(signed(d,1),cls):''}`,
+        footL:lv.days?`${Math.round(exp*10)/10} expected by ${lv.days} working day${lv.days===1?'':'s'} in`:'Month has not started',
+        footR:lv.left?`${Math.round((lv.need[k]||0)*10)/10} a day over the ${lv.left} day${lv.left===1?'':'s'} left`:'no working days left',
+        title:`${act} run · ${Math.round(exp*10)/10} expected by now · ${plan} planned for the month`
+      });
+    }).join('');
+  }
   $('ovLeadSub').innerHTML=
     `Plan is ${lv.plan.tgl} TGL and ${lv.plan.mkt} marketed &mdash; ${lv.plan.tot} leads across ${lv.plan.wd} working days, or ${(Math.round(lv.plan.perDay.tot*100)/100)} a day &mdash; plus ${lv.plan.sg} self-gen. `+
     (lv.days?`Measured against ${lv.days} working day${lv.days===1?'':'s'} elapsed${lv.progress.missed.length?`, ${lv.progress.missed.length} of which ${lv.progress.missed.length===1?'is':'are'} still unlogged`:''}.`
             :`The month has not started.`);
 
-  /* close rate against the planned close rate */
-  const clCard=(label,a,plan,dv)=>statCard(label,a==null?'—':Math.round(a*10)/10+'%',
-    `${ptsTag(dv)} vs plan of ${Math.round(plan*10)/10}%`,dv==null?'':(dv>=1?'ok':dv>=-1?'watch':'sub'));
+  /* ---- close rate vs plan, as bars ----
+     Every category on one shared percentage scale so the bars can be compared
+     to each other, not just to their own notch. Green is a point or more above
+     the planned rate, orange is within a point either way, red is short. */
+  {
+    const rows=[['tgl','TGL close',t.tglAppts,t.tglSold],['mkt','Marketed close',t.mktAppts,t.mktSold]];
+    if(t.sgAppts) rows.push(['sg','Self-gen close',t.sgAppts,t.sgSold]);
+    rows.push(['tot','Overall close (TGL + marketed)',t.coreAppts,t.coreSold]);
+    const peak=Math.max(...rows.map(([k])=>Math.max(cv.plan[k]||0,cv.act[k]||0)),40);
+    const scale=Math.min(100,Math.ceil(peak*1.25/10)*10);
+    $('ovCloseBars').innerHTML=barLegend('Planned rate')+rows.map(([k,name,appts,sold])=>{
+      const act=cv.act[k], plan=cv.plan[k]||0, d=cv.d[k];
+      const cls=act==null?'flat':barCls(d,1);
+      return planBar({
+        name, cls,
+        fill:act==null?0:100*act/scale, plan:100*plan/scale,
+        right:`<span class="vb-num">${act==null?'—':Math.round(act*10)/10+'%'}</span>${act==null?'':pill(ptsRaw(d),cls)}`,
+        footL:`plan ${Math.round(plan*10)/10}%`,
+        footR:appts?`${sold} of ${appts} run`:'nothing run yet',
+        title:`${sold} sold of ${appts} run · plan ${Math.round(plan*10)/10}%`
+      });
+    }).join('')+`<p class="hint" style="margin:-2px 0 12px">Scale runs to ${scale}%.</p>`;
+  }
+
   $('ovCloseCards').innerHTML=
-    clCard('TGL close',cv.act.tgl,cv.plan.tgl,cv.d.tgl)+
-    clCard('Marketed close',cv.act.mkt,cv.plan.mkt,cv.d.mkt)+
-    clCard('Overall close',cv.act.tot,cv.plan.tot,cv.d.tot)+
     (()=>{ /* what the close gap is worth in revenue at the leads actually run */
       const t2=mtdTot(mk);
       const lost=(cv.plan.tgl-(cv.act.tgl??cv.plan.tgl))/100*t2.tglAppts*(t2.tglSold?t2.tglRev/t2.tglSold:cfg.tglAvg)
@@ -3510,6 +3824,53 @@ function renderOverview(){
       return `<div class="t-progrow"><div class="lbl"><span>${rep}</span><span>${tMoney(r.rev)} &middot; ${r.sold} sold</span></div>
         <div class="t-prog"><i style="width:${share}%"></i></div></div>`;
     }).join('');
+
+  /* ---- leaderboard ----
+     Ranked on revenue, coloured on close rate against the same planned rate
+     the bars above use, so the top biller closing badly still reads red. */
+  {
+    const rows=reps.map(rep=>{const r=repTot(mk,rep);
+      return {rep,rev:r.rev,sold:r.sold,appts:r.appts,
+              close:r.appts?100*r.sold/r.appts:null};}).sort((a,b)=>b.rev-a.rev);
+    const top=Math.max(...rows.map(r=>r.rev),1);
+    $('ovBoard').innerHTML=rows.some(r=>r.appts||r.rev)
+      ? rows.map((r,i)=>{
+          const cls=r.close==null?'flat':barCls(r.close-cv.plan.tot,1);
+          return `<div class="lb-row${i===0&&r.rev>0?' top':''}">
+            <div class="lb-rank">${i+1}</div>
+            <div>
+              <div class="lb-top"><span class="lb-name">${r.rep}</span>
+                <span class="lb-fig"><b>${tMoney(r.rev)}</b> &middot; ${r.sold}/${r.appts} ${pill(r.close==null?'—':Math.round(r.close)+'%',cls)}</span></div>
+              <div class="lb-track"><i class="${cls}" style="width:${(100*r.rev/top).toFixed(1)}%"></i></div>
+            </div>
+          </div>`;
+        }).join('')
+      : `<p class="hint">Nothing logged this month yet &mdash; the leaderboard fills in from the Log.</p>`;
+  }
+
+  /* ---- week by week ----
+     Direction, not detail. The table underneath carries the numbers. */
+  {
+    const wkAll=weekTot(mk,null).filter(w=>w.appts>0||w.rev>0);
+    const rate=wkAll.map(w=>w.appts?Math.round(1000*w.sold/w.appts)/10:0);
+    const rev=wkAll.map(w=>w.rev);
+    const appts=wkAll.map(w=>w.appts);
+    const dir=a=>a.length<2?'flat':(a[a.length-1]>a[a.length-2]?'ok':a[a.length-1]<a[a.length-2]?'sub':'watch');
+    /* the last block is usually a stub — three days, not seven — so say so
+       rather than letting a short week read as a collapse */
+    const tail=wkAll.length?wkAll[wkAll.length-1]:null;
+    const part=tail&&tail.days.length<7?` &middot; week ${tail.week} is a ${tail.days.length}-day block`:'';
+    const lastLab=wkAll.length?`Week ${tail.week} latest &middot; ${wkAll.length} week${wkAll.length===1?'':'s'} logged${part}`:'';
+    $('ovSpark').innerHTML=wkAll.length
+      ? sparkCard('Close rate by week',(rate.length?rate[rate.length-1]+'%':'—'),rate,
+          rate.length>1?barCls(rate[rate.length-1]-cv.plan.tot,1):'flat',
+          rate.length>1?`${rate.join('% &rarr; ')}% &middot; plan ${Math.round(cv.plan.tot*10)/10}%${part}`:lastLab)
+      + sparkCard('Revenue by week',(rev.length?tMoney(rev[rev.length-1]):'—'),rev,dir(rev),
+          rev.length>1?`${rev.map(v=>tMoney(v)).join(' &rarr; ')}${part}`:lastLab)
+      + sparkCard('Appointments by week',(appts.length?appts[appts.length-1]:'—'),appts,dir(appts),
+          appts.length>1?`${appts.join(' &rarr; ')} &middot; ${lastLab}`:lastLab)
+      : `<p class="hint">No logged weeks yet this month.</p>`;
+  }
 
   /* weekly */
   const weeks=weekTot(mk,null);
@@ -3872,10 +4233,10 @@ function renderYoY(){
   const base=yoyMonth(mk);
   if(!base){
     $('yoySub').textContent='';
-    $('yoyMissing').innerHTML=`<div class="t-alert warn">No ${monthName(pk,true)} baseline is loaded yet, so the day-by-day comparison below is empty. Send the ${pk.slice(0,4)} Sales Manager Pace Report through and it gets built in. The H1 comparison at the bottom is unaffected.</div>`;
+    $('yoyMissing').innerHTML=`<div class="t-alert warn">No ${monthName(pk,true)} baseline is loaded yet, so the day-by-day comparison below is empty. Open that month's Sales Manager Pace Report, build one row per day, and paste it into <b>Prior-year baseline</b> on the <a href="#" onclick="showView('import');return false">Import</a> tab. The H1 comparison at the bottom is unaffected.</div>`;
   }else{
     $('yoyMissing').innerHTML='';
-    $('yoySub').textContent=`${monthName(pk,true)} baseline from the Nexstar Pace Report daily sheets. The same-period comparison runs through the latest day logged this year.`;
+    $('yoySub').textContent=`${monthName(pk,true)} baseline, ${yoySource(mk)==='imported'?'imported on the Import tab':'built into this file'}, off the Nexstar Pace Report daily sheets. The same-period comparison runs through the latest day logged this year.`;
   }
   const t=mtdTot(mk), logged=daysLogged(mk), md=logged.length?Math.max(...logged):0;
   const cmp=base?yoyTot(mk,md||daysInMonth(mk)):null;
@@ -3992,6 +4353,10 @@ function renderImportView(){
   const today=new Date().toISOString().slice(0,10);
   if(!$('impDate').value) $('impDate').value=today;
   if(!$('stDate').value) $('stDate').value=today;
+  /* default the baseline picker to the month the rest of the hub is showing,
+     one year back — that is the month vs Last Year is asking for */
+  if(!$('yoyImpMonth').value) $('yoyImpMonth').value=prevYearMK(ctxMK());
+  renderYoYList();
 }
 function impParseDate(id,msgEl){
   const v=$(id).value;
@@ -4023,6 +4388,80 @@ async function impPace(){
   tMsg('impMsg','ok',`Imported ${n} consultant${n===1?'':'s'} for ${mAbbr(dt.mk)} ${dt.d}.`+
     (unknown.length?` Not on the roster, saved as typed: ${unknown.join(', ')}.`:''));
 }
+/* ---- prior-year baseline import ----
+   One row per day of team totals. Deliberately not per consultant: last year's
+   roster is not this year's, and every cross-year number in the hub is a team
+   number on the TGL + Marketed basis. */
+function yoyParseDay(s,n){
+  const t=String(s||'').trim();
+  if(!t) return null;
+  let m=t.match(/^(\d{1,2})\s*(?:st|nd|rd|th)?$/i);            /* 7  or  7th */
+  if(m) return +m[1];
+  m=t.match(/^(\d{1,2})[-\s]([A-Za-z]{3,})/);                  /* 7-Sep */
+  if(m) return +m[1];
+  m=t.match(/^[A-Za-z]{3,}[-\s](\d{1,2})/);                    /* Sep-7 */
+  if(m) return +m[1];
+  m=t.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);         /* 9/7/2025 */
+  if(m) return +m[2];
+  const d=new Date(t);
+  if(!isNaN(d)) return d.getDate();
+  return null;
+}
+async function impYoY(){
+  if(!managerOn){toast('Manager PIN required');return;}
+  const pk=$('yoyImpMonth').value;
+  if(!/^\d{4}-\d{2}$/.test(pk)){tMsg('yoyImpMsg','err','Pick the month this data belongs to.');return;}
+  const raw=$('yoyImpPaste').value.trim();
+  if(!raw){tMsg('yoyImpMsg','err','Paste the rows first.');return;}
+  const dim=daysInMonth(pk), out={}, skipped=[];
+  let rows=0;
+  for(const line of raw.split('\n')){
+    if(!line.trim()) continue;
+    const cols=line.split(/\t|,(?![^"]*"\s*$)/).map(c=>c.replace(/"/g,'').trim());
+    const d=yoyParseDay(cols[0],dim);
+    if(d==null||d<1||d>dim){ if(cols.some(c=>c)) skipped.push(cols[0]||'(blank)'); continue; }
+    const v=i=>{const x=parseFloat((cols[i]||'').replace(/[,$%\s]/g,''));return isNaN(x)?0:x;};
+    const rec={tglAppts:v(1),tglSold:v(2),tglRev:v(3),mktAppts:v(4),mktSold:v(5),mktRev:v(6)};
+    if(!Object.values(rec).some(x=>x)) continue;
+    out[String(d)]=rec; rows++;
+  }
+  if(!rows){tMsg('yoyImpMsg','err','No day rows found. First column has to be the day of the month.');return;}
+  state.pace[yoyKey(pk)]=out;
+  await push('savePace',{month:yoyKey(pk),data:out});
+  $('yoyImpPaste').value='';
+  renderYoYList(); refreshAll();
+  const t=yoyTot(nextYearMK(pk));
+  tMsg('yoyImpMsg','ok',
+    `${monthName(pk,true)} baseline saved \u2014 ${rows} day${rows===1?'':'s'}. `+
+    `TGL ${t.tglSold} sold of ${t.tglAppts} \u00b7 Marketed ${t.mktSold} of ${t.mktAppts} \u00b7 `+
+    `${tMoney(t.rev)} total, ${tPct(t.sold,t.appts)} close. Check that against the report's monthly actuals.`+
+    (skipped.length?` Ignored ${skipped.length} row${skipped.length===1?'':'s'} with no readable day: ${skipped.slice(0,4).join(', ')}${skipped.length>4?'…':''}.`:''));
+}
+async function clearYoY(pk){
+  if(!managerOn){toast('Manager PIN required');return;}
+  if(!confirm(`Remove the ${monthName(pk,true)} baseline? vs Last Year falls back to the built-in figures if there are any.`)) return;
+  delete state.pace[yoyKey(pk)];
+  await push('savePace',{month:yoyKey(pk),data:{}});
+  renderYoYList(); refreshAll();
+  toast(monthName(pk,true)+' baseline removed');
+}
+function renderYoYList(){
+  const box=$('yoyImpList'); if(!box) return;
+  const loaded=yoyMonths(), built=Object.keys(YOY_BASE).filter(k=>!loaded.includes(k));
+  const row=(pk,kind)=>{
+    const t=yoyTot(nextYearMK(pk));
+    const days=Object.keys((kind==='imported'?yoyLoaded(pk):YOY_BASE[pk])||{}).length;
+    return `<div class="lb-row"><div class="lb-rank" title="${kind}">${kind==='imported'?'&#9679;':'&#9675;'}</div>
+      <div><div class="lb-top"><span class="lb-name">${monthName(pk,true)}</span>
+        <span class="lb-fig">${days} day${days===1?'':'s'} &middot; <b>${tMoney(t.rev)}</b> &middot; ${tPct(t.sold,t.appts)} close
+        ${kind==='imported'?`<button class="btn ghost small" style="margin-left:8px;padding:2px 8px" onclick="clearYoY('${pk}')">Remove</button>`:''}</span></div>
+        <div class="hint">${kind==='imported'?'Imported here':'Built into the file'} &mdash; compares against ${monthName(nextYearMK(pk),true)}.</div>
+      </div></div>`;
+  };
+  box.innerHTML=(loaded.map(pk=>row(pk,'imported')).join('')+built.map(pk=>row(pk,'built in')).join(''))
+    || `<p class="hint">Nothing loaded yet.</p>`;
+}
+
 /* Names come off the reports as "Jeremy Murray" or "Murray, Jeremy" while the hub
    knows "Jeremy M." — match on the first name plus the initial. */
 function matchRep(name){
@@ -4566,7 +5005,7 @@ function renderRecap(){
   if(!R.logged && !R.all.length){
     box.style.display=''; box.className='t-alert warn';
     box.innerHTML='Nothing for this day yet &mdash; it isn’t in the daily log and no debriefs were logged against it. '
-      +'<a href="#" onclick="showView(\'daily\');return false">Open the Daily Log</a> to enter it.';
+      +'<a href="#" onclick="showView(\'daily\');return false">Open the Log</a> to enter it.';
     $('rcContent').innerHTML=''; return;
   }
   box.style.display='none';
