@@ -199,6 +199,14 @@
 
   .dpill.dup{background:var(--terracotta);color:#fff}
   .hist-item.dupe{box-shadow:inset 3px 0 0 var(--terracotta)}
+  .pb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:12px;margin:14px 0 4px}
+  .pb-card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--line);
+    border-left:5px solid var(--sage);border-radius:9px;padding:13px 15px;transition:box-shadow .18s,transform .18s}
+  .pb-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+  .pb-card.lead-card{border-left-color:var(--terracotta)}
+  .pb-card .pb-k{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
+  .pb-card h3{font-size:1rem;margin:2px 0 5px;color:var(--maroon)}
+  .pb-card p{font-size:.82rem;color:var(--ink);line-height:1.42}
   .pace-mode{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:4px}
   .pace-mode button{border:0;background:#fff;padding:7px 14px;font:inherit;font-size:.82rem;font-weight:600;
     color:var(--muted);cursor:pointer}
@@ -599,6 +607,7 @@
     <button data-v="review" onclick="showView('review')">Team Review</button>
     <button data-v="track" onclick="showView('track')">Track Record</button>
     <button data-v="coach" onclick="showView('coach')">Call Coach</button>
+    <button data-v="pricebook" onclick="showView('pricebook')">Price Book</button>
     <div class="sep"></div>
     <button data-v="pace" onclick="showView('pace')">Setup</button>
     <button data-v="import" onclick="showView('import')">Import</button>
@@ -931,6 +940,11 @@
             <div><label for="ccAsk">They're asking $</label><input type="number" id="ccAsk" oninput="ccMath()"></div>
           </div>
           <div class="cc-calcout" id="ccMathOut">Enter both numbers — I'll show the gap and a counter.</div>
+          <p class="hint" style="margin:6px 0 0">This is arithmetic on the gap, not a margin
+            decision. For the number that clears the floor &mdash; cost, financing, commissions and
+            tomorrow's open capacity &mdash; open
+            <a href="https://lesliehvac-nkmapgul.manus.space/next-day-discount" target="_blank" rel="noopener"><b>Next Day Discount</b></a> in the price
+            book and give back its <b>manager counter-offer</b>.</p>
           <div class="cc-script deep" style="margin-top:12px"><span class="tag">Grant</span>"[Name], you've been doing this a long time and I respect your opinion. If you truly feel it's easier than normal and the company would be okay at that price, go take care of her — <b>and tell her thank you for me.</b>"</div>
           <div class="cc-script deep"><span class="tag">Counter</span>"…what I like most about you is you always want to help the customer. But you've been doing this a long time — <b>if you priced it at $[quote], it's a $[quote] job.</b> I'll work with them and do $[counter]. Go take care of her, and tell her thank you for me."</div>
           <button class="cc-check" data-k="qualified" onclick="ccCyc(this)"><span class="box"></span><span class="lbl"><b>I qualified before deciding</b></span></button>
@@ -970,7 +984,10 @@
           </div>
           <div class="cc-play" id="ccp-whyso"><div class="cc-script deep"><span class="tag">50 / 40 / 10</span>"Half is materials and labor. About 40% is what it takes to be in business — the trucks, the training, the people who answer at 2 AM. The last 10% is what we keep if everything goes perfect. <b>Can you see how our pricing is transparent and fair? Should we go ahead?</b>"</div></div>
           <div class="cc-play" id="ccp-cheaper"><div class="cc-script deep"><span class="tag">Inverted wheel</span>"Every project is Time, People, Company, and System. The System never changes — same equipment. So the only way to cut the price is to shrink the circle. <b>What distinguishing factor lets them charge less for this project?</b>"</div></div>
-          <div class="cc-play" id="ccp-toomuch"><div class="cc-script deep"><span class="tag">Next Availability Install Program</span>"When we have a gap in the install schedule, filling it earns you a discount. <b>What would the number have to be?</b>" <i>(No number → step down $200–300 at a time.)</i></div></div>
+          <div class="cc-play" id="ccp-toomuch"><div class="cc-script deep"><span class="tag">Next Availability Install Program</span>"When we have a gap in the install schedule, filling it earns you a discount. <b>What would the number have to be?</b>" <i>(No number → step down $200–300 at a time.)</i></div>
+            <p class="hint" style="margin:2px 0 0">Once they name a number, check it in
+            <a href="https://lesliehvac-nkmapgul.manus.space/next-day-discount" target="_blank" rel="noopener"><b>Next Day Discount</b></a> before you
+            agree to it &mdash; open slots tomorrow move the floor.</p></div>
           <div class="cc-play" id="ccp-repair"><div class="cc-script deep"><span class="tag">5-year math — go slow, write it down</span>"Over five years: the repairs you'll keep making, plus what the old system overpays in energy, plus the replacement you'll end up buying anyway — against replacing today under full warranty. <b>Can you see how it actually saves you to replace today?</b>"</div></div>
           <div class="cc-play" id="ccp-spouse"><div class="cc-script deep"><span class="tag">Like / dislike → suppose</span>"What did you like about option B? What do you think [spouse] would say? <b>Suppose [spouse] is on board — which option?</b>" <i>Then: call them now → swing back tonight → book the second appointment.</i></div></div>
           <div class="cc-play" id="ccp-moving"><div class="cc-script deep"><span class="tag">Home inspector story</span>"Any system over 10–12 years gets flagged in the inspection, and buyers negotiate ten, twelve thousand off. You're buying the system either way — <b>the only question is whether you get to use it.</b>"</div></div>
@@ -1476,6 +1493,81 @@
   </div>
 </section>
 
+
+<!-- ============ PRICE BOOK ============ -->
+<section class="view" id="view-pricebook">
+  <h2>Price Book</h2>
+  <p class="lead">Pricing does not live in this hub, and it never will. It lives in the
+    <b>Leslie Price Book</b> &mdash; the app that holds the cost catalog, the margin rules and the
+    packages, and that recalculates when any of them change. These are the doors into it.</p>
+
+  <div class="t-alert warn">
+    <b>One price book, not two.</b> Every figure a customer sees comes from that app. If this tab
+    ever shows you a dollar amount, something has gone wrong &mdash; a copied price is a price that
+    was right once.
+  </div>
+
+  <div class="pb-grid">
+    <a class="pb-card lead-card" href="https://lesliehvac-nkmapgul.manus.space/pricebook" target="_blank" rel="noopener">
+      <div class="pb-k">In the home</div>
+      <h3>Comfort Menu &rarr;</h3>
+      <p>Pick the menu type &mdash; <b>Full System</b>, <b>Heating Only</b> or <b>Cooling Only</b>
+      &mdash; and the tonnage, and it builds the packages for that job: what each one includes and
+      what comes out as you step down. This is the presentation, not a reference sheet.</p>
+    </a>
+
+    <a class="pb-card" href="https://lesliehvac-nkmapgul.manus.space/next-day-discount" target="_blank" rel="noopener">
+      <div class="pb-k">Before you discount</div>
+      <h3>Next Day Discount &rarr;</h3>
+      <p>Model a proposed price against direct job cost, financing, commissions and tomorrow's open
+      capacity. It returns net job profit, whether you're inside the floor, and the
+      <b>manager counter-offer</b> &mdash; the lowest number that still clears today's floor.</p>
+    </a>
+
+    <a class="pb-card" href="https://lesliehvac-nkmapgul.manus.space/estimates/new" target="_blank" rel="noopener">
+      <div class="pb-k">Write it up</div>
+      <h3>New Estimate &rarr;</h3>
+      <p>Build the estimate off the package you presented. Signed estimates are what the price book
+      counts; the daily log in this hub is still what the numbers here read.</p>
+    </a>
+
+    <a class="pb-card" href="https://lesliehvac-nkmapgul.manus.space/intakes" target="_blank" rel="noopener">
+      <div class="pb-k">Before the visit</div>
+      <h3>Customer Intakes &rarr;</h3>
+      <p>The survey and the job details that the Comfort Menu builds from. Worth opening on the way
+      to the appointment, not in the driveway.</p>
+    </a>
+
+    <a class="pb-card" href="https://lesliehvac-nkmapgul.manus.space/presentation" target="_blank" rel="noopener">
+      <div class="pb-k">At the table</div>
+      <h3>Leslie Presentation &rarr;</h3>
+      <p>The company story that runs before the menu.</p>
+    </a>
+
+    <a class="pb-card" href="https://lesliehvac-nkmapgul.manus.space/" target="_blank" rel="noopener">
+      <div class="pb-k">Everything else</div>
+      <h3>Price Book home &rarr;</h3>
+      <p>Job workflow, warehouse orders, cost catalog, and &mdash; if you have the access &mdash;
+      pricing admin.</p>
+    </a>
+  </div>
+
+  <h3 style="font-size:.95rem;margin:20px 0 6px">Which tool, when</h3>
+  <div class="tbl-wrap" style="margin-bottom:18px"><table>
+    <thead><tr><th>Moment</th><th>Where you go</th></tr></thead>
+    <tbody>
+      <tr><td>Presenting options to a customer</td><td><b>Comfort Menu</b> &mdash; menu type + tonnage. Never a printed sheet.</td></tr>
+      <tr><td>&ldquo;What if we took some of that out?&rdquo;</td><td><b>Comfort Menu</b> &mdash; step down a package and the inclusions change with the price. Say what comes out, out loud.</td></tr>
+      <tr><td>&ldquo;Can you do better on the price?&rdquo;</td><td><b>Next Day Discount</b> &mdash; before you answer, not after. It tells you what the number costs you.</td></tr>
+      <tr><td>A consultant asks you for a discount on an HA call</td><td><b>Next Day Discount</b> &mdash; the counter-offer figure is the one to give back.</td></tr>
+      <tr><td>Logging what actually happened</td><td><b>This hub</b> &mdash; Debrief, and the daily log.</td></tr>
+    </tbody></table></div>
+
+  <p class="hint">Prices, packages and the discount floors are maintained in the price book by
+  whoever holds Pricing Admin there. Nothing on this tab caches, stores or copies any of it &mdash;
+  these are links, so what you open is whatever is true right now.</p>
+</section>
+
 <!-- ============ GUIDE ============ -->
 <section class="view" id="view-guide">
   <h2>How this hub works</h2>
@@ -1890,6 +1982,17 @@
       <span class="gl">Read it honestly</span>
       <p>The projection multiplies appointments-per-logged-day by the days remaining. Early in a month two logged days is a thin base and the numbers swing hard; it settles by the second week. Assumptions save per month, so setting September's target doesn't disturb August's history.</p>
     </div>
+  </div>
+
+  <div class="g-sec" id="g-pricebook">
+    <h3>Price Book <span class="g-who">Everyone</span></h3>
+    <div class="g-slug">Links out &middot; nothing priced is stored here</div>
+    <p class="g-lede">Six doors into the Leslie Price Book app, and a short table of which tool belongs to which moment in the call.</p>
+    <div class="g-note">
+      <span class="gl">Why it is links and not a copy</span>
+      <p>The price book recalculates from a cost catalog and margin rules that change. A copy of it inside this hub would be right on the day it was pasted and quietly wrong afterwards &mdash; and the person who finds out is a consultant at a kitchen table. So this tab holds no prices, no packages and no cost figures. It opens the live app instead.</p>
+    </div>
+    <p><b>Next Day Discount</b> is the one worth knowing about. It takes the job type, tonnage, package, lead type, payment method and how many install slots are open tomorrow, and returns the net profit on a proposed price, whether it clears the floor, and the lowest counter that still does. Call Coach links to it from both places a discount comes up &mdash; the High Authority quote box and the &ldquo;costs too much&rdquo; play.</p>
   </div>
 
   <!-- ---------- yoy ---------- -->
@@ -4744,6 +4847,7 @@ function renderNumbers(){
 /* =================== built-in guide =================== */
 const GUIDE_ANCHOR={mytb:'g-mytb',debrief:'g-debrief',review:'g-review',track:'g-track',
   coach:'g-coach',overview:'g-scoreboard',daily:'g-daily',recap:'g-daily',team:'g-team',forecast:'g-forecast',
+  pricebook:'g-pricebook',
   yoy:'g-yoy',pace:'g-pace',import:'g-import',guide:'g-rhythm'};
 let guideRole=localStorage.getItem('leslie_tb_guiderole')||null;
 function guideRoleEff(){ return managerOn ? (guideRole||'m') : 'c'; }
