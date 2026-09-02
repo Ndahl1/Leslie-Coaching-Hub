@@ -835,10 +835,17 @@
   </div>
 
   <div class="card daycard" id="dayCard" style="display:none">
-    <div class="eyebrow">End of day &mdash; Nels only</div>
+    <div class="eyebrow">End of day &mdash; managers only</div>
+    <div class="bar" style="margin:8px 0 6px">
+      <div style="min-width:auto"><label for="dayDate" style="display:none">Day</label>
+        <input type="date" id="dayDate" onchange="renderDayCard()"></div>
+      <div style="min-width:auto"><button class="btn ghost small" onclick="$('dayDate').value=localISO();renderDayCard()">Today</button></div>
+      <div style="min-width:auto"><button class="btn ghost small" onclick="showView('recap')">Open Yesterday &rarr;</button></div>
+    </div>
     <div class="statline" id="dayStats"></div>
-    <p class="hint" id="dayHint" style="margin:6px 0 12px"></p>
-    <button class="btn small" onclick="showView('recap')">Open Yesterday &rarr;</button>
+    <p class="hint" id="dayHint" style="margin:6px 0 10px"></p>
+    <div id="dayMissed"></div>
+    <div id="dayTable"></div>
   </div>
 </section>
 
@@ -1184,7 +1191,7 @@
     <thead><tr><th>Week &amp; close rate</th><th class="num">TGL Appts</th><th class="num">TGL Sold</th><th class="num">Mkt Appts</th><th class="num">Mkt Sold</th><th class="num">Revenue</th></tr></thead>
     <tbody></tbody></table></div>
   <h3 style="font-size:.95rem;margin-bottom:4px">Weekly close rate by consultant</h3>
-  <p class="hint" style="margin-bottom:10px">TGL and Marketed combined. Hover a week for the split. <b style="color:var(--sage-deep)">&ge;50%</b> &middot; <b style="color:var(--terracotta)">35&ndash;49%</b> &middot; <b style="color:var(--red)">&lt;35%</b></p>
+  <p class="hint" style="margin-bottom:10px">TGL and Marketed combined. Hover a week for the split. <span id="ovRateLegend"></span></p>
   <div id="ovRepWeekly"></div>
   </div>
 </section>
@@ -1771,8 +1778,8 @@
     </div>
     <h4>The Wednesday checkpoint</h4>
     <p>At the bottom of the same tab: <span class="g-tab">Text Nels my checkpoint</span>. It builds the message from what you already logged &mdash; focus count, restate-to-nod, calls, sold, HA/ZT coverage &mdash; and hands it to your phone. You don't type a checkpoint; you press a button.</p>
-    <h4 data-g="m">The end-of-day team rollup <span class="g-who mgr">Nels only</span></h4>
-    <p data-g="m">A card at the bottom of the same tab, gated by the end-of-day PIN, covering today only across the whole team: calls, sold and revenue, pending, no-sale, restate-to-nod, HA/ZT coverage with anything still open named, then a short block per consultant with each call's customer words and holdback &mdash; and finally who logged nothing today. That last line is the useful one; a consultant who ran four appointments and logged none is invisible everywhere else.</p>
+    <h4 data-g="m">The end-of-day check <span class="g-who mgr">Managers</span></h4>
+    <p data-g="m">A card at the bottom of the same tab, for any day you pick (it opens on today). It puts the daily log and the debriefs side by side: how many appointments each consultant ran by type &mdash; TGL, marketed, self-gen &mdash; against how many debriefs they entered, with sold / pending / no-sale from the debriefs, a team total row, and one line at the top naming who missed a debrief and how many. A consultant who ran four appointments and logged none is invisible everywhere else; here they are the first row. Until the day is in the daily log it can only count debriefs, so log the day first.</p>
     <div class="g-wiring">
       <div class="gin"><h5>What it reads</h5><ul>
         <li>Your focus behavior and trigger moment, from <span class="g-tab">My Week</span></li>
@@ -2168,7 +2175,12 @@ const LS_SETTINGS='leslie_tb_settings_v1';
 const LS_CACHE='leslie_tb_cache_v1';
 
 /* =================== state =================== */
-let settings = {endpoint:'https://script.google.com/macros/s/AKfycbxOQFarMi-Opsp8he1i2S6Z7xBUg1tE9D48_n7Ih9Tu_DYPyaVkGmUD5NTJMsbm6oc4/exec', teamCode:'LESLIE2026'}; // {endpoint, teamCode}
+/* Defaults, overridden by whatever Setup last saved on this device (LS_SETTINGS was
+   written by saveSetup but never read back, so endpoint edits vanished on reload). */
+let settings = Object.assign(
+  {endpoint:'https://script.google.com/macros/s/AKfycbxOQFarMi-Opsp8he1i2S6Z7xBUg1tE9D48_n7Ih9Tu_DYPyaVkGmUD5NTJMsbm6oc4/exec', teamCode:'LESLIE2026'},
+  (()=>{ try{ return JSON.parse(localStorage.getItem(LS_SETTINGS)||'{}'); }catch(e){ return {}; } })()
+);
 let state = JSON.parse(localStorage.getItem(LS_CACHE)||'null') || {config:structuredClone(DEFAULT_CONFIG), pace:{}, entries:[]};
 if(!state.config) state.config = structuredClone(DEFAULT_CONFIG);
 if(!state.config.targets) state.config.targets = structuredClone(DEFAULT_CONFIG.targets);
@@ -2218,12 +2230,21 @@ function mondayOf(dstr){
   return d.toISOString().slice(0,10);
 }
 function monthKey(dstr){return dstr.slice(0,7);}
+/* Local calendar date (YYYY-MM-DD). new Date().toISOString() is UTC, which in Central
+   time rolls to tomorrow at 7 pm — every "today" in the hub goes through here instead. */
+function localISO(d){ d=d||new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 function flagFor(key,val,periods){
   const base=state.config.targets[key];
   const meta=KPIS.find(x=>x.key===key);
   /* Counting KPIs (appointments) have a per-month target, so a year-to-date
      total has to be judged against target x months elapsed, not the raw target. */
-  const t=(meta&&meta.cum&&periods)?base*periods:base;
+  let t=(meta&&meta.cum&&periods)?base*periods:base;
+  /* Month-to-date counts are judged against the target prorated by working days
+     elapsed — otherwise every consultant is "sub-standard" on appointments until
+     the last week of the month, and the opportunity picker sorts that to the top. */
+  if(meta&&meta.cum&&!periods&&t!=null){
+    try{ const mp=monthProgress(ctxMK()); if(mp.wd) t=t*Math.min(1,mp.elapsed/mp.wd); }catch(e){}
+  }
   if(val==null||val===''||isNaN(val)||t==null) return {cls:'',txt:'No data'};
   val=Number(val);
   if(val>=t) return {cls:'ok',txt:'On pace'};
@@ -2557,8 +2578,8 @@ function renderPrior(){
   const card=$('priorCard');
   if(prior && prior.plan && prior.plan.behavior){
     card.style.display='';
-    $('priorPlanBox').innerHTML=`<b>Last week you committed to:</b> ${prior.plan.behavior}<br>
-      <b>Measure:</b> ${prior.plan.measure||'—'} &nbsp;&middot;&nbsp; <b>Checkpoint:</b> ${prior.plan.checkpoint||'—'}`;
+    $('priorPlanBox').innerHTML=`<b>Last week you committed to:</b> ${dbEsc(prior.plan.behavior)}<br>
+      <b>Measure:</b> ${dbEsc(prior.plan.measure||'—')} &nbsp;&middot;&nbsp; <b>Checkpoint:</b> ${dbEsc(prior.plan.checkpoint||'—')}`;
   } else { card.style.display='none'; priorResult=null; }
 }
 function setPrior(r){
@@ -2601,8 +2622,8 @@ function renderMgrReview(e){
   if(!e || (!e.managerNotes && !e.skillPractice)){ card.style.display='none'; return; }
   card.style.display='';
   $('mgrReviewBody').innerHTML=
-    (e.managerNotes?`<div class="eyebrow">Manager notes</div><p style="white-space:pre-wrap">${e.managerNotes}</p>`:'')+
-    (e.skillPractice?`<div class="eyebrow" style="margin-top:8px">Skill practice — what we ran live</div><p style="white-space:pre-wrap">${e.skillPractice}</p>`:'')+
+    (e.managerNotes?`<div class="eyebrow">Manager notes</div><p style="white-space:pre-wrap">${dbEsc(e.managerNotes)}</p>`:'')+
+    (e.skillPractice?`<div class="eyebrow" style="margin-top:8px">Skill practice — what we ran live</div><p style="white-space:pre-wrap">${dbEsc(e.skillPractice)}</p>`:'')+
     (e.ack
       ?`<div class="needs-flag" style="margin-top:10px">&#10004; Reviewed &amp; agreed — ${new Date(e.ack.ts).toLocaleDateString()}</div>`
       :`<button class="btn small" style="margin-top:10px" onclick="ackEntry()">I've reviewed this and we're agreed</button>`);
@@ -2715,24 +2736,24 @@ function renderReview(){
     const prChip = pr?`<span class="result-chip ${pr}">${pr==='worked'?'Worked':pr==='partial'?'Partial':"Didn't work"}</span>`:'';
     const mgrBlock = canFull()
       ? `<div class="rev-sec"><div class="eyebrow">Manager notes</div>
-          <textarea data-mn="${e.id}" style="min-height:56px">${e.managerNotes||''}</textarea>
+          <textarea data-mn="${e.id}" style="min-height:56px">${dbEsc(e.managerNotes||'')}</textarea>
           <div class="eyebrow" style="margin-top:8px">Skill practice — what we ran live + how it landed</div>
-          <textarea data-sp="${e.id}" style="min-height:44px" placeholder="e.g., Ran the restate-to-nod twice; second rep landed — pacing still rushed.">${e.skillPractice||''}</textarea>
+          <textarea data-sp="${e.id}" style="min-height:44px" placeholder="e.g., Ran the restate-to-nod twice; second rep landed — pacing still rushed.">${dbEsc(e.skillPractice||'')}</textarea>
           <button class="btn ghost small" style="margin-top:6px" onclick="saveMgrNote('${e.id}')">Save manager fields</button></div>`
-      : ((e.managerNotes||e.skillPractice)?`<div class="rev-sec">${e.managerNotes?`<div class="eyebrow">Manager notes</div><p>${e.managerNotes}</p>`:''}${e.skillPractice?`<div class="eyebrow">Skill practice</div><p>${e.skillPractice}</p>`:''}</div>`:'');
+      : ((e.managerNotes||e.skillPractice)?`<div class="rev-sec">${e.managerNotes?`<div class="eyebrow">Manager notes</div><p>${dbEsc(e.managerNotes)}</p>`:''}${e.skillPractice?`<div class="eyebrow">Skill practice</div><p>${dbEsc(e.skillPractice)}</p>`:''}</div>`:'');
     grid.innerHTML+=`<div class="rev-card">
       <h4>${rep}</h4><div class="wk">Week of ${e.week} ${e.ack?'<span class="result-chip worked" title="Consultant reviewed the manager fields and agreed">Agreed &#10004;</span>':''}</div>
       <div class="mini-kpis">${kchips}</div>
       <div class="eyebrow">Sales system self-check</div>
       <div class="step-meter">${segs}</div>
-      ${pr?`<div class="rev-sec"><div class="eyebrow">Last week's action</div>${prChip} <span style="font-size:.85rem">${e.prior?.note||''}</span></div>`:''}
-      <div class="rev-sec"><div class="eyebrow">Wins</div><p>${e.wins||'—'}</p></div>
+      ${pr?`<div class="rev-sec"><div class="eyebrow">Last week's action</div>${prChip} <span style="font-size:.85rem">${dbEsc(e.prior?.note||'')}</span></div>`:''}
+      <div class="rev-sec"><div class="eyebrow">Wins</div><p>${dbEsc(e.wins||'—')}</p></div>
       ${(e.debriefs&&e.debriefs.length)||((e.coachCalls||[]).length)?(()=>{const D=e.debriefs||[];const fc=D.filter(c=>c.focus!==null&&c.focus!==undefined);const hits=fc.filter(c=>c.focus).length;const sold=D.filter(c=>c.outcome==='sold');const uns=D.filter(c=>c.outcome!=='sold');const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;const nods=D.filter(c=>c.nod).length;const CC=(e.coachCalls||[]);const ccSold=CC.filter(c=>c.outcome==='sold').length;return `<div class="rev-sec"><div class="eyebrow">From the field (post-call debriefs)</div><p style="font-size:.88rem">${D.length?`<b>${D.length}</b> calls · <b>${sold.length}</b> sold${fc.length?` · Focus <b>${hits}/${fc.length}</b>`:''} · Nod <b>${nods}/${D.length}</b> · HA/ZT <b>${cov}/${uns.length}</b>`:''}${CC.length?`${D.length?'<br>':''}Coached HA/ZT calls: <b>${CC.length}</b>${ccSold?` · <b>${ccSold}</b> saved on the phone`:''}`:''}</p></div>`;})():''}
-      ${e.growth?`<div class="rev-sec"><div class="eyebrow">Growth</div><p>${e.growth}</p></div>`:''}
-      <div class="rev-sec"><div class="eyebrow">Opportunity — ${(KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'—'} · ${e.opp?.step||''}</div><p>${e.opp?.text||'—'}</p></div>
+      ${e.growth?`<div class="rev-sec"><div class="eyebrow">Growth</div><p>${dbEsc(e.growth)}</p></div>`:''}
+      <div class="rev-sec"><div class="eyebrow">Opportunity — ${(KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'—'} · ${dbEsc(e.opp?.step||'')}</div><p>${dbEsc(e.opp?.text||'—')}</p></div>
       <div class="rev-sec"><div class="eyebrow">This week's plan</div>
-        <p><b>Behavior:</b> ${e.plan?.behavior||'—'}\n<b>When:</b> ${e.plan?.when||'—'}\n<b>Measure:</b> ${e.plan?.measure||'—'}\n<b>Checkpoint:</b> ${e.plan?.checkpoint||'—'}</p></div>
-      ${e.needs?`<div class="needs-flag"><div class="eyebrow">Needs from Nels</div><p style="font-size:.88rem">${e.needs}</p></div>`:''}
+        <p><b>Behavior:</b> ${dbEsc(e.plan?.behavior||'—')}\n<b>When:</b> ${dbEsc(e.plan?.when||'—')}\n<b>Measure:</b> ${dbEsc(e.plan?.measure||'—')}\n<b>Checkpoint:</b> ${dbEsc(e.plan?.checkpoint||'—')}</p></div>
+      ${e.needs?`<div class="needs-flag"><div class="eyebrow">Needs from Nels</div><p style="font-size:.88rem">${dbEsc(e.needs)}</p></div>`:''}
       ${mgrBlock}
     </div>`;
   });
@@ -2886,10 +2907,10 @@ function renderTrack(){
           <td class="first"><b>Week of ${e.week}</b>${e.ack?' <span class="result-chip worked">Agreed</span>':''}
             <span class="commit meta">Lowest step: ${low}</span></td>
           <td colspan="${KPIS.length}">
-            <span class="commit"><b>${oppLabel}</b>${e.opp&&e.opp.text?' \u2014 '+e.opp.text:''}</span>
-            <span class="commit">Committed: ${e.plan&&e.plan.behavior?e.plan.behavior:'<span class="hint">no plan recorded</span>'}</span>
-            ${c&&c.note?`<span class="commit meta">Outcome note: ${c.note}</span>`:''}
-            ${e.managerNotes?`<span class="commit meta">Manager: ${e.managerNotes}</span>`:''}
+            <span class="commit"><b>${oppLabel}</b>${e.opp&&e.opp.text?' \u2014 '+dbEsc(e.opp.text):''}</span>
+            <span class="commit">Committed: ${e.plan&&e.plan.behavior?dbEsc(e.plan.behavior):'<span class="hint">no plan recorded</span>'}</span>
+            ${c&&c.note?`<span class="commit meta">Outcome note: ${dbEsc(c.note)}</span>`:''}
+            ${e.managerNotes?`<span class="commit meta">Manager: ${dbEsc(e.managerNotes)}</span>`:''}
           </td>
           <td>${c?resultChip(c.result):'<span class="hint">&mdash;</span>'}</td>
           <td>${c?movedCell(c.move,c.oppKpi):'<span class="hint">&mdash;</span>'}</td>
@@ -2902,6 +2923,9 @@ function renderTrack(){
     'The last column shows what the named KPI actually did over the four weeks after the commitment \u2014 '+
     'a plan that keeps working while the number keeps falling is aimed at the wrong thing.';
 }
+/* One CSV cell: quoted, quotes doubled, and a leading = + - @ neutralised so a note typed
+   as "=1+1" does not become a formula when the file opens in Excel. */
+function csvCell(c){ let v=String(c==null?'':c); if(/^[=+\-@\t\r]/.test(v)) v="'"+v; return '"'+v.replace(/"/g,'""')+'"'; }
 function exportCSV(){
   const rep=$('trRep').value;
   if(!repAuthed(rep)){ toast('Enter '+rep+'\u2019s PIN first'); return; }
@@ -2911,8 +2935,8 @@ function exportCSV(){
   const lines=[head.join(',')];
   rows.forEach(e=>{
     const cells=[e.week,e.rep,...KPIS.map(k=>e.kpis?.[k.key]??''),...STEPS.map(s=>e.steps?.[s]??''),
-      (KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'',e.opp?.text||'',e.plan?.behavior||'',e.plan?.when||'',e.plan?.measure||'',e.plan?.checkpoint||'',e.needs||'',e.prior?.result||'',e.prior?.note||'',e.managerNotes||'',e.growth||'',e.skillPractice||'',e.ack?new Date(e.ack.ts).toISOString().slice(0,10):'',(e.coachCalls||[]).length];
-    lines.push(cells.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(','));
+      (KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'',e.opp?.text||'',e.plan?.behavior||'',e.plan?.when||'',e.plan?.measure||'',e.plan?.checkpoint||'',e.needs||'',e.prior?.result||'',e.prior?.note||'',e.managerNotes||'',e.growth||'',e.skillPractice||'',e.ack?localISO(new Date(e.ack.ts)):'',(e.coachCalls||[]).length];
+    lines.push(cells.map(csvCell).join(','));
   });
   const blob=new Blob([lines.join('\n')],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=rep.replace(/\W+/g,'_')+'_touchbase_track_record.csv';a.click();
@@ -2932,6 +2956,7 @@ function renderCoach(){
   const cur=$('ccRep').value; $('ccRep').innerHTML=opts; if(cur&&state.config.reps.includes(cur))$('ccRep').value=cur;
   ccRenderQueue();
 }
+let ccQueueItems=[];
 function ccRenderQueue(){
   const wk=thisWeek(), pw=prevWeek(wk);
   const items=[];
@@ -2941,11 +2966,15 @@ function ccRenderQueue(){
     });
   });
   if(!items.length){ $('ccQueue').innerHTML='<div class="empty" style="padding:14px">Nothing waiting — every unsold call has an HA/ZT made. That\u2019s the standard.</div>'; return; }
-  $('ccQueue').innerHTML=items.sort((a,b)=>b.c.ts-a.c.ts).map((it,i)=>
+  items.sort((a,b)=>b.c.ts-a.c.ts);
+  /* Kept in memory and referenced by index — embedding JSON in an onclick attribute broke on
+     any customer name with an apostrophe and was an injection point. */
+  ccQueueItems=items.map(it=>({rep:it.rep,week:it.week,idx:it.idx,customer:it.c.customer||'',holdback:it.c.holdback||''}));
+  $('ccQueue').innerHTML=items.map((it,i)=>
     `<div class="cc-queue-row">
-      <span><b>${it.c.customer||'(no name)'}</b> · ${it.rep} <span class="dpill ${it.c.outcome==='pending'?'pending':'nosale'}">${it.c.outcome==='pending'?'PENDING':'NO SALE'}</span> <span class="dpill" style="background:${it.c.hazt==='sched'?'var(--tan)':'var(--terracotta)'};color:${it.c.hazt==='sched'?'var(--ink)':'#fff'}">${it.c.hazt==='sched'?('SCHEDULED'+(it.c.haztWho?(' · '+it.c.haztWho):'')):'NOT YET'}</span>
-      ${it.c.holdback?`<div class="q-words">\u201C${it.c.holdback}\u201D</div>`:''}</span>
-      <button class="btn ghost small" onclick='ccFromQueue(${JSON.stringify(JSON.stringify({rep:it.rep,week:it.week,idx:it.idx,customer:it.c.customer||"",holdback:it.c.holdback||""}))})'>Start this call</button>
+      <span><b>${dbEsc(it.c.customer||'(no name)')}</b> · ${dbEsc(it.rep)} <span class="dpill ${it.c.outcome==='pending'?'pending':'nosale'}">${it.c.outcome==='pending'?'PENDING':'NO SALE'}</span> <span class="dpill" style="background:${it.c.hazt==='sched'?'var(--tan)':'var(--terracotta)'};color:${it.c.hazt==='sched'?'var(--ink)':'#fff'}">${it.c.hazt==='sched'?('SCHEDULED'+(it.c.haztWho?(' · '+dbEsc(it.c.haztWho)):'')):'NOT YET'}</span>
+      ${it.c.holdback?`<div class="q-words">\u201C${dbEsc(it.c.holdback)}\u201D</div>`:''}</span>
+      <button class="btn ghost small" onclick="ccFromQueue(ccQueueItems[${i}])">Start this call</button>
     </div>`).join('');
 }
 function ccFromQueue(payload){
@@ -3086,7 +3115,7 @@ let paceMode = localStorage.getItem('leslie_tb_pacemode') || 'raw';
 function setPaceMode(m){ paceMode=m; localStorage.setItem('leslie_tb_pacemode',m); renderPaceGrid(); }
 
 function renderPaceGrid(){
-  const mk=monthKey($('paceMonth').value||new Date().toISOString().slice(0,10));
+  const mk=monthKey($('paceMonth').value||localISO());
   $('pmRaw').classList.toggle('on',paceMode==='raw');
   $('pmRate').classList.toggle('on',paceMode==='rates');
   $('paceModeHint').innerHTML = paceMode==='raw'
@@ -3336,12 +3365,12 @@ function applyImport(){
     });
     paceRowCalcFor(r.match); n++;
   });
-  const mk=monthKey($('paceMonth').value||new Date().toISOString().slice(0,10));
+  const mk=monthKey($('paceMonth').value||localISO());
   toast(n+' consultant'+(n===1?'':'s')+' filled in for '+mk+' \u2014 review, then Save pace data');
   $('paceTable').scrollIntoView({behavior:'smooth',block:'center'});
 }
 async function savePace(){
-  const mk=monthKey($('paceMonth').value||new Date().toISOString().slice(0,10));
+  const mk=monthKey($('paceMonth').value||localISO());
   if(!state.pace[mk]) state.pace[mk]={};
   document.querySelectorAll('input[data-pace]').forEach(inp=>{
     const [rep,key]=inp.dataset.pace.split('|');
@@ -3435,7 +3464,7 @@ const LS_CTXM='leslie_tb_ctxmonth';
 /* ---- month context ---- */
 function ctxMK(){
   const el=$('ctxMonth');
-  return (el&&el.value)||localStorage.getItem(LS_CTXM)||new Date().toISOString().slice(0,7);
+  return (el&&el.value)||localStorage.getItem(LS_CTXM)||localISO().slice(0,7);
 }
 function setCtxMonth(v){
   localStorage.setItem(LS_CTXM,v);
@@ -3470,7 +3499,7 @@ const ALL_FIELDS=RAW_FIELDS.concat(SG_FIELDS);
    denominator lost the day too, so the team looked on pace. Elapsed is now
    driven by the calendar — every weekday up to today counts whether or not
    anyone logged it — plus any weekend day that was actually worked. */
-function todayISO(){return new Date().toISOString().slice(0,10);}
+function todayISO(){return localISO();}
 function throughDay(mk){
   const now=todayISO(), cur=now.slice(0,7);
   if(mk>cur) return 0;
@@ -3711,7 +3740,18 @@ function viewGate(prefix){
 /* ---- small formatters (kept separate from the hub's fmt) ---- */
 function tMoney(n){return '$'+Math.round(n||0).toLocaleString();}
 function tPct(a,b){return b?Math.round(100*a/b)+'%':'\u2014';}
-function rateCls(p){return p==null?'':p>=50?'ok':p>=35?'watch':'sub';}
+/* Close-rate colour, measured against the month's planned blended close rate (the same
+   85% "watch" band flagFor uses) instead of a hardcoded 50/35 that ignored the plan. */
+function rateCls(p,mk){
+  if(p==null) return '';
+  let t=50; try{ t=closePlan(mk||ctxMK()).tot||t; }catch(e){}
+  return p>=t?'ok':p>=t*0.85?'watch':'sub';
+}
+function rateLegend(mk){
+  let t=50; try{ t=closePlan(mk||ctxMK()).tot||t; }catch(e){}
+  const w=Math.round(t*0.85);
+  return `<b style="color:var(--sage-deep)">&ge;${Math.round(t)}%</b> (plan) &middot; <b style="color:var(--terracotta)">${w}&ndash;${Math.round(t)-1}%</b> &middot; <b style="color:var(--red)">&lt;${w}%</b>`;
+}
 function statCard(label,value,sub,cls){
   return `<div class="kpi ${cls||''}"><div class="k-label">${label}</div><div class="k-val">${value}</div><div class="k-tgt">${sub||''}</div></div>`;
 }
@@ -4201,6 +4241,7 @@ function renderOverview(){
       <div class="d">${has?sold+'/'+appts:'no appts'}</div></div>`;
   };
   const wl=w=>`Wk ${w.week} \u00b7 ${w.days[0]}\u2013${w.days[w.days.length-1]}`;
+  if($('ovRateLegend')) $('ovRateLegend').innerHTML=rateLegend();
   $('ovRepWeekly').innerHTML=reps.map(rep=>{
     const rw=weekTot(mk,rep), r=repTot(mk,rep);
     return `<div class="t-wk"><div class="who">${rep}</div>
@@ -4215,7 +4256,7 @@ function ord(n){const s=['th','st','nd','rd'],v=n%100;return s[(v-20)%10]||s[v]|
 
 /* =================== DAILY LOG =================== */
 function dlToday(){
-  const mk=ctxMK(), now=new Date().toISOString().slice(0,10);
+  const mk=ctxMK(), now=localISO();
   return monthKey(now)===mk?Number(now.slice(8,10)):1;
 }
 function renderDailyLog(){
@@ -4662,7 +4703,7 @@ function tMsg(el,type,text){
 function renderImportView(){
   $('impLocked').style.display=canFull()?'none':''; lockNote($('impLocked'),'Importing');
   $('impBody').style.display=canFull()?'':'none';
-  const today=new Date().toISOString().slice(0,10);
+  const today=localISO();
   if(!$('impDate').value) $('impDate').value=today;
   if(!$('stDate').value) $('stDate').value=today;
   /* default the baseline picker to the month the rest of the hub is showing,
@@ -4715,6 +4756,8 @@ function yoyParseDay(s,n){
   if(m) return +m[1];
   m=t.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);         /* 9/7/2025 */
   if(m) return +m[2];
+  m=t.match(/^\d{4}-\d{2}-(\d{2})/);                             /* 2025-09-07 (was parsed as UTC → off by a day) */
+  if(m) return +m[1];
   const d=new Date(t);
   if(!isNaN(d)) return d.getDate();
   return null;
@@ -4837,7 +4880,8 @@ function dl(name,text,type){
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();
 }
 function expJSON(){
-  dl('leslie_hub_backup_'+new Date().toISOString().slice(0,10)+'.json',
+  if(!canFull()){ toast('The full backup is manager-only'); return; }
+  dl('leslie_hub_backup_'+localISO()+'.json',
      JSON.stringify(state,null,2),'application/json');
   toast('Backup downloaded');
 }
@@ -4851,7 +4895,7 @@ function expDailyCSV(){
       rows.push([`${mk}-${String(d).padStart(2,'0')}`,rep].concat(ALL_FIELDS.map(f=>r[f.key]||0)));
     }
   }
-  dl(`leslie_daily_${mk}.csv`,rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n'),'text/csv');
+  dl(`leslie_daily_${mk}.csv`,rows.map(r=>r.map(csvCell).join(',')).join('\n'),'text/csv');
   toast('Daily log exported');
 }
 async function clearMonthDaily(){
@@ -4873,6 +4917,9 @@ function renderNumbers(){
   const mk=ctxMK();
   if($('ctxMonth')) $('ctxMonth').value=mk;
   renderOverview(); renderDailyLog(); renderTeamPerf(); renderForecast(); renderYoY(); renderImportView();
+  /* the Recap used to render only on tab switch, so a day saved while on it stayed stale */
+  if($('view-recap').classList.contains('active')) renderRecap();
+  if($('view-debrief').classList.contains('active')) renderDayCard();
 }
 
 
@@ -4930,7 +4977,7 @@ function refreshAll(){
 }
 /* =================== post-call debrief =================== */
 let dbPicks={outcome:null,focus:null,nod:null,hazt:null}, dbWho='';
-function thisWeek(){ return mondayOf(new Date().toISOString().slice(0,10)); }
+function thisWeek(){ return mondayOf(localISO()); }
 function dbCalls(rep){ return (entryFor(rep,thisWeek())?.debriefs)||[]; }
 function dbPick(key,val,btn){
   dbPicks[key]=val;
@@ -5181,10 +5228,7 @@ function renderDebriefHistory(){
 }
 
 /* ---------- debriefs vs appointments run ---------- */
-function dbLocalISO(d){
-  const p=n=>String(n).padStart(2,'0');
-  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
-}
+function dbLocalISO(d){ return localISO(d); }
 /* Older debriefs predate the date field — fall back to when they were saved. */
 function dbDayOf(c){ return c.date || dbLocalISO(new Date(c.ts)); }
 function debriefsOn(rep,iso){
@@ -5580,22 +5624,75 @@ function renderDayCard(){
   const card=$('dayCard');
   if(!canFull()){ card.style.display='none'; return; }
   card.style.display='';
-  const team=teamToday();
-  const calls=team.reduce((n,r)=>n+r.calls.length,0);
-  if(!calls){
+  const dd=$('dayDate'); if(dd && !dd.value) dd.value=localISO();
+  const iso=(dd&&dd.value)||localISO();
+  const R=rcData(iso);
+  const label=iso===localISO()?'Today':new Date(iso+'T12:00:00').toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+  const all=R.all, sold=all.filter(c=>c.outcome==='sold').length, pend=all.filter(c=>c.outcome==='pending').length,
+        nos=all.filter(c=>c.outcome==='nosale').length;
+  const logged=R.rows.filter(r=>r.calls.length).length;
+
+  if(!R.logged && !all.length){
     $('dayStats').textContent='';
-    $('dayHint').textContent='Nothing logged today yet — the rollup covers today only, across the whole team.';
-    return;
+    $('dayHint').textContent=label+': nothing in the daily log and no debriefs yet.';
+    $('dayMissed').innerHTML=''; $('dayTable').innerHTML=''; return;
   }
-  const all=team.flatMap(r=>r.calls);
-  const sold=all.filter(c=>c.outcome==='sold');
-  const uns=all.filter(c=>c.outcome!=='sold');
-  const open=uns.filter(c=>!(c.hazt==='made'||c.hazt==='sched'));
-  $('dayStats').innerHTML='<span><b>'+calls+'</b> calls</span>'
-    +'<span><b>'+sold.length+'</b> sold</span>'
-    +'<span><b>'+team.length+'</b> of '+state.config.reps.length+' logged</span>'
-    +(open.length?('<span><b>'+open.length+'</b> unsold with no HA/ZT</span>'):'');
-  $('dayHint').textContent='Today across the team — send it to Gabe & Brendan before you head home.';
+
+  /* headline */
+  let st='';
+  if(R.logged){
+    st+='<span><b>'+R.team.appointments+'</b> run</span>'
+      +'<span><b>'+R.team.tglAppts+'</b> TGL</span><span><b>'+R.team.mktAppts+'</b> marketed</span>'
+      +(R.team.sgAppts?'<span><b>'+R.team.sgAppts+'</b> self-gen</span>':'');
+  }
+  st+='<span><b>'+all.length+'</b> debriefed</span>'
+    +'<span><b>'+sold+'</b> sold · <b>'+pend+'</b> pending · <b>'+nos+'</b> no sale</span>'
+    +'<span><b>'+logged+'</b> of '+state.config.reps.length+' consultants logged</span>'
+    +(R.open.length?'<span><b>'+R.open.length+'</b> unsold with no HA/ZT</span>':'');
+  $('dayStats').innerHTML=st;
+
+  /* who missed */
+  if(!R.logged){
+    $('dayHint').textContent=label+" isn't in the daily log yet, so the debriefs can't be checked against appointments. Log the day and this fills in.";
+    $('dayMissed').innerHTML='';
+  }else{
+    const missed=R.rows.filter(r=>r.cov==='miss'), extra=R.rows.filter(r=>r.cov==='dupe');
+    const owed=missed.reduce((n,r)=>n+r.gap,0);
+    $('dayHint').textContent=label+' across the team, from the daily log and the debriefs. Each consultant should have one debrief per appointment run.';
+    let m='';
+    if(missed.length){
+      m+='<div class="cov-line owe">Missed a debrief: '+missed.map(r=>dbEsc(r.rep)+' ('+r.gap+' of '+r.appts+')').join(', ')
+        +' &mdash; '+owed+' appointment'+(owed===1?'':'s')+' with no debrief.</div>';
+    }else{
+      m+='<div class="cov-line ok">Every appointment run '+(iso===localISO()?'today':'that day')+' has a debrief.</div>';
+    }
+    if(extra.length) m+='<div class="cov-line none">More debriefs than appointments: '+extra.map(r=>dbEsc(r.rep)+' (+'+(-r.gap)+')').join(', ')+' &mdash; check the log or a double-save.</div>';
+    if(R.quiet.length) m+='<p class="hint" style="margin:0 0 8px">Nothing at all from '+R.quiet.map(dbEsc).join(', ')+' &mdash; no appointments in the log and no debriefs.</p>';
+    $('dayMissed').innerHTML=m;
+  }
+
+  /* by consultant */
+  const rows=R.rows.slice().sort((a,b)=>(b.gap||0)-(a.gap||0)||a.rep.localeCompare(b.rep));
+  let h='<div class="tbl-wrap"><table class="cov-tbl"><thead><tr><th>Consultant</th>'
+    +'<th class="num">TGL</th><th class="num">Mkt</th><th class="num">SG</th><th class="num">Run</th>'
+    +'<th class="num">Debriefed</th><th class="num">Sold</th><th class="num">Pend</th><th class="num">No sale</th><th></th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    const c=r.calls, s1=c.filter(x=>x.outcome==='sold').length, p1=c.filter(x=>x.outcome==='pending').length, n1=c.filter(x=>x.outcome==='nosale').length;
+    const flag=r.cov===null?'<span class="hint">not logged</span>'
+      :r.cov==='ok'?'<span class="cov-flag ok">matched</span>'
+      :r.cov==='miss'?'<span class="cov-flag miss">'+r.gap+' missing</span>'
+      :'<span class="cov-flag dupe">'+(-r.gap)+' extra</span>';
+    h+='<tr class="'+(r.cov==='miss'||r.cov==='dupe'?r.cov:'')+'"><td>'+dbEsc(r.rep)+'</td>'
+      +'<td class="num">'+(R.logged?r.t.tglAppts:'—')+'</td><td class="num">'+(R.logged?r.t.mktAppts:'—')+'</td><td class="num">'+(R.logged?r.t.sgAppts:'—')+'</td>'
+      +'<td class="num"><b>'+(R.logged?r.appts:'—')+'</b></td>'
+      +'<td class="num"><b>'+c.length+'</b></td><td class="num">'+s1+'</td><td class="num">'+p1+'</td><td class="num">'+n1+'</td><td>'+flag+'</td></tr>';
+  });
+  h+='<tr style="font-weight:800"><td>Team</td>'
+    +'<td class="num">'+(R.logged?R.team.tglAppts:'—')+'</td><td class="num">'+(R.logged?R.team.mktAppts:'—')+'</td><td class="num">'+(R.logged?R.team.sgAppts:'—')+'</td>'
+    +'<td class="num">'+(R.logged?R.team.appointments:'—')+'</td><td class="num">'+all.length+'</td>'
+    +'<td class="num">'+sold+'</td><td class="num">'+pend+'</td><td class="num">'+nos+'</td><td></td></tr>';
+  h+='</tbody></table></div>';
+  $('dayTable').innerHTML=h;
 }
 function dbDaySend(){
   if(!canFull()){ toast('Manager mode required'); return; }
@@ -5656,7 +5753,7 @@ function dbDaySend(){
 }
 
 (function init(){
-  const today=new Date().toISOString().slice(0,10);
+  const today=localISO();
   const mon=mondayOf(today);
   $('tbWeek').value=mon; $('revWeek').value=mon; $('paceMonth').value=today;
   $('ctxMonth').value=ctxMK();
