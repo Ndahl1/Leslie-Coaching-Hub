@@ -204,6 +204,10 @@
     border-left:5px solid var(--sage);border-radius:9px;padding:13px 15px;transition:box-shadow .18s,transform .18s}
   .pb-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
   .pb-card.lead-card{border-left-color:var(--terracotta)}
+  .pb-card.mgr{border-left-color:var(--red)}
+  .pb-card.locked-card{border-left-color:var(--muted);background:#F7F4EF;cursor:default}
+  .pb-card.locked-card:hover{box-shadow:none;transform:none}
+  .pb-card.locked-card h3{color:var(--muted)}
   .pb-card .pb-k{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--muted)}
   .pb-card h3{font-size:1rem;margin:2px 0 5px;color:var(--maroon)}
   .pb-card p{font-size:.82rem;color:var(--ink);line-height:1.42}
@@ -1516,13 +1520,7 @@
       what comes out as you step down. This is the presentation, not a reference sheet.</p>
     </a>
 
-    <a class="pb-card" href="https://lesliehvac-nkmapgul.manus.space/next-day-discount" target="_blank" rel="noopener">
-      <div class="pb-k">Before you discount</div>
-      <h3>Next Day Discount &rarr;</h3>
-      <p>Model a proposed price against direct job cost, financing, commissions and tomorrow's open
-      capacity. It returns net job profit, whether you're inside the floor, and the
-      <b>manager counter-offer</b> &mdash; the lowest number that still clears today's floor.</p>
-    </a>
+    <div id="pbDiscount"></div>
 
     <a class="pb-card" href="https://lesliehvac-nkmapgul.manus.space/estimates/new" target="_blank" rel="noopener">
       <div class="pb-k">Write it up</div>
@@ -1558,7 +1556,7 @@
     <tbody>
       <tr><td>Presenting options to a customer</td><td><b>Comfort Menu</b> &mdash; menu type + tonnage. Never a printed sheet.</td></tr>
       <tr><td>&ldquo;What if we took some of that out?&rdquo;</td><td><b>Comfort Menu</b> &mdash; step down a package and the inclusions change with the price. Say what comes out, out loud.</td></tr>
-      <tr><td>&ldquo;Can you do better on the price?&rdquo;</td><td><b>Next Day Discount</b> &mdash; before you answer, not after. It tells you what the number costs you.</td></tr>
+      <tr><td>&ldquo;Can you do better on the price?&rdquo;</td><td><b>Consultants:</b> that is an HA or ZT call &mdash; get a manager on the phone before you answer. <b>Managers:</b> Next Day Discount, before you answer, not after.</td></tr>
       <tr><td>A consultant asks you for a discount on an HA call</td><td><b>Next Day Discount</b> &mdash; the counter-offer figure is the one to give back.</td></tr>
       <tr><td>Logging what actually happened</td><td><b>This hub</b> &mdash; Debrief, and the daily log.</td></tr>
     </tbody></table></div>
@@ -1992,7 +1990,12 @@
       <span class="gl">Why it is links and not a copy</span>
       <p>The price book recalculates from a cost catalog and margin rules that change. A copy of it inside this hub would be right on the day it was pasted and quietly wrong afterwards &mdash; and the person who finds out is a consultant at a kitchen table. So this tab holds no prices, no packages and no cost figures. It opens the live app instead.</p>
     </div>
-    <p><b>Next Day Discount</b> is the one worth knowing about. It takes the job type, tonnage, package, lead type, payment method and how many install slots are open tomorrow, and returns the net profit on a proposed price, whether it clears the floor, and the lowest counter that still does. Call Coach links to it from both places a discount comes up &mdash; the High Authority quote box and the &ldquo;costs too much&rdquo; play.</p>
+    <p><b>Next Day Discount is managers only.</b> Consultants see a locked card in its place telling them that a price push is an HA or ZT call &mdash; which is the behaviour we want anyway: the manager runs the number and hands back what the job can take. All three coach-level managers can open it; it does not need full hub access.</p>
+    <div class="g-note calm">
+      <span class="gl">What the lock is and isn't</span>
+      <p>The tool lives at its own address inside the price book app. Hiding the card here hides the door, not the room &mdash; anyone who has the URL can still open it. The lock that actually holds is the <b>Comfort Consultant</b> role in the price book's own Sales &amp; Access Controls. Treat this card as a signpost, and set the role over there.</p>
+    </div>
+    <p><b>What it does.</b> It takes the job type, tonnage, package, lead type, payment method and how many install slots are open tomorrow, and returns the net profit on a proposed price, whether it clears the floor, and the lowest counter that still does. Call Coach links to it from both places a discount comes up &mdash; the High Authority quote box and the &ldquo;costs too much&rdquo; play.</p>
   </div>
 
   <!-- ---------- yoy ---------- -->
@@ -2376,6 +2379,7 @@ function showView(v){
   if(v==='forecast') renderForecast();
   if(v==='yoy') renderYoY();
   if(v==='import') renderImportView();
+  if(v==='pricebook') renderPriceBook();
   if(v==='guide') renderGuide();
 }
 /* ---- who is behind the manager button ---- */
@@ -2460,7 +2464,7 @@ function toggleManager(){
   $('mgrBtn').classList.toggle('on',managerOn);
   $('mgrBtn').textContent=mgrLabel();
   renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach(); renderDebrief(); renderNumbers();
-  renderGuide();
+  renderPriceBook(); renderGuide();
 }
 
 /* =================== my touch base =================== */
@@ -3712,6 +3716,34 @@ function statCard(label,value,sub,cls){
   return `<div class="kpi ${cls||''}"><div class="k-label">${label}</div><div class="k-val">${value}</div><div class="k-tgt">${sub||''}</div></div>`;
 }
 
+/* =================== PRICE BOOK ===================
+   Only the discount modeller is gated. Everything else on this tab is what a
+   consultant presents from, so locking it would be locking them out of their
+   own job. This one shows cost, commission and the floor — manager material.
+   Worth being honest about what this is: the tool lives at its own address in
+   the price book app, so hiding the card hides the door, not the room. The
+   lock that actually holds is the Comfort Consultant role over there. */
+const PB_DISCOUNT_URL='https://lesliehvac-nkmapgul.manus.space/next-day-discount';
+function renderPriceBook(){
+  const box=$('pbDiscount'); if(!box) return;
+  box.innerHTML = managerOn
+    ? `<a class="pb-card mgr" href="${PB_DISCOUNT_URL}" target="_blank" rel="noopener">
+        <div class="pb-k">Before you discount &middot; managers</div>
+        <h3>Next Day Discount &rarr;</h3>
+        <p>Model a proposed price against direct job cost, financing, commissions and tomorrow's
+        open capacity. It returns net job profit, whether you're inside the floor, and the
+        <b>manager counter-offer</b> &mdash; the lowest number that still clears today's floor.</p>
+      </a>`
+    : `<div class="pb-card locked-card">
+        <div class="pb-k">Managers only</div>
+        <h3>&#128274; Next Day Discount</h3>
+        <p>This one models cost, commission and the profit floor behind a price, so it sits with the
+        managers. If a customer is pushing on price, that is the moment for an
+        <b>HA or ZT call</b> &mdash; the manager runs the number and gives you back what the job can
+        take.</p>
+      </div>`;
+}
+
 /* =================== THE BOARD — VISUALS ===================
    One bar shape for everything measured against a plan: the fill is what has
    actually happened, the notch on the track is where the plan says we should
@@ -4893,7 +4925,7 @@ function fillRepSelects(){
   ['tbRep','trRep','dbRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
 }
 function refreshAll(){
-  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); if(canFull()) renderPaceView();
+  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); renderPriceBook(); if(canFull()) renderPaceView();
   renderNumbers();
 }
 /* =================== post-call debrief =================== */
