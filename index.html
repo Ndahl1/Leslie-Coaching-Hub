@@ -607,6 +607,7 @@
     <button data-v="yoy" onclick="showView('yoy')">vs Last Year</button>
     <div class="sep"></div><span class="grp-label">Coaching</span>
     <button class="active" data-v="mytb" onclick="showView('mytb')">My Week</button>
+    <button data-v="myboard" onclick="showView('myboard')">My Board</button>
     <button data-v="debrief" onclick="showView('debrief')">Debrief</button>
     <button data-v="review" onclick="showView('review')">Team Review</button>
     <button data-v="track" onclick="showView('track')">Track Record</button>
@@ -738,6 +739,69 @@
   <button class="btn" onclick="saveEntry()">Save my touch base</button>
   <span class="hint" style="margin-left:10px">Saving again for the same week updates your entry.</span>
   </div><!-- /tbBody -->
+</section>
+
+<!-- ============ MY BOARD ============
+     The Board, cut down to one consultant. Same numbers, same bars, same
+     colours as the manager's Board — but only this consultant's rows, behind
+     this consultant's PIN. The team's figures never render here. -->
+<section class="view" id="view-myboard">
+  <h2>My Board <span id="mbSrc" class="t-src"></span></h2>
+  <p class="t-sub" id="mbSub">Your month to date, straight off the daily log &mdash; the same numbers Nels sees on The Board, just yours.</p>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label for="mbRep">Consultant</label>
+        <select id="mbRep" onchange="renderMyBoard()"></select>
+      </div>
+      <div>
+        <label>Month</label>
+        <div class="hint" style="margin-top:8px">Follows the month picker in the header.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="mbLock" style="display:none">
+    <h3>&#128274; PIN required</h3>
+    <p class="hint" id="mbLockMsg" style="margin-bottom:12px"></p>
+    <button class="btn" onclick="if(unlockRep($('mbRep').value)){renderMyBoard();}">Enter my PIN</button>
+    <div class="hint" style="margin-top:10px">Forgot your PIN? Ask Nels.</div>
+  </div>
+
+  <div id="mbBody" style="display:none">
+    <div class="card" id="mbCommit"></div>
+    <div id="mbHero"></div>
+    <div class="pace-strip" id="mbCards" style="margin-bottom:14px"></div>
+    <div class="pace-strip" id="mbAvgCards" style="margin-bottom:14px"></div>
+
+    <h3 style="font-size:.95rem;margin:22px 0 4px">Coaching scoreboard</h3>
+    <p class="hint" id="mbKpiSub" style="margin-bottom:10px"></p>
+    <div class="pace-strip" id="mbKpis"></div>
+
+    <h3 style="font-size:.95rem;margin:22px 0 4px">Close rate vs plan</h3>
+    <p class="hint" id="mbCloseSub" style="margin-bottom:10px"></p>
+    <div class="b-bars" id="mbCloseBars"></div>
+    <div class="pace-strip" id="mbCloseCards" style="margin-bottom:14px"></div>
+
+    <h3 style="font-size:.95rem;margin:22px 0 8px">Week by week</h3>
+    <div class="b-spark" id="mbSpark"></div>
+
+    <h3 style="font-size:.95rem;margin:22px 0 4px">Leads vs plan</h3>
+    <p class="hint" id="mbLeadSub" style="margin-bottom:10px"></p>
+    <div class="b-bars" id="mbLeadBars"></div>
+    <div class="pace-strip" id="mbLeadCards" style="margin-bottom:14px"></div>
+
+    <div id="mbAlert"></div>
+
+    <h3 style="font-size:.95rem;margin-bottom:8px">Weekly breakdown</h3>
+    <div class="tbl-wrap" style="margin-bottom:18px"><table id="mbWeekly">
+      <thead><tr><th>Week &amp; close rate</th><th class="num">TGL Appts</th><th class="num">TGL Sold</th><th class="num">Mkt Appts</th><th class="num">Mkt Sold</th><th class="num">Revenue</th></tr></thead>
+      <tbody></tbody><tfoot></tfoot></table></div>
+    <h3 style="font-size:.95rem;margin-bottom:4px">Weekly close rate</h3>
+    <p class="hint" style="margin-bottom:10px">TGL and Marketed combined. Hover a week for the split. <span id="mbRateLegend"></span></p>
+    <div id="mbRepWeekly"></div>
+  </div>
 </section>
 
 <!-- ============ TEAM REVIEW ============ -->
@@ -1757,6 +1821,32 @@
     <p>After the one-on-one, Nels writes his notes and what you practiced live onto your entry, and a card appears at the bottom of your touch base with both plus an agree button. Read them, press agree, and a green tick shows on your Monday card. If Nels edits the notes afterwards the tick clears and you'll be asked to read the new version &mdash; so you never end up on record agreeing to something you didn't read.</p>
   </div>
 
+  <!-- ---------- my board ---------- -->
+  <div class="g-sec" id="g-myboard" data-g="b">
+    <h3>My Board <span class="g-who">Consultant</span></h3>
+    <div class="g-slug">Any time &middot; your PIN &middot; follows the month picker in the header</div>
+    <p class="g-lede">The Board, cut down to you. Every figure is the same one Nels sees on his Board &mdash; same daily log, same plan, same colours &mdash; but only your rows, behind your PIN. Nobody else's numbers render here; the one team fact on the page is your rank, which is a position and not anyone's figure.</p>
+    <ol class="g-steps">
+      <li><b>Your commitments, at the top.</b> The focus behavior, measure and checkpoint from your last one-on-one, Nels's notes and what you practiced live, and whether you've agreed. If it's this week's plan, the dots show how many logged calls you ran the behavior on. It stays there all week as a reminder; when the week turns over and you haven't filed a new My Week, it says so.</li>
+      <li><b>The dial.</b> Your revenue against your share of the month's team target, split evenly across the roster &mdash; the same split the manager's Board uses for its progress bars. Green only when you are at least as far along in dollars as the month is in working days.</li>
+      <li><b>Coaching scoreboard.</b> The five tiles from section 1 of My Week, graded against the coaching targets on Setup, with year-to-date underneath.</li>
+      <li><b>Close rate vs plan.</b> Your TGL, marketed and overall close against the month's planned rates. The card under it is what the gap is worth in dollars on the leads you have already run.</li>
+      <li><b>Leads vs plan.</b> Leads are booked for you, so this measures the plan, not you &mdash; but it shows whether you're getting your share, which is worth raising Monday if you're not.</li>
+      <li><b>Week by week.</b> The direction of your close rate, revenue and appointments, then the same by-week table and chips the Board carries.</li>
+    </ol>
+    <div class="g-wiring">
+      <div class="gin"><h5>What it reads</h5><ul>
+        <li>Your rows in <span class="g-tab">The Log</span></li>
+        <li>The month's plan from <span class="g-tab">Setup</span></li>
+        <li>Your latest <span class="g-tab">My Week</span>, and Nels's notes on it</li>
+        <li>This week's <span class="g-tab">Debrief</span> tally for the focus behavior</li>
+      </ul></div>
+      <div><h5>Where it goes</h5><ul>
+        <li>Nowhere &mdash; it's read-only. Numbers change on the Log, commitments change on My Week.</li>
+      </ul></div>
+    </div>
+  </div>
+
   <!-- ---------- debrief ---------- -->
   <div class="g-sec" id="g-debrief" data-g="b">
     <h3>Debrief <span class="g-who">Consultant</span></h3>
@@ -2389,6 +2479,7 @@ function showView(v){
   document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.v===v));
   $('view-'+v).classList.add('active');
   if(v==='debrief') renderDebrief();
+  if(v==='myboard') renderMyBoard();
   if(v==='review') renderReview();
   if(v==='track') renderTrack();
   if(v==='coach') renderCoach();
@@ -2485,7 +2576,7 @@ function toggleManager(){
   $('mgrBtn').classList.toggle('on',managerOn);
   $('mgrBtn').textContent=mgrLabel();
   renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach(); renderDebrief(); renderNumbers();
-  renderPriceBook(); renderGuide();
+  renderPriceBook(); renderGuide(); renderMyBoard();
 }
 
 /* =================== my touch base =================== */
@@ -4254,6 +4345,273 @@ function renderOverview(){
 }
 function ord(n){const s=['th','st','nd','rd'],v=n%100;return s[(v-20)%10]||s[v]||s[0];}
 
+/* =================== MY BOARD ===================
+   The Board for one consultant. Every figure comes from the same functions the
+   manager's Board reads (repTot, weekTot, leadPlan, closePlan, monthProgress),
+   so the two can never disagree. The gate is the consultant's own PIN, the same
+   one My Week and Debrief use; a full manager sees any consultant. Nothing
+   team-wide is rendered here except the consultant's rank, which is a position
+   and not anyone else's number.
+
+   Plan share: the month's revenue target and lead plan are team figures, so a
+   consultant's share is an even split across the roster — the same split the
+   Board's "Monthly progress" column already uses. */
+function repPlanShare(mk){
+  const cfg=monthCfg(mk), p=leadPlan(mk), n=Math.max(1,(state.config.reps||[]).length);
+  const sh={n, target:(cfg.target||0)/n, plan:{}, perDay:{}};
+  ['tgl','mkt','sg','tot','all'].forEach(k=>{ sh.plan[k]=(p[k]||0)/n; sh.perDay[k]=(p.perDay[k]||0)/n; });
+  return sh;
+}
+/* The most recent touch base that actually carries a commitment — an action
+   plan, or notes Nels wrote after the one-on-one — for this consultant, on or
+   before the current week. An empty entry (a debrief-only stub) is skipped. */
+function latestCommitment(rep){
+  const wk=thisWeek();
+  const has=e=>(e.plan&&(e.plan.behavior||e.plan.measure||e.plan.checkpoint))||e.managerNotes||e.skillPractice||e.needs||(e.opp&&e.opp.text);
+  return state.entries.filter(e=>e.rep===rep&&e.week<=wk&&has(e)).sort((a,b)=>a.week<b.week?1:-1)[0]||null;
+}
+function renderMyBoardCommit(rep){
+  const box=$('mbCommit'); if(!box) return;
+  const e=latestCommitment(rep);
+  if(!e){
+    box.innerHTML=`<h3>Your commitments</h3>
+      <p class="hint">Nothing on file yet. Fill in <b>My Week</b> before Monday and your action plan will show here as a reminder all week.</p>`;
+    return;
+  }
+  const wkLab=new Date(e.week+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const cur=e.week===thisWeek();
+  const p=e.plan||{}, o=e.opp||{};
+  const kpiMeta=o.kpi?KPIS.find(k=>k.key===o.kpi):null;
+  /* how the focus behavior is going, from this week's debriefs */
+  let tally='';
+  if(p.behavior){
+    const calls=((cur?e:entryFor(rep,thisWeek()))?.debriefs||[]).filter(c=>c.focus!==null&&c.focus!==undefined);
+    const hits=calls.filter(c=>c.focus).length;
+    tally=`<div style="margin-top:8px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${calls.map(c=>'<span class="tdot '+(c.focus?'hit':'miss')+'"></span>').join('')}
+      <span class="tally-label">${calls.length?hits+' of '+calls.length+' calls this week':'No debriefs logged this week yet'}</span></div>`;
+  }
+  const row=(l,v)=>v?`<div style="margin-bottom:8px"><div class="eyebrow" style="margin-bottom:1px">${l}</div><div>${dbEsc(v)}</div></div>`:'';
+  box.innerHTML=`<h3>Your commitments <span class="hint" style="font-weight:500">&mdash; from your ${cur?'':'last '}one-on-one, week of ${wkLab}${cur?' (this week)':''}</span></h3>
+    ${p.behavior?`<div class="prior-plan" style="margin-bottom:10px"><b>Focus behavior:</b> ${dbEsc(p.behavior)}${tally}</div>`
+                 :`<p class="hint" style="margin-bottom:10px">No focus behavior was written for this week.</p>`}
+    <div class="row">
+      <div>
+        ${row('When in the call',p.when)}
+        ${row('How I’ll know it worked',p.measure)}
+        ${row('Checkpoint with Nels',p.checkpoint)}
+        ${o.kpi||o.text?row('KPI to move',(kpiMeta?kpiMeta.label:o.kpi||'')+(o.step?' · '+o.step:'')):''}
+        ${row('The cause we named',o.text)}
+        ${row('What I asked Nels for',e.needs)}
+      </div>
+      <div>
+        ${e.managerNotes?`<div class="eyebrow">Nels’s notes</div><p style="white-space:pre-wrap;margin-bottom:8px">${dbEsc(e.managerNotes)}</p>`:''}
+        ${e.skillPractice?`<div class="eyebrow">Skill practice — what we ran live</div><p style="white-space:pre-wrap;margin-bottom:8px">${dbEsc(e.skillPractice)}</p>`:''}
+        ${(e.managerNotes||e.skillPractice)
+          ? (e.ack?`<div class="needs-flag">&#10004; Reviewed &amp; agreed — ${new Date(e.ack.ts).toLocaleDateString()}</div>`
+                  :`<div class="needs-flag">Not yet agreed — open <a href="#" onclick="showView('mytb');return false">My Week</a> to review and agree.</div>`)
+          : `<p class="hint">Nels hasn’t added notes from this one-on-one yet.</p>`}
+      </div>
+    </div>
+    ${cur?'':`<p class="hint" style="margin-top:10px">This is from a previous week. <a href="#" onclick="showView('mytb');return false">Fill in My Week</a> for the week of ${new Date(thisWeek()+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})} to set this week’s plan.</p>`}`;
+}
+function renderMyBoard(){
+  const sel=$('mbRep'); if(!sel) return;
+  if(!sel.options.length) fillRepSelects();
+  /* default the picker to whoever is signed in, so a consultant lands on their own board */
+  if(repOn && state.config.reps.includes(repOn) && !sel.dataset.touched){ sel.value=repOn; }
+  sel.onchange=()=>{ sel.dataset.touched='1'; renderMyBoard(); };
+  const rep=sel.value;
+  if(!rep) return;
+  if(!repAuthed(rep)){
+    $('mbBody').style.display='none'; $('mbLock').style.display='';
+    $('mbLockMsg').textContent='This board belongs to '+rep+'. Enter '+rep+"'s PIN to open it"+(repOn?(' — you’re currently signed in as '+repOn+'.'):'.');
+    return;
+  }
+  $('mbBody').style.display=''; $('mbLock').style.display='none';
+  renderMyBoardCommit(rep);
+
+  const mk=ctxMK(), r=repTot(mk,rep), t=mtdTot(mk), pr=monthProgress(mk), cfg=monthCfg(mk), sh=repPlanShare(mk);
+  const logged=daysLogged(mk), live=monthHasDaily(mk);
+  const cp=closePlan(mk);
+  const reps=state.config.reps;
+  /* rank on revenue among the roster — a position, not a number of anyone else's */
+  const ranked=reps.map(x=>({x,rev:repTot(mk,x).rev})).sort((a,b)=>b.rev-a.rev);
+  const rank=ranked.findIndex(z=>z.x===rep)+1;
+  const days=pr.elapsed;
+
+  $('mbSrc').className='t-src'+(live?' live':'');
+  $('mbSrc').textContent=live?'from the daily log':'no daily log yet';
+  $('mbSub').innerHTML=live
+    ? `${monthName(mk,true)} for <b>${rep}</b> &mdash; ${logged.length} day${logged.length===1?'':'s'} logged of ${pr.elapsed} working day${pr.elapsed===1?'':'s'} elapsed. Same numbers Nels sees on The Board, just yours.`
+    : `${monthName(mk,true)} has nothing in the daily log yet, so there is nothing to show for ${rep} until a day is logged.`;
+
+  /* ---- hero: revenue against your share of the month, on the same dial ---- */
+  {
+    const perDay=days?r.rev/days:0;
+    const gap=Math.max(0,sh.target-r.rev);
+    const need=pr.left?gap/pr.left:0;
+    const timePct=pr.wd?100*pr.elapsed/pr.wd:0;
+    const rawPct=sh.target?100*r.rev/sh.target:0;
+    const prog=sh.target?Math.min(100,Math.round(rawPct)):0;
+    const dialCls=!logged.length?'flat':barCls(rawPct-timePct,4);
+    const proj=perDay*pr.wd;
+    const R=54, C=2*Math.PI*R, dash=C*Math.min(1,rawPct/100);
+    const stroke=dialCls==='ok'?'#7A9B8E':dialCls==='sub'?'#DC4257':dialCls==='watch'?'#DB8A5C':'#8A7F76';
+    const needCls=!pr.left?(gap>0?'sub':'ok'):barCls(perDay-need,need*0.08||1);
+    const close=r.appts?100*r.sold/r.appts:null;
+    $('mbHero').innerHTML=`<div class="b-hero">
+      <div class="h-dial">
+        <svg width="132" height="132" viewBox="0 0 132 132">
+          <circle cx="66" cy="66" r="${R}" fill="none" stroke="rgba(255,255,255,.13)" stroke-width="11"/>
+          ${dash>0.5?`<circle cx="66" cy="66" r="${R}" fill="none" stroke="${stroke}" stroke-width="11" stroke-linecap="round"
+            stroke-dasharray="${dash.toFixed(1)} ${(C-dash).toFixed(1)}"/>`:''}
+        </svg>
+        <div class="dial-mid"><div class="dial-pct">${prog}%</div><div class="dial-cap">of your share</div></div>
+      </div>
+      <div>
+        <div class="h-lab">${monthName(mk,true)} revenue to date &middot; ${rep}</div>
+        <div class="h-rev">${tMoney(r.rev)}</div>
+        <div class="h-goal">against your <b>${tMoney(sh.target)}</b> share of the ${tMoney(cfg.target)} team target${gap>0?` &mdash; ${tMoney(gap)} to go`:' &mdash; cleared'}</div>
+        <div class="h-facts">
+          <div class="h-fact"><div class="f-l">Days elapsed</div><div class="f-v">${pr.elapsed} of ${pr.wd}</div></div>
+          <div class="h-fact"><div class="f-l">Running at</div><div class="f-v">${tMoney(perDay)}<span style="font-size:.7rem;font-weight:600">/day</span></div></div>
+          <div class="h-fact"><div class="f-l">Needed a day</div><div class="f-v ${needCls}">${pr.left?tMoney(need):'—'}<span style="font-size:.7rem;font-weight:600">${pr.left?'/day':''}</span></div></div>
+          <div class="h-fact"><div class="f-l">Lands at</div><div class="f-v ${barCls(proj-sh.target,sh.target*0.02||1)}">${logged.length?tMoney(proj):'—'}</div></div>
+          <div class="h-fact"><div class="f-l">Overall close</div><div class="f-v ${close==null?'':barCls(close-cp.tot,1)}">${tPct(r.sold,r.appts)}</div></div>
+          <div class="h-fact"><div class="f-l">Team rank</div><div class="f-v">${r.rev||r.appts?'#'+rank+' of '+reps.length:'—'}</div></div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  $('mbCards').innerHTML=
+    statCard('Sold',r.sold,`TGL ${r.tglSold} &middot; Marketed ${r.mktSold}${r.sgSold?' &middot; Self-gen '+r.sgSold:''}`)+
+    statCard('Overall close',tPct(r.sold,r.appts),`TGL ${tPct(r.tglSold,r.tglAppts)} &middot; Mkt ${tPct(r.mktSold,r.mktAppts)}`)+
+    statCard('Appointments run',r.appts,`TGL ${r.tglAppts} &middot; Marketed ${r.mktAppts}${r.sgAppts?' &middot; Self-gen '+r.sgAppts:''}`)+
+    statCard('Share of team revenue',t.rev?Math.round(100*r.rev/t.rev)+'%':'—',`${tMoney(r.rev)} of the team’s month${reps.length?' &middot; an even share is '+Math.round(100/reps.length)+'%':''}`);
+  $('mbAvgCards').innerHTML=
+    statCard('TGL avg ticket',r.tglSold?tMoney(r.tglRev/r.tglSold):'—',`${r.tglSold} sold &middot; ${tMoney(r.tglRev)}`)+
+    statCard('Marketed avg ticket',r.mktSold?tMoney(r.mktRev/r.mktSold):'—',`${r.mktSold} sold &middot; ${tMoney(r.mktRev)}`)+
+    statCard('Cumulative avg ticket',r.sold?tMoney(r.rev/r.sold):'—',`${r.sold} sold &middot; ${tMoney(r.rev)}`);
+
+  /* ---- the five coaching KPIs, exactly as My Week grades them ---- */
+  {
+    const p=getPace(mk,rep), y=ytdFor(mk.slice(0,4),rep,mk);
+    $('mbKpiSub').innerHTML=`Graded against the coaching targets on Setup &mdash; the same tiles as section 1 of My Week.`;
+    $('mbKpis').innerHTML=KPIS.map(k=>{
+      const f=flagFor(k.key,p[k.key]);
+      const yv=y?y[k.key]:null, tgt=state.config.targets[k.key];
+      const ytd=(y&&yv!=null)?`<div class="k-ytd"><span class="yl">Year to date &middot; ${y.months} mo</span>${fmt(yv,k.fmt)}${y.estimated?' <span class="est">est.</span>':''}</div>`:'';
+      return `<div class="kpi ${f.cls}"><div class="k-label">${k.label}</div><div class="k-val">${fmt(p[k.key],k.fmt)}</div>
+        <div class="k-tgt">Target: ${fmt(tgt,k.fmt)}${k.cum?' / mo':''}</div>${ytd}<span class="flag">${f.txt}</span></div>`;
+    }).join('');
+  }
+
+  /* ---- close rate vs plan: same planned rates as the team, your actuals ---- */
+  {
+    const pct=(s,a)=>a?100*s/a:null;
+    const act={tgl:pct(r.tglSold,r.tglAppts),mkt:pct(r.mktSold,r.mktAppts),sg:pct(r.sgSold,r.sgAppts),tot:pct(r.coreSold,r.coreAppts)};
+    const rows=[['tgl','TGL close',r.tglAppts,r.tglSold],['mkt','Marketed close',r.mktAppts,r.mktSold]];
+    if(r.sgAppts) rows.push(['sg','Self-gen close',r.sgAppts,r.sgSold]);
+    rows.push(['tot','Overall close (TGL + marketed)',r.coreAppts,r.coreSold]);
+    const peak=Math.max(...rows.map(([k])=>Math.max(cp[k]||0,act[k]||0)),40);
+    const scale=Math.min(100,Math.ceil(peak*1.25/10)*10);
+    $('mbCloseBars').innerHTML=barLegend('Planned rate')+rows.map(([k,name,appts,sold])=>{
+      const a=act[k], plan=cp[k]||0, d=a==null?null:a-plan;
+      const cls=a==null?'flat':barCls(d,1);
+      return planBar({name,cls,fill:a==null?0:100*a/scale,plan:100*plan/scale,
+        right:`<span class="vb-num">${a==null?'—':Math.round(a*10)/10+'%'}</span>${a==null?'':pill(ptsRaw(d),cls)}`,
+        footL:`plan ${Math.round(plan*10)/10}%`,footR:appts?`${sold} of ${appts} run`:'nothing run yet',
+        title:`${sold} sold of ${appts} run · plan ${Math.round(plan*10)/10}%`});
+    }).join('')+`<p class="hint" style="margin:-2px 0 12px">Scale runs to ${scale}%.</p>`;
+    const lost=(cp.tgl-(act.tgl??cp.tgl))/100*r.tglAppts*(r.tglSold?r.tglRev/r.tglSold:cfg.tglAvg)
+              +(cp.mkt-(act.mkt??cp.mkt))/100*r.mktAppts*(r.mktSold?r.mktRev/r.mktSold:cfg.mktAvg);
+    $('mbCloseCards').innerHTML=statCard('Worth of your close gap',(lost>0?'−':'+')+tMoney(Math.abs(lost)),'on the leads you have already run, at your current ticket',lost>0?'sub':'ok');
+    $('mbCloseSub').innerHTML=`Planned close rates for ${monthName(mk,true)}: TGL ${Math.round(cp.tgl*10)/10}%, marketed ${Math.round(cp.mkt*10)/10}%. Revenue is leads &times; close &times; ticket &mdash; this is the middle term, and the one you control most.`;
+  }
+
+  /* ---- week by week ---- */
+  const rw=weekTot(mk,rep);
+  {
+    const wkAll=rw.filter(w=>w.appts>0||w.rev>0);
+    const rate=wkAll.map(w=>w.appts?Math.round(1000*w.sold/w.appts)/10:0);
+    const rev=wkAll.map(w=>w.rev), appts=wkAll.map(w=>w.appts);
+    const dir=a=>a.length<2?'flat':(a[a.length-1]>a[a.length-2]?'ok':a[a.length-1]<a[a.length-2]?'sub':'watch');
+    const tail=wkAll.length?wkAll[wkAll.length-1]:null;
+    const part=tail&&tail.days.length<7?` &middot; week ${tail.week} is a ${tail.days.length}-day block`:'';
+    const lastLab=wkAll.length?`Week ${tail.week} latest &middot; ${wkAll.length} week${wkAll.length===1?'':'s'} with calls${part}`:'';
+    $('mbSpark').innerHTML=wkAll.length
+      ? sparkCard('Close rate by week',(rate.length?rate[rate.length-1]+'%':'—'),rate,rate.length>1?barCls(rate[rate.length-1]-cp.tot,1):'flat',
+          rate.length>1?`${rate.join('% &rarr; ')}% &middot; plan ${Math.round(cp.tot*10)/10}%${part}`:lastLab)
+      + sparkCard('Revenue by week',(rev.length?tMoney(rev[rev.length-1]):'—'),rev,dir(rev),rev.length>1?`${rev.map(v=>tMoney(v)).join(' &rarr; ')}${part}`:lastLab)
+      + sparkCard('Appointments by week',(appts.length?appts[appts.length-1]:'—'),appts,dir(appts),appts.length>1?`${appts.join(' &rarr; ')} &middot; ${lastLab}`:lastLab)
+      : `<p class="hint">No logged weeks with your calls yet this month.</p>`;
+  }
+
+  /* ---- leads vs your share of the plan ---- */
+  {
+    const act={tgl:r.tglAppts,mkt:r.mktAppts,sg:r.sgAppts,tot:r.coreAppts};
+    const exp={},d={},need={};
+    ['tgl','mkt','sg','tot'].forEach(k=>{ exp[k]=sh.perDay[k]*days; d[k]=act[k]-exp[k]; need[k]=pr.left?Math.max(0,sh.plan[k]-act[k])/pr.left:0; });
+    const rows=[['tgl','TGL leads'],['mkt','Marketed leads'],['tot','Total leads (TGL + marketed)'],['sg','Self-gen leads']];
+    $('mbLeadBars').innerHTML=barLegend('Expected by now')+rows.map(([k,name])=>{
+      const a=act[k]||0, e=exp[k]||0, plan=sh.plan[k]||0;
+      const scale=Math.max(a,e,plan,1)*1.04;
+      const cls=!days?'flat':varCls(d[k]);
+      return planBar({name,cls,fill:100*a/scale,plan:100*e/scale,
+        right:`<span class="vb-num">${a}</span> <span style="color:var(--muted);font-weight:600">of ${Math.round(plan*10)/10} your share</span>${days?pill(signed(d[k],1),cls):''}`,
+        footL:days?`${Math.round(e*10)/10} expected by ${days} working day${days===1?'':'s'} in`:'Month has not started',
+        footR:pr.left?`${Math.round((need[k]||0)*10)/10} a day over the ${pr.left} day${pr.left===1?'':'s'} left`:'no working days left',
+        title:`${a} run · ${Math.round(e*10)/10} expected by now · ${Math.round(plan*10)/10} is your share of the month`});
+    }).join('');
+    const lc=(label,k)=>statCard(label,act[k],`${leadTag(d[k],true)} vs pace &middot; ${Math.round(exp[k]*10)/10} expected &middot; share ${Math.round(sh.plan[k]*10)/10}`,varCls(d[k]));
+    $('mbLeadCards').innerHTML=lc('TGL leads run','tgl')+lc('Marketed leads run','mkt')+lc('Total leads run','tot')+lc('Self-gen leads run','sg')+
+      statCard('Leads a day needed',pr.left?(Math.round(need.tot*10)/10):'—',pr.left?`over the ${pr.left} working day${pr.left===1?'':'s'} left`:'no working days left');
+    const lp=leadPlan(mk);
+    $('mbLeadSub').innerHTML=`The team plan is ${lp.tgl} TGL and ${lp.mkt} marketed across ${sh.n} consultants, so your share is ${Math.round(sh.plan.tgl*10)/10} TGL and ${Math.round(sh.plan.mkt*10)/10} marketed &mdash; ${Math.round(sh.plan.tot*10)/10} leads over ${pr.wd} working days, plus ${Math.round(sh.plan.sg*10)/10} self-gen. `+
+      (days?`Measured against ${days} working day${days===1?'':'s'} elapsed.`:`The month has not started.`);
+
+    /* pace alert, personal */
+    let alert='';
+    if(logged.length){
+      const gap=sh.target-r.rev, left=pr.left, need$=left>0?gap/left:0, pace=r.rev/Math.max(1,days);
+      if(gap<=0) alert=`<div class="t-alert ok">Your share cleared &mdash; ${tMoney(r.rev)} against ${tMoney(sh.target)}.</div>`;
+      else if(left===0) alert=`<div class="t-alert sub">No working days left and ${tMoney(gap)} short of your ${tMoney(sh.target)} share.</div>`;
+      else if(need$>pace*1.5) alert=`<div class="t-alert sub">Behind pace &mdash; ${tMoney(need$)} a day for the ${left} day${left===1?'':'s'} left to hit your share. Running at ${tMoney(pace)} a day.</div>`;
+      else alert=`<div class="t-alert warn">On track &mdash; ${tMoney(need$)} a day over the ${left} day${left===1?'':'s'} left. Running at ${tMoney(pace)} a day.</div>`;
+      const dd=d.tot;
+      alert+= dd>=0.5 ? `<div class="t-alert ok">Ahead on leads &mdash; ${act.tot} run against ${Math.round(exp.tot*10)/10} expected by now (${signed(dd,1)}).</div>`
+            : dd<=-0.5 ? `<div class="t-alert sub">Behind on leads &mdash; ${act.tot} run against ${Math.round(exp.tot*10)/10} expected by now (${signed(dd,1)}). Leads are booked for you, so this one is a conversation with Nels, not a fault.</div>`
+            : `<div class="t-alert warn">On lead pace &mdash; ${act.tot} run against ${Math.round(exp.tot*10)/10} expected.</div>`;
+    }
+    $('mbAlert').innerHTML=alert;
+  }
+
+  /* ---- weekly table + chips ---- */
+  $('mbWeekly').querySelector('tbody').innerHTML=rw.map(w=>`<tr>
+    <td><b>Week ${w.week}</b> <span class="hint">(${mAbbr(mk)} ${w.days[0]}&ndash;${w.days[w.days.length-1]})</span><br>
+      <b>${tPct(w.sold,w.appts)} close</b> <span class="hint">TGL ${tPct(w.tglSold,w.tglAppts)} &middot; Mkt ${tPct(w.mktSold,w.mktAppts)}</span></td>
+    <td class="num">${w.tglAppts}</td><td class="num">${w.tglSold}</td>
+    <td class="num">${w.mktAppts}</td><td class="num">${w.mktSold}</td>
+    <td class="num">${tMoney(w.rev)}</td></tr>`).join('');
+  $('mbWeekly').querySelector('tfoot').innerHTML=`<tr class="t-total"><td>MONTH TO DATE</td>
+    <td class="num">${r.tglAppts}</td><td class="num">${r.tglSold}</td>
+    <td class="num">${r.mktAppts}</td><td class="num">${r.mktSold}</td>
+    <td class="num">${tMoney(r.rev)}</td></tr>`;
+  const chip=(label,sold,appts,tS,tA,mS,mA,big)=>{
+    const has=appts>0, p=has?Math.round(100*sold/appts):null;
+    const tip=has?`TGL ${tS}/${tA} (${tPct(tS,tA)}) · Marketed ${mS}/${mA} (${tPct(mS,mA)})`:'No appointments';
+    return `<div class="t-wc${big?' big':''}" title="${tip}"><div class="l">${label}</div>
+      <div class="v ${has?rateCls(p):'none'}">${has?p+'%':'—'}</div>
+      <div class="d">${has?sold+'/'+appts:'no appts'}</div></div>`;
+  };
+  const wl=w=>`Wk ${w.week} · ${w.days[0]}–${w.days[w.days.length-1]}`;
+  if($('mbRateLegend')) $('mbRateLegend').innerHTML=rateLegend();
+  $('mbRepWeekly').innerHTML=`<div class="t-wk"><div class="who">${rep}</div>
+    ${rw.map(w=>chip(wl(w),w.sold,w.appts,w.tglSold,w.tglAppts,w.mktSold,w.mktAppts,false)).join('')}
+    ${chip('MTD',r.sold,r.appts,r.tglSold,r.tglAppts,r.mktSold,r.mktAppts,true)}</div>`;
+}
+
 /* =================== DAILY LOG =================== */
 function dlToday(){
   const mk=ctxMK(), now=localISO();
@@ -4920,11 +5278,12 @@ function renderNumbers(){
   /* the Recap used to render only on tab switch, so a day saved while on it stayed stale */
   if($('view-recap').classList.contains('active')) renderRecap();
   if($('view-debrief').classList.contains('active')) renderDayCard();
+  if($('view-myboard').classList.contains('active')) renderMyBoard();
 }
 
 
 /* =================== built-in guide =================== */
-const GUIDE_ANCHOR={mytb:'g-mytb',debrief:'g-debrief',review:'g-review',track:'g-track',
+const GUIDE_ANCHOR={mytb:'g-mytb',myboard:'g-myboard',debrief:'g-debrief',review:'g-review',track:'g-track',
   coach:'g-coach',overview:'g-scoreboard',daily:'g-daily',recap:'g-daily',team:'g-team',forecast:'g-forecast',
   pricebook:'g-pricebook',
   yoy:'g-yoy',pace:'g-pace',import:'g-import',guide:'g-rhythm'};
@@ -4969,10 +5328,10 @@ function helpHere(){
 /* =================== init =================== */
 function fillRepSelects(){
   const opts=state.config.reps.map(r=>`<option>${r}</option>`).join('');
-  ['tbRep','trRep','dbRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
+  ['tbRep','trRep','dbRep','mbRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
 }
 function refreshAll(){
-  fillRepSelects(); loadForm(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); renderPriceBook(); if(canFull()) renderPaceView();
+  fillRepSelects(); loadForm(); renderMyBoard(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); renderPriceBook(); if(canFull()) renderPaceView();
   renderNumbers();
 }
 /* =================== post-call debrief =================== */
