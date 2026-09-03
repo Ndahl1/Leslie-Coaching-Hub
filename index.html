@@ -576,6 +576,47 @@
     .g-wiring,.g-rhythm.c4,.g-rhythm.c5{grid-template-columns:1fr}
     .g-wiring>div+div,.g-rhythm>div+div{padding-left:0;border-left:0;border-top:1px solid var(--line);padding-top:12px}
   }
+  /* ---- ride-along recap ---- */
+  .ra-score{display:flex;align-items:center;gap:14px;background:var(--ink);color:#fff;border-radius:var(--radius);padding:12px 16px;margin:10px 0 14px}
+  .ra-score .big{font-family:"Archivo",sans-serif;font-weight:800;font-size:2rem;line-height:1;min-width:92px}
+  .ra-score .big small{font-size:1rem;font-weight:600;color:var(--tan)}
+  .ra-score .meter{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.18);overflow:hidden}
+  .ra-score .meter i{display:block;height:100%;width:0;background:var(--terracotta);border-radius:4px}
+  .ra-score .meta{font-size:.82rem;color:var(--tan)}
+  .ra-step{border-top:1px solid var(--line);padding:10px 0}
+  .ra-step:first-child{border-top:none}
+  .ra-head{display:flex;align-items:center;gap:10px;cursor:pointer}
+  .ra-head .n{width:28px;height:28px;border-radius:7px;background:var(--maroon);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.85rem;flex:none}
+  .ra-head .t{flex:1;font-weight:700}
+  .ra-head .t small{display:block;font-weight:400;font-size:.76rem;color:var(--muted)}
+  .ra-badge{font-size:.78rem;font-weight:800;border-radius:999px;padding:4px 11px;background:var(--tan-soft);color:var(--muted);min-width:44px;text-align:center}
+  .ra-badge.s12{background:#F9E3E3;color:var(--red)} .ra-badge.s3{background:var(--tan-soft);color:#9A6200} .ra-badge.s45{background:#E4EFEA;color:var(--sage-deep)}
+  .ra-body{padding:8px 0 0 38px}
+  .ra-scale{display:flex;gap:6px;margin:4px 0 10px;flex-wrap:wrap}
+  .ra-scale button{flex:1 1 0;min-width:40px;min-height:40px;border:1px solid var(--line);background:#fff;border-radius:8px;font-weight:800;color:var(--ink);cursor:pointer}
+  .ra-scale button.na{flex:0 0 auto;padding:0 12px;font-size:.8rem;color:var(--muted);font-weight:600}
+  .ra-scale button.on{background:var(--maroon);border-color:var(--maroon);color:#fff}
+  .ra-scale button.na.on{background:var(--muted);border-color:var(--muted)}
+  ul.ra-beh{list-style:none;margin:0;padding:0}
+  ul.ra-beh li{border-top:1px dashed var(--line)}
+  ul.ra-beh li:first-child{border-top:none}
+  ul.ra-beh label{display:flex;gap:10px;align-items:flex-start;padding:7px 2px;cursor:pointer;font-size:.9rem;font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink)}
+  ul.ra-beh input{width:18px;height:18px;margin-top:2px;accent-color:var(--sage-deep);flex:none}
+  .ra-opp{border:1px solid var(--terracotta);border-radius:10px;padding:12px;margin-top:12px;background:#FBEFE8}
+  .ra-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 8px}
+  .ra-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:.8rem;cursor:pointer;text-align:left}
+  .ra-chip:hover{border-color:var(--terracotta)}
+  .ra-chip .tag{font-weight:700;color:var(--muted);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;margin-right:5px}
+  .ra-cmp{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:6px}
+  .ra-cmp th{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+  .ra-cmp td{padding:5px 6px;border-bottom:1px solid var(--line-soft, #EEE7DC)}
+  .ra-cmp .gap{font-weight:800;color:var(--red)}
+  .ra-cmp .ok{font-weight:800;color:var(--sage-deep)}
+  .ra-list{display:grid;gap:6px}
+  .ra-row{display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer}
+  .ra-row:hover{border-color:var(--maroon)}
+  .ra-row .d{font-weight:700;min-width:90px}
+  .ra-row .c{flex:1;color:var(--muted);font-size:.85rem}
 </style>
 </head>
 <body>
@@ -613,6 +654,7 @@
     <button data-v="review" onclick="showView('review')">Team Review</button>
     <button data-v="track" onclick="showView('track')">Track Record</button>
     <button data-v="coach" onclick="showView('coach')">Call Coach</button>
+    <button data-v="ridealong" onclick="showView('ridealong')">Ride-Along</button>
     <button data-v="pricebook" onclick="showView('pricebook')">Price Book</button>
     <div class="sep"></div>
     <button data-v="pace" onclick="showView('pace')">Setup</button>
@@ -718,6 +760,11 @@
     <p class="hint" style="margin-bottom:10px">Rate yourself 1–5 on each step for last week's calls. Be honest — this is a development tool, not a report card. 5 = I ran this step the way we train it, every call.</p>
     <div class="steps-grid" id="stepsGrid"></div>
     <div id="lowestStep"></div>
+  </div>
+
+  <div class="card" id="raWeekCard" style="display:none">
+    <h3>From your ride-along</h3>
+    <div id="raWeekBody"></div>
   </div>
 
   <div class="card">
@@ -1628,6 +1675,74 @@
 
 
 <!-- ============ PRICE BOOK ============ -->
+<!-- ============ RIDE-ALONG RECAP ============
+     The Ride-Along Coaching Recap, inside the hub. Same six steps and behavior
+     checklists as the standalone page, but the recap saves onto the consultant's
+     week entry (entry.rideAlongs) through the existing saveEntry action, so it
+     syncs, keeps a history, and lands on the Monday board and on the consultant's
+     My Week without being re-typed. -->
+<section class="view" id="view-ridealong">
+  <h2>Ride-Along Coaching Recap</h2>
+  <p class="lead">Curbside, while it's fresh. Score the six steps, tick what you saw, name the one thing that moves the needle. It lands on the Monday board and on the consultant's My Week.</p>
+  <div id="raLocked" class="locked" style="display:none">&#128274; Ride-along recaps are written by the coach who rode along. Use the <b>Manager</b> button up top &mdash; a Call Coach PIN opens this tab too.</div>
+  <div id="raBody" style="display:none">
+    <div class="card">
+      <h3>Call details</h3>
+      <div class="row">
+        <div><label for="raRep">Consultant</label><select id="raRep" onchange="raPickRep()"></select></div>
+        <div><label for="raDate">Date</label><input type="date" id="raDate" onchange="raForm.date=this.value"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label for="raJob">Customer / job</label><input type="text" id="raJob" placeholder="Name, address, or job #" oninput="raForm.job=this.value"></div>
+        <div><label for="raCoach">Evaluator</label><input type="text" id="raCoach" oninput="raForm.coach=this.value"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label for="raOutcome">Outcome</label><select id="raOutcome" onchange="raForm.outcome=this.value">
+          <option value="">&mdash;</option><option>Sold</option><option>No sale</option><option>Follow-up pending</option><option>Customer rescheduled</option><option>Turnover to another consultant</option></select></div>
+        <div><label for="raQuote">Quote ($)</label><input type="number" id="raQuote" inputmode="decimal" placeholder="$" oninput="raForm.quote=this.value"></div>
+      </div>
+      <div id="raImportRow" class="hint" style="margin-top:10px"></div>
+    </div>
+
+    <div class="ra-score"><div class="big" id="raBig">&mdash;<small> / 5</small></div>
+      <div style="flex:1"><div class="meter"><i id="raMeter"></i></div><div class="meta" id="raMeta">No steps scored yet</div></div></div>
+
+    <div class="card">
+      <h3>Sales call steps</h3>
+      <p class="hint" style="margin-bottom:6px">Tap a score, tick the behaviors you saw. Unticked items on steps scored 3 or below feed the biggest-opportunity suggestions.</p>
+      <div id="raSteps"></div>
+    </div>
+
+    <div class="card">
+      <h3>Appointment summary</h3>
+      <label for="raSummary">The whole appointment in one honest paragraph</label>
+      <textarea id="raSummary" style="min-height:90px" placeholder="How the process flowed, what the customer experienced, and where it turned&hellip;" oninput="raForm.summary=this.value"></textarea>
+      <p class="hint">On your phone, tap the microphone on the keyboard and dictate this in the truck.</p>
+      <div class="ra-opp">
+        <div class="eyebrow">Biggest opportunity</div>
+        <div class="ra-chips" id="raChips"></div>
+        <p class="hint" id="raChipsEmpty">Score the steps above and suggestions will appear here.</p>
+        <input type="text" id="raOppT" placeholder="The one thing that moves the needle most" oninput="raForm.oppT=this.value;raChips()">
+        <label for="raOppStep" style="margin-top:8px">Which step it lives in</label>
+        <select id="raOppStep" onchange="raForm.oppStep=this.value"><option value="">&mdash;</option></select>
+        <label for="raOppD" style="margin-top:8px">Why it matters and the concrete fix</label>
+        <textarea id="raOppD" style="min-height:60px" oninput="raForm.oppD=this.value"></textarea>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn" onclick="raSave()">Save recap</button>
+        <button class="btn ghost small" onclick="raPrint()">Print / PDF</button>
+        <button class="btn ghost small" onclick="raNew()">New recap</button>
+        <span class="hint" id="raStamp"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Past ride-alongs <span class="hint" style="font-weight:500" id="raListSub"></span></h3>
+      <div class="ra-list" id="raList"></div>
+    </div>
+  </div>
+</section>
+
 <section class="view" id="view-pricebook">
   <h2>Price Book</h2>
   <p class="lead">Pricing does not live in this hub, and it never will. It lives in the
@@ -1834,6 +1949,27 @@
       <li><b>The sync dot.</b> Green means the Google Sheet has everything. Red means the hub is working from the copy on this device and will push when the connection returns &mdash; keep going, nothing is lost.</li>
       <li data-g="m"><b>Manager.</b> Press it, enter your PIN, and it turns red and shows your name. That unlocks The Log, Import, Setup and Call Coach, adds the notes boxes to the Monday board, and opens any consultant's form without their PIN. It lasts for the browser session only, which is what you want on a shared machine. The end-of-day team rollup has its own separate PIN so a borrowed laptop can't send it.<br><b>Your PIN also says who you are.</b> Whoever it resolves to gets stamped on every coached call you run and on the debrief that call clears &mdash; that is what makes the coverage block on the Monday board mean anything. The old shared PIN still opens the tab, but it has to ask for a name, and it accepts no answer: those calls save unattributed and are counted separately. Individual PINs are assigned on Setup.<br><b>Two levels of access.</b> A manager listed under <em>Full access</em> on Setup opens the whole hub. Everyone else opens <b>Call Coach</b> and nothing else &mdash; the numbers, the log, the plan, Setup and the Monday board stay shut, and their button reads <em>Coach</em> rather than <em>Manager</em>. Coaching a call has never needed the revenue, so the people running HA/ZT calls do not have to be handed it.</li>
     </ol>
+  </div>
+
+  <!-- ---------- ride-along ---------- -->
+  <div class="g-sec" id="g-ridealong" data-g="m">
+    <h3>Ride-Along <span class="g-who">Manager · Coach</span></h3>
+    <div class="g-slug">Curbside, after the call &middot; any manager or Call Coach PIN &middot; lands on the Monday board and the consultant's My Week</div>
+    <p class="g-lede">The Ride-Along Coaching Recap, inside the hub. Same six steps, same behavior checklists, same scoring as the standalone page &mdash; but the recap saves onto the consultant's week, so it syncs, keeps a history, and shows up in the one-on-one without being re-typed.</p>
+    <ol class="g-steps">
+      <li><b>Call details.</b> Consultant, date (defaults to today), customer or job, evaluator (stamped from your PIN, editable), outcome and quote.</li>
+      <li><b>Score the six steps.</b> Tap 1&ndash;5 or N/A, tick the behaviors you actually saw, add a note for the specific moment. The badge on each step and the process score at the top update as you go.</li>
+      <li><b>Summary and biggest opportunity.</b> One honest paragraph &mdash; dictate it. Unticked behaviors on steps scored 3 or below appear as chips; tap one to make it the opportunity, or type your own. Say which step it lives in: that is what the consultant's action plan will use.</li>
+      <li><b>Save.</b> The recap is filed against the Monday of the week the call ran. Past ride-alongs for the consultant list underneath; tap one to reopen it, or Print / PDF for the signed copy.</li>
+    </ol>
+    <div class="g-note calm">
+      <span class="gl">Where it goes</span>
+      <p><b>Team Review:</b> the consultant's Monday card shows the recap, the six coach scores beside the six self-check scores with the gap flagged, and a one-tap button that drops the biggest opportunity into the manager notes. <b>My Week:</b> the consultant sees the same recap and comparison above their opportunity section, with a button that makes the biggest opportunity this week's focus behavior. <b>My Board:</b> the opportunity shows on the commitments card. <b>Track Record:</b> average ride-along score for the year.</p>
+    </div>
+    <div class="g-note">
+      <span class="gl">Already filled one in on the old page?</span>
+      <p>If this browser has a recap saved on the standalone Ride-Along page, the Call details card offers to bring it in. Check it over, pick the consultant if the name didn't match the roster, and Save. From here on, do them in the hub.</p>
+    </div>
   </div>
 
   <!-- ---------- today ---------- -->
@@ -2567,6 +2703,7 @@ function showView(v){
   if(v==='debrief') renderDebrief();
   if(v==='myboard') renderMyBoard();
   if(v==='today') renderToday();
+  if(v==='ridealong') renderRideAlong();
   if(v==='review') renderReview();
   if(v==='track') renderTrack();
   if(v==='coach') renderCoach();
@@ -2663,7 +2800,7 @@ function toggleManager(){
   $('mgrBtn').classList.toggle('on',managerOn);
   $('mgrBtn').textContent=mgrLabel();
   renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach(); renderDebrief(); renderNumbers();
-  renderPriceBook(); renderGuide(); renderMyBoard(); renderToday();
+  renderPriceBook(); renderGuide(); renderMyBoard(); renderToday(); renderRideAlong();
 }
 
 /* =================== my touch base =================== */
@@ -2793,7 +2930,7 @@ function loadForm(){
   $('priorNote').value=e?.prior?.note||'';
   priorResult=e?.prior?.result||null;
   if(priorResult) setPrior(priorResult); else document.querySelectorAll('#priorChoice button').forEach(b=>b.className='');
-  renderMgrReview(e);
+  renderMgrReview(e); renderRaWeek();
 }
 function renderMgrReview(e){
   const card=$('mgrReviewCard');
@@ -2836,7 +2973,8 @@ async function saveEntry(){
     skillPractice:(entryFor(rep,week)||{}).skillPractice||'',
     ack:(entryFor(rep,week)||{}).ack||null,
     debriefs:(entryFor(rep,week)||{}).debriefs||[],
-    coachCalls:(entryFor(rep,week)||{}).coachCalls||[]
+    coachCalls:(entryFor(rep,week)||{}).coachCalls||[],
+    rideAlongs:(entryFor(rep,week)||{}).rideAlongs||[]
   };
   const i=state.entries.findIndex(e=>e.id===entry.id);
   if(i>=0) state.entries[i]=entry; else state.entries.push(entry);
@@ -2901,8 +3039,9 @@ function renderReview(){
   const grid=$('revGrid'); grid.innerHTML='';
   state.config.reps.forEach(rep=>{
     const e=entryFor(rep,week);
-    if(!e){
-      grid.innerHTML+=`<div class="rev-card"><h4>${rep}</h4><div class="wk">Week of ${week}</div><div class="empty" style="padding:16px">No touch base submitted yet.</div></div>`;
+    if(!e || (!e.plan && !e.wins && !Object.keys(e.steps||{}).length)){
+      const ra=rideAlongForWeek(rep,week);
+      grid.innerHTML+=`<div class="rev-card"><h4>${rep}</h4><div class="wk">Week of ${week}</div><div class="empty" style="padding:16px">No touch base submitted yet.</div>${ra?`<div class="rev-sec"><div class="eyebrow">Ride-along${ra.week!==week?' (from the week before)':''}</div>${raBlock(ra,{summary:true})}</div>`:''}</div>`;
       return;
     }
     const kchips=KPIS.map(k=>{
@@ -2927,6 +3066,7 @@ function renderReview(){
       ${pr?`<div class="rev-sec"><div class="eyebrow">Last week's action</div>${prChip} <span style="font-size:.85rem">${dbEsc(e.prior?.note||'')}</span></div>`:''}
       <div class="rev-sec"><div class="eyebrow">Wins</div><p>${dbEsc(e.wins||'—')}</p></div>
       ${(e.debriefs&&e.debriefs.length)||((e.coachCalls||[]).length)?(()=>{const D=e.debriefs||[];const fc=D.filter(c=>c.focus!==null&&c.focus!==undefined);const hits=fc.filter(c=>c.focus).length;const sold=D.filter(c=>c.outcome==='sold');const uns=D.filter(c=>c.outcome!=='sold');const cov=uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length;const nods=D.filter(c=>c.nod).length;const CC=(e.coachCalls||[]);const ccSold=CC.filter(c=>c.outcome==='sold').length;return `<div class="rev-sec"><div class="eyebrow">From the field (post-call debriefs)</div><p style="font-size:.88rem">${D.length?`<b>${D.length}</b> calls · <b>${sold.length}</b> sold${fc.length?` · Focus <b>${hits}/${fc.length}</b>`:''} · Nod <b>${nods}/${D.length}</b> · HA/ZT <b>${cov}/${uns.length}</b>`:''}${CC.length?`${D.length?'<br>':''}Coached HA/ZT calls: <b>${CC.length}</b>${ccSold?` · <b>${ccSold}</b> saved on the phone`:''}`:''}</p></div>`;})():''}
+      ${raReviewBlock(e)}
       ${e.growth?`<div class="rev-sec"><div class="eyebrow">Growth</div><p>${dbEsc(e.growth)}</p></div>`:''}
       <div class="rev-sec"><div class="eyebrow">Opportunity — ${(KPIS.find(k=>k.key===e.opp?.kpi)||{}).label||'—'} · ${dbEsc(e.opp?.step||'')}</div><p>${dbEsc(e.opp?.text||'—')}</p></div>
       <div class="rev-sec"><div class="eyebrow">This week's plan</div>
@@ -3035,6 +3175,8 @@ function renderTrack(){
   band.innerHTML = entries.length ? `<div class="tr-band">
       <div class="tr-stat"><div class="n">${entries.length}</div><div class="l">Touch bases</div></div>
       <div class="tr-stat"><div class="n">${commits.length}</div><div class="l">Commitments</div></div>
+      ${(()=>{ const ras=[]; entries.forEach(e=>(e.rideAlongs||[]).forEach(r=>ras.push(r))); if(!ras.length) return ''; const sc=ras.map(r=>raAvg(r)).filter(Boolean); const avg=sc.length?sc.reduce((a,b)=>a+b.avg,0)/sc.length:null;
+        return `<div class="tr-stat ${avg==null?'':avg>=4?'good':avg<3?'bad':''}"><div class="n">${avg==null?'—':avg.toFixed(1)}</div><div class="l">Ride-along avg · ${ras.length}</div></div>`; })()}
       <div class="tr-stat ${rate==null?'':rate>=60?'good':'bad'}">
         <div class="n">${rate==null?'&mdash;':rate+'%'}</div><div class="l">Follow-through</div></div>
       <div class="tr-stat"><div class="n" style="font-size:1rem;padding-top:8px"><span class="streak">${streak||'&mdash;'}</span></div>
@@ -4489,6 +4631,7 @@ function renderMyBoardCommit(rep){
         ${o.kpi||o.text?row('KPI to move',(kpiMeta?kpiMeta.label:o.kpi||'')+(o.step?' · '+o.step:'')):''}
         ${row('The cause we named',o.text)}
         ${row('What I asked Nels for',e.needs)}
+        ${(()=>{ const ra=rideAlongForWeek(rep,e.week); return ra&&ra.oppT?row('Ride-along · biggest opportunity ('+(ra.coach||'coach')+', '+new Date(ra.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})+')',ra.oppT):''; })()}
       </div>
       <div>
         ${e.managerNotes?`<div class="eyebrow">Nels’s notes</div><p style="white-space:pre-wrap;margin-bottom:8px">${dbEsc(e.managerNotes)}</p>`:''}
@@ -4905,6 +5048,231 @@ function renderToday(){
             ? `<div class="t-alert warn" style="margin-top:10px">The consultants' commitments come in under Nels's on ${short.map(k=>TD_LABEL[k].toLowerCase()).join(', ')}. That gap is the morning conversation &mdash; who takes the extra, or is the team number wrong today?</div>`
             : `<div class="t-alert ok" style="margin-top:10px">The consultants' commitments cover Nels's number on all four. Now go do it.</div>`; })():''}`;
   }
+}
+
+/* =================== RIDE-ALONG COACHING RECAP ===================
+   The standalone Ride-Along page, folded into the hub. Same six steps, same
+   behavior checklists, same scoring. What changes is where it goes: a recap is
+   saved onto the consultant's entry for the week the call ran (entry.rideAlongs)
+   through saveEntry, so it syncs to the sheet, keeps a history, and shows on the
+   Monday board and the consultant's My Week without anyone re-typing it.
+   Any manager PIN — full or Call Coach — can write one; the evaluator is stamped
+   from the PIN and can be edited. */
+const RA_STEPS = [
+  { key:'Prepare',   tag:'Craft your perfect day', behaviors:[
+    'Reviewed customer / job history before arrival','Confirmed appointment and arrival window with the customer',
+    'Truck, tools, tablet, and paperwork ready','Knew current equipment options, pricing, and promotions','Set a clear personal goal for the call' ]},
+  { key:'Greet',     tag:'Make your time valuable', behaviors:[
+    'On time; parked and approached professionally','Clean uniform, shoe covers, name-first introduction',
+    'Built early rapport with a genuine personal connection','Set an agenda for the visit and got the customer’s agreement','Identified all decision-makers up front' ]},
+  { key:'Explore',   tag:'Uncover their situation', behaviors:[
+    'Asked open-ended questions about comfort, air quality, and bills','Listened more than talked; took notes',
+    'Toured the whole home, not just the equipment','Uncovered the customer’s hot buttons and repeated them back','Asked about timeline and budget expectations' ]},
+  { key:'Present',   tag:'Create customer-centered choices', behaviors:[
+    'Tied every option back to the customer’s stated hot buttons','Presented good / better / best choices',
+    'Sold value and outcomes, not just price','Presented financing on every option','Checked in for understanding before moving on' ]},
+  { key:'Close',     tag:'Facilitate an agreeable conclusion', behaviors:[
+    'Asked for the business clearly and confidently','Stayed comfortable with silence after asking',
+    'Handled objections with questions, not pressure','Isolated the real objection before responding','Agreed on a concrete next step before leaving' ]},
+  { key:'Follow Up', tag:'Ensure a 5-star experience', behaviors:[
+    'Set clear expectations for install / next steps','Scheduled the follow-up before leaving the driveway',
+    'Asked for the review and the referral','Thanked the customer by name','Logged call notes in the system same-day' ]},
+];
+const RA_LEGACY_KEY='rideAlongRecap.v3';   /* what the standalone page saves under — same origin, so the hub can read it */
+function raBlank(){
+  const st={}; RA_STEPS.forEach(x=>{ st[x.key]={score:null, checked:x.behaviors.map(()=>false), note:''}; });
+  return {id:null, rep:'', date:localISO(), job:'', coach:managerWho||'', outcome:'', quote:'', steps:st, summary:'', oppT:'', oppStep:'', oppD:'', ts:null};
+}
+let raForm=raBlank(), raOpenSteps={Prepare:true};
+function raAvg(r){
+  const sc=RA_STEPS.map(x=>(r.steps[x.key]||{}).score).filter(v=>v!=null&&v!==0);
+  return sc.length?{avg:sc.reduce((a,b)=>a+b,0)/sc.length, n:sc.length}:null;
+}
+function raCls(v){ return v==null||v===0?'':v<=2?'s12':v===3?'s3':'s45'; }
+function rideAlongsFor(rep,week){ return ((entryFor(rep,week)||{}).rideAlongs)||[]; }
+function rideAlongsAll(rep){
+  const out=[]; state.entries.filter(e=>e.rep===rep).forEach(e=>(e.rideAlongs||[]).forEach(r=>out.push(r)));
+  return out.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.ts||0)-(a.ts||0));
+}
+/* the recap that matters for a given week's one-on-one: any in that week, else the most recent one in the two weeks before */
+function rideAlongForWeek(rep,week){
+  const here=rideAlongsFor(rep,week); if(here.length) return here.slice().sort((a,b)=>a.date<b.date?1:-1)[0];
+  const all=rideAlongsAll(rep).filter(r=>r.week<week && r.week>=prevWeek(prevWeek(week)));
+  return all[0]||null;
+}
+function renderRideAlong(){
+  const L=$('raLocked'), B=$('raBody'); if(!L) return;
+  L.style.display=managerOn?'none':''; B.style.display=managerOn?'':'none';
+  if(!managerOn) return;
+  const sel=$('raRep'); if(!sel.options.length) fillRepSelects();
+  if(raForm.rep && state.config.reps.includes(raForm.rep)) sel.value=raForm.rep; else raForm.rep=sel.value;
+  $('raDate').value=raForm.date||localISO(); $('raJob').value=raForm.job||''; $('raCoach').value=raForm.coach||managerWho||'';
+  $('raOutcome').value=raForm.outcome||''; $('raQuote').value=raForm.quote||'';
+  $('raSummary').value=raForm.summary||''; $('raOppT').value=raForm.oppT||''; $('raOppD').value=raForm.oppD||'';
+  $('raOppStep').innerHTML='<option value="">&mdash;</option>'+STEPS.map(x=>`<option${raForm.oppStep===x?' selected':''}>${x}</option>`).join('');
+  $('raStamp').textContent=raForm.id?`Editing the recap saved ${new Date(raForm.ts).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`:'';
+  /* import from the standalone page, if this browser has one */
+  let legacy=null; try{ legacy=JSON.parse(localStorage.getItem(RA_LEGACY_KEY)||'null'); }catch(e){}
+  $('raImportRow').innerHTML = legacy && legacy.header && (legacy.header.consultant||Object.values(legacy.steps||{}).some(x=>x.score!=null))
+    ? `This browser has a recap from the standalone Ride-Along page${legacy.header.consultant?` for <b>${dbEsc(legacy.header.consultant)}</b>`:''}${legacy.header.date?` (${dbEsc(legacy.header.date)})`:''}. <a href="#" onclick="raImport();return false">Bring it in</a> and save it here so it lands on the board.`
+    : '';
+  raRenderSteps(); raRefresh(); raRenderList();
+}
+function raPickRep(){ raForm.rep=$('raRep').value; raRenderList(); }
+function raRenderSteps(){
+  $('raSteps').innerHTML=RA_STEPS.map((x,i)=>{ const st=raForm.steps[x.key]; const open=!!raOpenSteps[x.key];
+    return `<div class="ra-step" data-step="${x.key}">
+      <div class="ra-head" onclick="raToggle('${x.key}')"><span class="n">${i+1}</span><span class="t">${x.key}<small>${x.tag}</small></span><span class="ra-badge ${raCls(st.score)}" id="raBadge-${i}">${st.score==null?'—':st.score===0?'N/A':st.score+'/5'}</span><span style="color:var(--muted)">${open?'&#9650;':'&#9660;'}</span></div>
+      <div class="ra-body" style="${open?'':'display:none'}">
+        <div class="ra-scale">${[1,2,3,4,5].map(v=>`<button type="button" class="${st.score===v?'on':''}" onclick="raScore('${x.key}',${v})">${v}</button>`).join('')}<button type="button" class="na ${st.score===0?'on':''}" onclick="raScore('${x.key}',0)">N/A</button></div>
+        <div class="hint" style="display:flex;justify-content:space-between;margin:-6px 0 8px"><span>Needs work</span><span>Nailed it</span></div>
+        <ul class="ra-beh">${x.behaviors.map((b,j)=>`<li><label><input type="checkbox" ${st.checked[j]?'checked':''} onchange="raCheck('${x.key}',${j},this.checked)"><span>${b}</span></label></li>`).join('')}</ul>
+        <label style="margin-top:8px">Note for this step <span class="hint">(specific moment, quote, or coaching detail)</span></label>
+        <textarea style="min-height:52px" oninput="raForm.steps['${x.key}'].note=this.value">${dbEsc(st.note||'')}</textarea>
+      </div></div>`; }).join('');
+}
+function raToggle(k){ raOpenSteps[k]=!raOpenSteps[k]; raRenderSteps(); }
+function raScore(k,v){ const st=raForm.steps[k]; st.score=(st.score===v)?null:v; raRenderSteps(); raRefresh(); }
+function raCheck(k,j,on){ raForm.steps[k].checked[j]=on; raChips(); }
+function raRefresh(){
+  const a=raAvg(raForm);
+  $('raBig').innerHTML=a?a.avg.toFixed(1)+'<small> / 5</small>':'&mdash;<small> / 5</small>';
+  $('raMeter').style.width=a?(a.avg/5*100)+'%':'0';
+  $('raMeta').textContent=a?`Process score · ${a.n} of ${RA_STEPS.length} steps scored`:'No steps scored yet';
+  raChips();
+}
+function raChips(){
+  const taken=(raForm.oppT||'').trim(), chips=[];
+  RA_STEPS.forEach(x=>{ const st=raForm.steps[x.key]; if(st.score!=null&&st.score>=1&&st.score<=3) st.checked.forEach((c,j)=>{ if(!c&&x.behaviors[j]!==taken) chips.push({step:x.key,text:x.behaviors[j]}); }); });
+  $('raChips').innerHTML=chips.map(c=>`<button type="button" class="ra-chip" onclick="raUseChip(this)" data-step="${c.step}" data-text="${dbEsc(c.text)}"><span class="tag">${c.step}</span>${dbEsc(c.text)}</button>`).join('');
+  $('raChipsEmpty').style.display=chips.length?'none':'';
+}
+function raUseChip(b){ raForm.oppT=b.dataset.text; raForm.oppStep=b.dataset.step; $('raOppT').value=raForm.oppT; $('raOppStep').value=raForm.oppStep; raChips(); $('raOppD').focus(); }
+function raNew(){ if(raForm.id||raAvg(raForm)||raForm.summary){ if(!confirm('Start a new recap? Unsaved changes are lost.')) return; } const rep=raForm.rep; raForm=raBlank(); raForm.rep=rep; raOpenSteps={Prepare:true}; renderRideAlong(); }
+async function raSave(){
+  if(!managerOn){ toast('Manager or coach PIN required'); return; }
+  const rep=$('raRep').value, date=$('raDate').value||localISO();
+  if(!rep){ toast('Pick a consultant'); return; }
+  if(!raAvg(raForm)){ toast('Score at least one step'); return; }
+  const wk=mondayOf(date);
+  const rec=JSON.parse(JSON.stringify(raForm)); rec.rep=rep; rec.date=date; rec.week=wk; rec.ts=Date.now();
+  rec.coach=(rec.coach||managerWho||'').trim(); rec.id=rec.id||(rep+'|ra|'+date+'|'+rec.ts);
+  let e=entryFor(rep,wk);
+  if(!e){ e={id:rep+'|'+wk, rep, week:wk, ts:Date.now(), kpis:{}, steps:{}, debriefs:[], rideAlongs:[]}; state.entries.push(e); }
+  e.rideAlongs=e.rideAlongs||[];
+  const i=e.rideAlongs.findIndex(r=>r.id===rec.id); if(i>=0) e.rideAlongs[i]=rec; else e.rideAlongs.push(rec);
+  /* a recap filed on a different week than the one it was first saved to: drop the old copy */
+  state.entries.forEach(x=>{ if(x!==e&&x.rep===rep&&x.rideAlongs) x.rideAlongs=x.rideAlongs.filter(r=>r.id!==rec.id); });
+  raForm=rec;
+  await push('saveEntry',{entry:e});
+  toast('Ride-along saved — it’s on the Monday board and on '+rep+'’s My Week');
+  renderRideAlong(); if($('view-review').classList.contains('active')) renderReview();
+}
+function raOpen(id){
+  const rep=$('raRep').value; const r=rideAlongsAll(rep).find(x=>x.id===id); if(!r) return;
+  raForm=JSON.parse(JSON.stringify(r)); raOpenSteps={}; RA_STEPS.forEach(x=>{ if((raForm.steps[x.key]||{}).score!=null) raOpenSteps[x.key]=false; }); raOpenSteps.Prepare=true;
+  renderRideAlong(); window.scrollTo({top:0,behavior:'smooth'});
+}
+function raRenderList(){
+  const rep=$('raRep').value, all=rideAlongsAll(rep);
+  $('raListSub').textContent=all.length?`— ${all.length} on file for ${rep}`:`— none yet for ${rep}`;
+  $('raList').innerHTML=all.map(r=>{ const a=raAvg(r);
+    return `<div class="ra-row" onclick="raOpen('${r.id}')"><span class="d">${new Date(r.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
+      <span class="ra-badge ${a?raCls(Math.round(a.avg)):''}">${a?a.avg.toFixed(1):'—'}</span>
+      <span class="c">${dbEsc(r.job||'(no customer)')}${r.outcome?' · '+dbEsc(r.outcome):''}${r.oppT?' · <b>'+dbEsc(r.oppT)+'</b>':''}${r.coach?' · '+dbEsc(r.coach):''}</span></div>`; }).join('')
+    || '<p class="hint">Ride-alongs you save here will list by date, most recent first. Tap one to reopen or print it.</p>';
+}
+function raImport(){
+  let d=null; try{ d=JSON.parse(localStorage.getItem(RA_LEGACY_KEY)||'null'); }catch(e){}
+  if(!d){ toast('Nothing to import'); return; }
+  const f=raBlank(); const h=d.header||{};
+  const match=state.config.reps.find(r=>r.toLowerCase()===String(h.consultant||'').trim().toLowerCase())||state.config.reps.find(r=>r.split(' ')[0].toLowerCase()===String(h.consultant||'').trim().split(' ')[0].toLowerCase());
+  f.rep=match||$('raRep').value; f.date=h.date||localISO(); f.job=h.job||''; f.coach=h.evaluator||managerWho||''; f.outcome=h.outcome||''; f.quote=String(h.quote||'').replace(/[^0-9.]/g,'');
+  const keymap={prepare:'Prepare',greet:'Greet',explore:'Explore',present:'Present',close:'Close',followup:'Follow Up'};
+  Object.keys(keymap).forEach(k=>{ const src=(d.steps||{})[k]; if(!src) return; const dst=f.steps[keymap[k]]; dst.score=src.score==null?null:Number(src.score); dst.checked=RA_STEPS.find(x=>x.key===keymap[k]).behaviors.map((_,j)=>!!(src.checked||[])[j]); dst.note=src.note||''; });
+  f.summary=(d.summary||{}).text||''; f.oppT=(d.summary||{}).oppT||''; f.oppD=(d.summary||{}).oppD||'';
+  const chip=RA_STEPS.find(x=>x.behaviors.includes(f.oppT)); if(chip) f.oppStep=chip.key;
+  raForm=f; raOpenSteps={}; renderRideAlong();
+  toast(match?'Imported — check it over and Save':'Imported — pick the consultant, then Save');
+}
+/* ---- the recap as a block, for the Monday board and My Week ---- */
+function raBlock(r,opts){
+  opts=opts||{}; const a=raAvg(r);
+  const badges=RA_STEPS.map(x=>{ const v=(r.steps[x.key]||{}).score; return `<span class="ra-badge ${raCls(v)}" title="${x.key}">${x.key.split(' ')[0]} ${v==null?'—':v===0?'N/A':v}</span>`; }).join(' ');
+  const when=new Date(r.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px"><b style="font-size:1.15rem">${a?a.avg.toFixed(1):'—'}<span class="hint">/5</span></b>
+      <span class="hint">${when}${r.coach?' · '+dbEsc(r.coach):''}${r.job?' · '+dbEsc(r.job):''}${r.outcome?' · '+dbEsc(r.outcome):''}${r.quote?' · $'+Number(r.quote).toLocaleString():''}</span></div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">${badges}</div>
+    ${r.oppT?`<div class="prior-plan" style="margin-bottom:8px"><b>Biggest opportunity${r.oppStep?' · '+dbEsc(r.oppStep):''}:</b> ${dbEsc(r.oppT)}${r.oppD?`<br><span style="font-size:.88rem">${dbEsc(r.oppD)}</span>`:''}</div>`:''}
+    ${opts.summary&&r.summary?`<p style="font-size:.88rem;white-space:pre-wrap;margin:0 0 6px">${dbEsc(r.summary)}</p>`:''}
+    ${opts.notes?RA_STEPS.filter(x=>(r.steps[x.key]||{}).note).map(x=>`<p style="font-size:.85rem;margin:0 0 4px"><b>${x.key}:</b> ${dbEsc(r.steps[x.key].note)}</p>`).join(''):''}`;
+}
+/* self-check vs what the coach saw, step by step */
+function raCompare(selfSteps,r){
+  selfSteps=selfSteps||{};
+  const rows=RA_STEPS.map(x=>{ const me=selfSteps[x.key]||null, co=(r.steps[x.key]||{}).score; const coN=co==null||co===0?null:co;
+    const gap=(me&&coN!=null)?me-coN:null; const cls=gap==null?'':Math.abs(gap)>=2?'gap':Math.abs(gap)<=0?'ok':'';
+    return `<tr><td><b>${x.key}</b></td><td>${me||'—'}</td><td>${co==null?'—':co===0?'N/A':co}</td><td class="${cls}">${gap==null?'—':gap>0?'You +'+gap:gap<0?'Coach +'+(-gap):'Agree'}</td></tr>`; }).join('');
+  return `<table class="ra-cmp"><thead><tr><th>Step</th><th>You</th><th>Coach saw</th><th>Gap</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+/* Monday board: the ride-along on the consultant's card, with a one-tap way into the manager notes */
+function raReviewBlock(e){
+  const r=rideAlongForWeek(e.rep,e.week); if(!r) return '';
+  const lastWk=r.week!==e.week;
+  return `<div class="rev-sec"><div class="eyebrow">Ride-along${lastWk?' (from the week before)':''}</div>${raBlock(r,{summary:true})}
+    ${Object.keys(e.steps||{}).length?raCompare(e.steps,r):'<p class="hint">No self-check filed yet to compare against.</p>'}
+    ${canFull()?`<button class="btn ghost small" style="margin-top:8px" onclick="raToNotes('${e.id}','${r.id}')">Add the opportunity to manager notes</button>`:''}</div>`;
+}
+function raToNotes(entryId,raId){
+  const e=state.entries.find(x=>x.id===entryId); if(!e) return;
+  const r=rideAlongsAll(e.rep).find(x=>x.id===raId); if(!r) return;
+  const ta=document.querySelector(`textarea[data-mn="${CSS.escape(entryId)}"]`); if(!ta) return;
+  const line=`Ride-along ${new Date(r.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}${r.coach?' with '+r.coach:''} — ${raAvg(r)?raAvg(r).avg.toFixed(1)+'/5. ':''}Biggest opportunity${r.oppStep?' ('+r.oppStep+')':''}: ${r.oppT}${r.oppD?' — '+r.oppD:''}`;
+  ta.value=(ta.value.trim()?ta.value.trim()+'\n':'')+line; ta.focus();
+  toast('Added — press Save manager fields');
+}
+/* My Week: the consultant's view of the same recap, and one tap to make the opportunity this week's behavior */
+function renderRaWeek(){
+  const card=$('raWeekCard'); if(!card) return;
+  const rep=$('tbRep').value, week=$('tbWeek').value;
+  const r=rideAlongForWeek(rep,week);
+  if(!r){ card.style.display='none'; return; }
+  card.style.display='';
+  const lastWk=r.week!==week;
+  $('raWeekBody').innerHTML=`<p class="hint" style="margin-bottom:8px">${dbEsc(r.coach||'A manager')} rode along${lastWk?' the week before':' this week'}. This is what they scored and the one thing they named. Compare it with your self-check above — where you and the coach disagree by two or more is the conversation Monday.</p>
+    ${raBlock(r,{summary:true,notes:true})}
+    ${raCompare(stepScores,r)}
+    ${r.oppT?`<button class="btn ghost small" style="margin-top:10px" onclick="raAsFocus('${r.id}')">Make this my focus behavior</button>`:''}`;
+}
+function raAsFocus(raId){
+  const rep=$('tbRep').value, r=rideAlongsAll(rep).find(x=>x.id===raId); if(!r) return;
+  $('apBehavior').value=r.oppT; if(r.oppStep&&$('oppStep')) $('oppStep').value=r.oppStep;
+  if(!$('oppText').value.trim()&&r.oppD) $('oppText').value=r.oppD;
+  toast('Filled in section 6 — make it countable, then save');
+  $('apBehavior').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function raPrint(){
+  const r=raForm, a=raAvg(r);
+  const rows=RA_STEPS.map((x,i)=>{ const st=r.steps[x.key]; return `<div class="st"><div class="h"><span class="n">${i+1}</span><b>${x.key}</b> <small>${x.tag}</small><span class="b">${st.score==null?'—':st.score===0?'N/A':st.score+'/5'}</span></div>
+      <ul>${x.behaviors.map((b,j)=>st.checked[j]?`<li>&#10003; ${b}</li>`:'').join('')}</ul>${st.note?`<p class="note">${dbEsc(st.note)}</p>`:''}</div>`; }).join('');
+  const html=`<!doctype html><html><head><meta charset="utf-8"><title>Ride-Along Coaching Recap — ${dbEsc(r.rep)}</title><style>
+    body{font:13px/1.45 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1c2431;margin:28px;max-width:760px}
+    h1{margin:0;font-size:22px} .eb{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#4a5a75;margin:0 0 4px}
+    .head{border-bottom:3px solid #6E3B34;padding-bottom:8px;margin-bottom:12px} .grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:12.5px;margin-bottom:12px}
+    .score{border:2px solid #6E3B34;border-radius:8px;padding:10px 14px;display:flex;gap:14px;align-items:center;margin-bottom:12px} .score b{font-size:26px}
+    .st{border-top:1px solid #ddd;padding:8px 0} .h{display:flex;gap:8px;align-items:center} .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:5px;background:#6E3B34;color:#fff;font-weight:700;font-size:11px}
+    .h small{color:#5c6675;flex:1} .b{font-weight:800} ul{margin:4px 0 0 30px;padding:0} .note{margin:4px 0 0 30px;color:#333;font-style:italic}
+    .opp{border:2px solid #C05131;border-radius:8px;padding:10px 14px;margin-top:12px} .opp .eb{color:#C05131} .sig{margin-top:22px;color:#5c6675;font-size:12px}
+    @media print{body{margin:12mm}}</style></head><body>
+    <div class="head"><p class="eb">Leslie Heating, Cooling, Plumbing &amp; Electric · Confidential Coaching Record</p><h1>Ride-Along Coaching Recap</h1></div>
+    <div class="grid"><div><b>Consultant</b> ${dbEsc(r.rep||'')}</div><div><b>Date</b> ${dbEsc(r.date||'')}</div><div><b>Customer / job</b> ${dbEsc(r.job||'')}</div><div><b>Evaluator</b> ${dbEsc(r.coach||'')}</div><div><b>Outcome</b> ${dbEsc(r.outcome||'—')}</div><div><b>Quote</b> ${r.quote?'$'+Number(r.quote).toLocaleString():'—'}</div></div>
+    <div class="score"><b>${a?a.avg.toFixed(1):'—'} / 5</b><span>Process score · ${a?a.n:0} of ${RA_STEPS.length} steps scored</span></div>
+    ${rows}
+    ${r.summary?`<h3 style="margin:14px 0 4px">Appointment summary</h3><p style="white-space:pre-wrap">${dbEsc(r.summary)}</p>`:''}
+    ${r.oppT?`<div class="opp"><p class="eb">Biggest opportunity${r.oppStep?' · '+dbEsc(r.oppStep):''}</p><b>${dbEsc(r.oppT)}</b>${r.oppD?`<p style="margin:6px 0 0">${dbEsc(r.oppD)}</p>`:''}</div>`:''}
+    <div class="sig"><b>${dbEsc(r.coach||'')}</b><br>Leslie Heating, Cooling, Plumbing &amp; Electric, Inc.</div>
+    <script>window.onload=function(){window.print();}<\/script></body></html>`;
+  const w=window.open('','_blank'); if(!w){ toast('Allow pop-ups to print'); return; } w.document.write(html); w.document.close();
 }
 
 /* =================== DAILY LOG =================== */
@@ -5579,7 +5947,7 @@ function renderNumbers(){
 
 
 /* =================== built-in guide =================== */
-const GUIDE_ANCHOR={today:'g-today',mytb:'g-mytb',myboard:'g-myboard',debrief:'g-debrief',review:'g-review',track:'g-track',
+const GUIDE_ANCHOR={ridealong:'g-ridealong',today:'g-today',mytb:'g-mytb',myboard:'g-myboard',debrief:'g-debrief',review:'g-review',track:'g-track',
   coach:'g-coach',overview:'g-scoreboard',daily:'g-daily',recap:'g-daily',team:'g-team',forecast:'g-forecast',
   pricebook:'g-pricebook',
   yoy:'g-yoy',pace:'g-pace',import:'g-import',guide:'g-rhythm'};
@@ -5624,10 +5992,10 @@ function helpHere(){
 /* =================== init =================== */
 function fillRepSelects(){
   const opts=state.config.reps.map(r=>`<option>${r}</option>`).join('');
-  ['tbRep','trRep','dbRep','mbRep','tdRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
+  ['tbRep','trRep','dbRep','mbRep','tdRep','raRep'].forEach(id=>{const cur=$(id).value;$(id).innerHTML=opts;if(cur&&state.config.reps.includes(cur))$(id).value=cur;});
 }
 function refreshAll(){
-  fillRepSelects(); loadForm(); renderMyBoard(); renderToday(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); renderPriceBook(); if(canFull()) renderPaceView();
+  fillRepSelects(); loadForm(); renderMyBoard(); renderToday(); renderRideAlong(); renderDebrief(); renderReview(); renderTrack(); renderCoach(); renderPriceBook(); if(canFull()) renderPaceView();
   renderNumbers();
 }
 /* =================== post-call debrief =================== */
