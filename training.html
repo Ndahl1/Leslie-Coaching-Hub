@@ -346,6 +346,37 @@ const G=[
    check:'The asks are the deal. Anything you commit to on Monday, report on next Monday &mdash; the board is the record either way.'},
  ],tips:[]},
 
+/* ----------------------------------------------------------- COMPLIANCE */
+{id:'compliance',group:'Coaching',tab:'Compliance',roles:MGR,when:'Friday, or any time · nothing to enter',
+ lead:'Execution of the consultant responsibilities, scored from what is already in the hub &mdash; Today commitments, debriefs, the daily log, My Week and the checkpoint button. Nobody types anything here.',
+ tasks:[
+  {t:'Read the team for the week',roles:MGR,steps:[
+    'Sign in. Open <b>Compliance</b>. The week defaults to this one; use <b>&larr; Prev</b> / <b>Next &rarr;</b> or the date box (it snaps to Monday).',
+    'Tiles: team compliance (the average of the categories), the weakest category, debriefs against appointments run, and who is under 70%.',
+    'The grid: one row per consultant, one column per responsibility. Each cell is a percentage with the count behind it &mdash; <i>67% &middot; 10 of 15</i>. Green is 90%+, orange 70&ndash;89, red under 70, grey means nothing to measure yet.',
+    'Click any column heading to sort by it (worst first). Click <b>Overall</b> to get back.',
+    'The <b>Team</b> row at the bottom is the sum of everyone&rsquo;s done over everyone&rsquo;s expected, per category.'],
+   check:'A grey cell is not a fail: a category with nothing expected yet (no unsold calls, Wednesday not reached, no manager notes) is left out of the average.'},
+  {t:'Drill into one consultant',roles:MGR,steps:[
+    'Click the consultant&rsquo;s name. A panel opens underneath with one card per category.',
+    'Each card shows the score, why it counts, and the specifics &mdash; which days had no commitment, which customers had no restate, which unsold calls still have no HA/ZT, whether My Week was on time.',
+    'The bars under each card are the last six weeks, oldest on the left, so a one-off looks different from a habit.',
+    'Take the two or three items into Monday&rsquo;s one-on-one. Press <b>Close</b> or click the name again to collapse.'],
+   check:null},
+  {t:'What each category measures',roles:MGR,steps:[
+    '<b>Morning commitment</b> &mdash; committed on Today each working day that has passed (days the log shows zero appointments are skipped). The detail line counts how many were before 7:45.',
+    '<b>Debrief coverage</b> &mdash; debriefs entered against appointments run in the daily log. Unlogged days can&rsquo;t be scored, so log the day first.',
+    '<b>Restate-to-nod</b>, <b>Review ask</b>, <b>Family Plan offer</b>, <b>Exact words</b> &mdash; out of every call debriefed. An ask that didn&rsquo;t land still counts as an ask; <i>Already a member</i> counts as covered.',
+    '<b>Focus behavior</b> &mdash; ran it, out of calls where the question was asked. Grey if no My Week was filed.',
+    '<b>HA/ZT on unsold</b> &mdash; made or scheduled, out of unsold calls. A coached call from Call Coach marks it made.',
+    '<b>Wed checkpoint</b> &mdash; expected once Wednesday has passed; counts the button press on Debrief.',
+    '<b>My Week filed</b> &mdash; a touch base with a behavior. The detail says whether it was saved before Monday 7:00.',
+    '<b>Last week graded</b> &mdash; only expected when last week had a plan. <b>Notes agreed</b> &mdash; only expected once you have written notes.'],
+   check:null},
+  {t:'Export the week',roles:MGR,steps:['Press <b>Export CSV</b>. One row per consultant with the percentage, done and expected for every category.'],check:null},
+ ],
+ tips:[{h:'Use it before Monday, not instead of Monday',p:'The grid tells you where the conversation is; the drill-down tells you the specific calls and days. It never replaces reading the card on Team Review.'}]},
+
 /* ----------------------------------------------------------- CALL COACH */
 {id:'coach',group:'Coaching',tab:'Call Coach',roles:['manager','coach'],when:'Live, while the phone is ringing · every afternoon for the queue',
  lead:'The High Authority and Zero Ticket playbook, built for the moment you pick up. Everything you tap becomes a coached-call record on that consultant&rsquo;s week.',

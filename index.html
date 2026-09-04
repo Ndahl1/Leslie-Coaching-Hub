@@ -355,6 +355,31 @@
   .cov-line.ok{background:var(--sage);color:#fff}
   .cov-line.owe{background:#FFF3EE;border:1.5px solid var(--terracotta);color:var(--maroon)}
   .cov-line.none{background:var(--tan-soft);color:var(--maroon);font-weight:600}
+  /* compliance */
+  .cmp-tbl{width:100%;border-collapse:collapse;font-size:.84rem}
+  .cmp-tbl th,.cmp-tbl td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+  .cmp-tbl th{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;cursor:pointer;white-space:nowrap}
+  .cmp-tbl th.on{color:var(--maroon)}
+  .cmp-tbl td:first-child,.cmp-tbl th:first-child{text-align:left;white-space:nowrap}
+  .cmp-tbl tr.rep{cursor:pointer}.cmp-tbl tr.rep:hover td{background:#FBF6EE}
+  .cmp-tbl tr.sel td{background:var(--tan-soft)}
+  .cmp-tbl tr.team td{font-weight:700;border-top:2px solid var(--maroon);background:var(--paper)}
+  .cell{display:inline-block;min-width:58px;padding:4px 8px;border-radius:6px;font-weight:700;font-variant-numeric:tabular-nums}
+  .cell small{display:block;font-weight:500;font-size:.68rem;opacity:.85}
+  .cell.g{background:#E4EFEA;color:#3E6B5B}.cell.a{background:#FBEBD9;color:#9A5A1E}.cell.r{background:#F8E0DD;color:#9B2B2B}.cell.n{background:#F1ECE4;color:var(--muted);font-weight:500}
+  .cmp-total .cell{min-width:64px;font-size:.95rem}
+  .cmp-drill{margin-top:16px}
+  .cmp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:10px}
+  .cmp-card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+  .cmp-card .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .cmp-card .h b{font-size:.92rem}
+  .cmp-card .why{font-size:.76rem;color:var(--muted);margin:2px 0 6px}
+  .cmp-card ul{margin:4px 0 0 16px;font-size:.8rem}.cmp-card li{margin-bottom:2px}
+  .cmp-trend{display:flex;gap:3px;align-items:flex-end;height:26px;margin-top:8px}
+  .cmp-trend span{flex:1;border-radius:2px 2px 0 0;min-height:3px}
+  .cmp-trend span.g{background:#7A9B8E}.cmp-trend span.a{background:#D98A3A}.cmp-trend span.r{background:#C8102E}.cmp-trend span.n{background:#E5DCCF}
+  .cmp-legend{font-size:.74rem;color:var(--muted);margin:6px 0 0}
+  .cmp-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin:0 4px 0 10px}
   .cov-tbl{width:100%;border-collapse:collapse;font-size:.82rem}
   .cov-tbl th,.cov-tbl td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
   .cov-tbl th{font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;
@@ -1018,6 +1043,34 @@
   <div id="revLocked" class="locked" style="display:none">&#128274; The Monday board shows every consultant's week, including manager notes. It is manager-only &mdash; use the <b>Manager</b> button up top. Your own one-on-one notes are on <b>My Week</b>.</div>
   <div id="revCoverage"></div>
   <div class="rev-grid" id="revGrid"></div>
+</section>
+
+<!-- ============ COMPLIANCE ============
+     The consultant responsibilities, scored from what is already in the hub.
+     Nothing is entered here: every cell is derived from Today commitments,
+     debriefs, the daily log, My Week entries and the checkpoint button. -->
+<section class="view" id="view-compliance">
+  <h2>Compliance <span id="cmpSrc" class="t-src"></span></h2>
+  <p class="t-sub">Execution of the consultant responsibilities, by consultant and by category. Click a name to drill down; click a column to sort.</p>
+  <div id="cmpLocked" class="locked" style="display:none">&#128274; Compliance is manager-only. Use the <b>Manager</b> button up top.</div>
+  <div id="cmpBody">
+    <div class="card">
+      <div class="bar">
+        <div><label for="cmpWeek">Week of (Monday)</label><input type="date" id="cmpWeek" onchange="$('cmpWeek').value=mondayOf($('cmpWeek').value);renderCompliance()"></div>
+        <div style="min-width:auto;align-self:end"><button class="btn ghost small" onclick="$('cmpWeek').value=thisWeek();renderCompliance()">This week</button></div>
+        <div style="min-width:auto;align-self:end"><button class="btn ghost small" onclick="cmpShift(-7)">&larr; Prev</button></div>
+        <div style="min-width:auto;align-self:end"><button class="btn ghost small" onclick="cmpShift(7)">Next &rarr;</button></div>
+        <div style="min-width:auto;align-self:end;margin-left:auto"><button class="btn ghost small" onclick="cmpExport()">Export CSV</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Team <span class="hint" id="cmpWeekLabel" style="font-weight:500"></span></h3>
+      <div class="pace-strip" id="cmpTiles"></div>
+      <div class="tbl-wrap" style="margin-top:12px"><table class="cmp-tbl" id="cmpTable"></table></div>
+      <div class="cmp-legend"><i style="background:#E4EFEA"></i>90%+ on track <i style="background:#FBEBD9"></i>70&ndash;89% watch <i style="background:#F8E0DD"></i>under 70% <i style="background:#F1ECE4"></i>nothing to measure yet</div>
+    </div>
+    <div class="card cmp-drill" id="cmpDrill" style="display:none"></div>
+  </div>
 </section>
 
 <!-- ============ TRACK RECORD ============ -->
@@ -2712,7 +2765,7 @@ const NAV=[
     ['team','The Team','full'],['forecast','Where We Land','full'],['yoy','vs Last Year','full']]},
   {g:'coaching',label:'Coaching',tabs:[
     ['today','Today'],['mytb','My Week'],['myboard','My Board'],['debrief','Debrief'],
-    ['review','Team Review','full'],['track','Track Record'],['coach','Call Coach','coach'],
+    ['review','Team Review','full'],['compliance','Compliance','full'],['track','Track Record'],['coach','Call Coach','coach'],
     ['ridealong','Ride-Along','coach'],['pricebook','Price Book'],['guide','Guide'],['training','Training',null,'training.html']]},
   {g:'setup',label:'Setup',tabs:[['pace','Setup','full'],['import','Import','full']]}
 ];
@@ -2754,6 +2807,7 @@ function showView(v){
   if(v==='ridealong') renderRideAlong();
   if(v==='review') renderReview();
   if(v==='track') renderTrack();
+  if(v==='compliance') renderCompliance();
   if(v==='coach') renderCoach();
   if(v==='pace') renderPaceView();
   if(v==='overview') renderOverview();
@@ -2880,7 +2934,7 @@ function toggleManager(){
   $('mgrBtn').textContent=mgrLabel();
   { const open=navGroups().some(gr=>gr.tabs.some(t=>t[0]===curView)); if(!open) showView('mytb'); else renderNav(); }
   renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach(); renderDebrief(); renderNumbers();
-  renderPriceBook(); renderGuide(); renderMyBoard(); renderToday(); renderRideAlong();
+  renderPriceBook(); renderGuide(); renderMyBoard(); renderToday(); renderRideAlong(); renderCompliance();
 }
 
 /* =================== my touch base =================== */
@@ -6444,8 +6498,136 @@ function dbCheckpoint(){
     'Calls: '+calls.length+' \u00B7 Sold: '+sold.length,
     'HA/ZT on unsold: '+cov+'/'+uns.length
   ].filter(Boolean).join('\n');
+  /* remember that the button was pressed, so Compliance can count it */
+  { const wk=thisWeek(); let e=entryFor(rep,wk);
+    if(!e){ e={id:rep+'|'+wk, rep, week:wk, ts:Date.now(), kpis:{}, steps:{}, debriefs:[]}; state.entries.push(e); }
+    e.checkpoints=(e.checkpoints||[]).concat(Date.now()); push('saveEntry',{entry:e}); }
   if(navigator.share){ navigator.share({text:msg}).catch(()=>{}); }
   else{ navigator.clipboard.writeText(msg).then(()=>toast('Checkpoint copied — paste it into a text to Nels')); }
+}
+
+/* =================== COMPLIANCE ===================
+   Each category is {done, expected, detail[]} for one consultant and one
+   week. A category with nothing expected yet (no calls, no unsold, Wednesday
+   not reached) scores null and is left out of the average, so an empty week
+   never reads as a failed one. */
+const CMP_HUDDLE_MIN=7*60+45;              /* commitments before 7:45 count as on time */
+const CMP_MYWEEK_DEADLINE_MIN=7*60;        /* My Week saved before Monday 7:00 */
+const CMP_CATS=[
+  {k:'commit', label:'Morning commitment', why:'Committed on Today each working day'},
+  {k:'debrief',label:'Debrief coverage',   why:'One debrief per appointment run'},
+  {k:'nod',    label:'Restate-to-nod',     why:'Got the nod before presenting'},
+  {k:'focus',  label:'Focus behavior',     why:'Ran the week’s focus behavior'},
+  {k:'review', label:'Review ask',         why:'Asked for a Google review'},
+  {k:'lfp',    label:'Family Plan offer',  why:'Offered the Leslie Family Plan'},
+  {k:'hazt',   label:'HA/ZT on unsold',    why:'Manager call made or scheduled'},
+  {k:'words',  label:'Exact words',        why:'Logged the customer’s words'},
+  {k:'checkpt',label:'Wed checkpoint',     why:'Pressed Text Nels my checkpoint'},
+  {k:'myweek', label:'My Week filed',      why:'Touch base saved with a behavior'},
+  {k:'graded', label:'Last week graded',   why:'Worked / Partial / Didn’t answered'},
+  {k:'agreed', label:'Notes agreed',       why:'Pressed agree after the one-on-one'},
+];
+function cmpWeekDays(wk){
+  const out=[]; const today=localISO();
+  for(let i=0;i<5;i++){ const d=new Date(wk+'T12:00:00'); d.setDate(d.getDate()+i); const iso=localISO(d); if(iso<=today) out.push(iso); }
+  return out;
+}
+function cmpDayLabel(iso){ return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'}); }
+function cmpMins(ts){ const d=new Date(ts); return d.getHours()*60+d.getMinutes(); }
+function cmpScore(rep,wk){
+  const days=cmpWeekDays(wk), e=entryFor(rep,wk), calls=(e?.debriefs||[]);
+  const R={};
+  /* morning commitment: one per working day that has passed; skip days the log shows they ran nothing */
+  { let done=0,exp=0,onTime=0; const miss=[];
+    days.forEach(iso=>{ const ap=apptsOn(rep,iso); if(ap===0) return; exp++; const m=tdMine(iso,rep);
+      if(m){ done++; if(m.first&&cmpMins(m.first)<=CMP_HUDDLE_MIN) onTime++; } else miss.push(cmpDayLabel(iso)); });
+    R.commit={done,exp,detail:[...(miss.length?['Missed: '+miss.join(', ')]:[]), exp?('On time (before 7:45): '+onTime+' of '+done):'']}; }
+  /* debrief coverage against the daily log */
+  { let done=0,exp=0,unlogged=0; const gaps=[];
+    days.forEach(iso=>{ const ap=apptsOn(rep,iso); const n=debriefsOn(rep,iso).length;
+      if(ap===null){ if(n) unlogged++; return; } exp+=ap; done+=Math.min(ap,n); if(n<ap) gaps.push(cmpDayLabel(iso)+' '+n+' of '+ap); if(n>ap) gaps.push(cmpDayLabel(iso)+' +'+(n-ap)+' extra'); });
+    R.debrief={done,exp,detail:[...gaps, unlogged?(unlogged+' day'+(unlogged===1?'':'s')+' with debriefs but not in the daily log yet'):'']}; }
+  const cust=c=>c.customer||'(no name)';
+  R.nod={done:calls.filter(c=>c.nod).length,exp:calls.length,detail:calls.filter(c=>!c.nod).map(c=>'Didn’t: '+cust(c))};
+  { const fc=calls.filter(c=>c.focus!==null&&c.focus!==undefined);
+    R.focus={done:fc.filter(c=>c.focus).length,exp:fc.length,detail:e?.plan?.behavior?fc.filter(c=>!c.focus).map(c=>'Skipped: '+cust(c)):['No focus behavior this week — My Week not filed']}; }
+  R.review={done:calls.filter(c=>c.review==='left'||c.review==='asked').length,exp:calls.length,detail:[calls.filter(c=>c.review==='left').length+' left', ...calls.filter(c=>c.review==='no').map(c=>'Didn’t ask: '+cust(c))]};
+  R.lfp={done:calls.filter(c=>c.lfp==='sold'||c.lfp==='offered'||c.lfp==='member').length,exp:calls.length,detail:[calls.filter(c=>c.lfp==='sold').length+' signed, '+calls.filter(c=>c.lfp==='member').length+' already members', ...calls.filter(c=>c.lfp==='no').map(c=>'Didn’t offer: '+cust(c))]};
+  { const uns=calls.filter(c=>c.outcome!=='sold');
+    R.hazt={done:uns.filter(c=>c.hazt==='made'||c.hazt==='sched').length,exp:uns.length,detail:uns.filter(c=>!(c.hazt==='made'||c.hazt==='sched')).map(c=>'Not yet: '+cust(c))}; }
+  R.words={done:calls.filter(c=>(c.words||'').trim()).length,exp:calls.length,detail:calls.filter(c=>!(c.words||'').trim()).map(c=>'Blank: '+cust(c))};
+  /* Wednesday checkpoint: expected once Wednesday has passed */
+  { const wed=new Date(wk+'T12:00:00'); wed.setDate(wed.getDate()+2); const wedIso=localISO(wed); const exp=localISO()>=wedIso?1:0;
+    const cps=(e?.checkpoints||[]); R.checkpt={done:cps.length?1:0,exp,detail:[cps.length?('Sent '+new Date(cps[0]).toLocaleDateString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit'})):(exp?'Not sent':'Wednesday not reached')]}; }
+  /* My Week: filed with a behavior; on time if saved before Monday 07:00 */
+  { const filed=!!(e&&e.plan&&e.plan.behavior); const dead=new Date(wk+'T00:00:00'); dead.setMinutes(CMP_MYWEEK_DEADLINE_MIN);
+    const onTime=filed&&e.ts&&e.ts<=dead.getTime(); R.myweek={done:filed?1:0,exp:1,detail:[filed?(onTime?'On time':'Filed late — '+new Date(e.ts).toLocaleDateString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit'})):'Not filed']}; }
+  /* graded: only expected when the previous week had a plan */
+  { const pw=new Date(wk+'T12:00:00'); pw.setDate(pw.getDate()-7); const prev=entryFor(rep,localISO(pw));
+    const exp=prev?.plan?.behavior?1:0; const done=exp&&e?.prior?.result?1:0; R.graded={done,exp,detail:[exp?(done?('Graded: '+e.prior.result):'Pending — section 2 of My Week'):'No plan last week']}; }
+  /* agreed: only expected once manager notes exist */
+  { const exp=(e?.managerNotes||e?.skillPractice)?1:0; const done=exp&&e?.ack?1:0; R.agreed={done,exp,detail:[exp?(done?'Agreed':'Notes written, not yet agreed'):'No manager notes yet']}; }
+  Object.values(R).forEach(c=>{ c.detail=c.detail.filter(Boolean); c.pct=c.exp?Math.round(100*c.done/c.exp):null; });
+  const scored=CMP_CATS.map(c=>R[c.k].pct).filter(p=>p!==null);
+  R.overall=scored.length?Math.round(scored.reduce((a,b)=>a+b,0)/scored.length):null;
+  return R;
+}
+function cmpCls(p){ return p===null?'n':p>=90?'g':p>=70?'a':'r'; }
+function cmpCell(c){ return `<span class="cell ${cmpCls(c.pct)}">${c.pct===null?'—':c.pct+'%'}<small>${c.exp?c.done+' of '+c.exp:'n/a'}</small></span>`; }
+let cmpSort='overall', cmpSel=null;
+function cmpWeek(){ const el=$('cmpWeek'); if(el&&!el.value) el.value=thisWeek(); return el?el.value:thisWeek(); }
+function cmpShift(n){ const d=new Date(cmpWeek()+'T12:00:00'); d.setDate(d.getDate()+n); $('cmpWeek').value=mondayOf(localISO(d)); renderCompliance(); }
+function cmpSortBy(k){ cmpSort=k; renderCompliance(); }
+function cmpPick(rep){ cmpSel=cmpSel===rep?null:rep; renderCompliance(); if(cmpSel){ const d=$('cmpDrill'); if(d) d.scrollIntoView({behavior:'smooth',block:'start'}); } }
+function renderCompliance(){
+  const body=$('cmpBody'); if(!body) return;
+  if(!canFull()){ body.style.display='none'; $('cmpLocked').style.display=''; return; }
+  body.style.display=''; $('cmpLocked').style.display='none';
+  const wk=cmpWeek(); const reps=state.config.reps.slice();
+  const lab=new Date(wk+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'});
+  $('cmpWeekLabel').textContent='— week of '+lab+(wk===thisWeek()?' (in progress)':'');
+  $('cmpSrc').className='t-src live'; $('cmpSrc').textContent=cmpWeekDays(wk).length+' working day'+(cmpWeekDays(wk).length===1?'':'s')+' counted';
+  const rows=reps.map(r=>({rep:r,S:cmpScore(r,wk)}));
+  const val=(row,k)=>k==='overall'?row.S.overall:row.S[k].pct;
+  rows.sort((a,b)=>{ const x=val(a,cmpSort),y=val(b,cmpSort); if(x===y) return a.rep.localeCompare(b.rep); if(x===null) return 1; if(y===null) return -1; return x-y; });
+  /* team row: sum of done / sum of expected per category */
+  const team={}; CMP_CATS.forEach(c=>{ const done=rows.reduce((n,r)=>n+r.S[c.k].done,0), exp=rows.reduce((n,r)=>n+r.S[c.k].exp,0); team[c.k]={done,exp,pct:exp?Math.round(100*done/exp):null}; });
+  const tp=CMP_CATS.map(c=>team[c.k].pct).filter(p=>p!==null); team.overall=tp.length?Math.round(tp.reduce((a,b)=>a+b,0)/tp.length):null;
+  /* tiles */
+  const worst=CMP_CATS.filter(c=>team[c.k].pct!==null).sort((a,b)=>team[a.k].pct-team[b.k].pct)[0];
+  const behind=rows.filter(r=>r.S.overall!==null&&r.S.overall<70).map(r=>r.rep);
+  $('cmpTiles').innerHTML=
+    statCard('Team compliance',team.overall===null?'—':team.overall+'%','average of the categories',cmpCls(team.overall)==='g'?'ok':cmpCls(team.overall)==='a'?'watch':'sub')
+    +statCard('Weakest category',worst?worst.label:'—',worst?(team[worst.k].pct+'% · '+team[worst.k].done+' of '+team[worst.k].exp):'nothing measured yet',worst?(cmpCls(team[worst.k].pct)==='g'?'ok':cmpCls(team[worst.k].pct)==='a'?'watch':'sub'):'')
+    +statCard('Debriefs vs appointments',team.debrief.exp?team.debrief.pct+'%':'—',team.debrief.exp?(team.debrief.done+' of '+team.debrief.exp+' run'):'daily log not in yet',team.debrief.exp?(cmpCls(team.debrief.pct)==='g'?'ok':cmpCls(team.debrief.pct)==='a'?'watch':'sub'):'')
+    +statCard('Under 70%',behind.length?String(behind.length):'0',behind.length?behind.join(', '):'nobody',behind.length?'sub':'ok');
+  /* table */
+  const th=(k,l)=>`<th class="${cmpSort===k?'on':''}" onclick="cmpSortBy('${k}')" title="Sort">${l}${cmpSort===k?' ▴':''}</th>`;
+  let h='<thead><tr><th onclick="cmpSortBy(\'name\')">Consultant</th>'+th('overall','Overall')+CMP_CATS.map(c=>th(c.k,c.label)).join('')+'</tr></thead><tbody>';
+  if(cmpSort==='name') rows.sort((a,b)=>a.rep.localeCompare(b.rep));
+  rows.forEach(r=>{ h+=`<tr class="rep ${cmpSel===r.rep?'sel':''}" onclick="cmpPick('${dbEsc(r.rep)}')"><td><b>${dbEsc(r.rep)}</b></td><td class="cmp-total"><span class="cell ${cmpCls(r.S.overall)}">${r.S.overall===null?'—':r.S.overall+'%'}</span></td>`+CMP_CATS.map(c=>'<td>'+cmpCell(r.S[c.k])+'</td>').join('')+'</tr>'; });
+  h+=`<tr class="team"><td>Team</td><td class="cmp-total"><span class="cell ${cmpCls(team.overall)}">${team.overall===null?'—':team.overall+'%'}</span></td>`+CMP_CATS.map(c=>'<td>'+cmpCell(team[c.k])+'</td>').join('')+'</tr></tbody>';
+  $('cmpTable').innerHTML=h;
+  /* drill-down */
+  const drill=$('cmpDrill');
+  if(!cmpSel||!reps.includes(cmpSel)){ drill.style.display='none'; cmpSel=null; return; }
+  drill.style.display='';
+  const S=cmpScore(cmpSel,wk);
+  /* six-week trend per category, oldest first */
+  const weeks=[]; for(let i=5;i>=0;i--){ const d=new Date(wk+'T12:00:00'); d.setDate(d.getDate()-7*i); weeks.push(localISO(d)); }
+  const hist=weeks.map(w=>({w,S:cmpScore(cmpSel,w)}));
+  const trend=k=>`<div class="cmp-trend" title="Last six weeks, oldest first">${hist.map(x=>{const p=k==='overall'?x.S.overall:x.S[k].pct; const lab=new Date(x.w+'T12:00:00').toLocaleDateString('en-US',{month:'numeric',day:'numeric'}); return `<span class="${cmpCls(p)}" style="height:${p===null?3:Math.max(3,Math.round(p*.26))}px" title="${lab}: ${p===null?'n/a':p+'%'}"></span>`;}).join('')}</div>`;
+  drill.innerHTML=`<div class="row" style="align-items:flex-start"><div><h3>${dbEsc(cmpSel)} <span class="hint" style="font-weight:500">— week of ${lab}</span></h3>
+      <p class="hint" style="margin:-4px 0 6px">Every number below comes from what ${dbEsc(cmpSel)} logged. Bars show the last six weeks.</p></div>
+    <div style="text-align:right"><span class="cell ${cmpCls(S.overall)}" style="font-size:1.3rem;padding:6px 14px">${S.overall===null?'—':S.overall+'%'}<small>overall</small></span>${trend('overall')}</div></div>
+    <div class="cmp-cards">${CMP_CATS.map(c=>{const x=S[c.k]; return `<div class="cmp-card"><div class="h"><b>${c.label}</b>${cmpCell(x)}</div><div class="why">${c.why}</div>${x.detail.length?'<ul>'+x.detail.slice(0,8).map(d=>'<li>'+dbEsc(d)+'</li>').join('')+(x.detail.length>8?'<li>…and '+(x.detail.length-8)+' more</li>':'')+'</ul>':''}${trend(c.k)}</div>`;}).join('')}</div>
+    <p class="hint" style="margin-top:12px"><button class="btn ghost small" onclick="cmpSel=null;renderCompliance()">Close</button></p>`;
+}
+function cmpExport(){
+  const wk=cmpWeek(); const rows=[['Consultant','Overall',...CMP_CATS.flatMap(c=>[c.label+' %',c.label+' done',c.label+' expected'])]];
+  state.config.reps.forEach(r=>{ const S=cmpScore(r,wk); rows.push([r,S.overall??'',...CMP_CATS.flatMap(c=>[S[c.k].pct??'',S[c.k].done,S[c.k].exp])]); });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='compliance-'+wk+'.csv'; a.click();
 }
 
 /* =================== DAILY RECAP ===================
