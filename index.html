@@ -378,6 +378,11 @@
   .cmp-trend{display:flex;gap:3px;align-items:flex-end;height:26px;margin-top:8px}
   .cmp-trend span{flex:1;border-radius:2px 2px 0 0;min-height:3px}
   .cmp-trend span.g{background:#7A9B8E}.cmp-trend span.a{background:#D98A3A}.cmp-trend span.r{background:#C8102E}.cmp-trend span.n{background:#E5DCCF}
+  .cmp-strip{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+  .cmp-strip .cell{min-width:0;padding:3px 7px;font-size:.78rem}
+  .cmp-strip .cell small{font-size:.6rem}
+  .cmp-strip .ov{font-size:1rem;padding:5px 12px;margin-right:4px}
+  .cmp-miss{font-size:.82rem;margin:6px 0 0 16px}.cmp-miss li{margin-bottom:2px}
   .cmp-legend{font-size:.74rem;color:var(--muted);margin:6px 0 0}
   .cmp-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin:0 4px 0 10px}
   .cov-tbl{width:100%;border-collapse:collapse;font-size:.82rem}
@@ -751,6 +756,11 @@
     <h3><span class="stepnum">1</span> The Board — this month's pace</h3>
     <div class="hint" style="margin-bottom:10px" id="paceSrc"></div>
     <div class="pace-strip" id="paceStrip"></div>
+  </div>
+
+  <div class="card" id="cmpMineCard" style="display:none">
+    <h3>How I executed last week <span class="hint" style="font-weight:500" id="cmpMineSub"></span></h3>
+    <div id="cmpMine"></div>
   </div>
 
   <div class="card" id="priorCard" style="display:none">
@@ -3047,7 +3057,7 @@ function loadForm(){
     return;
   }
   $('tbBody').style.display=''; $('tbLock').style.display='none';
-  renderPaceStrip(); buildOppSelectors(); renderPrior();
+  renderPaceStrip(); buildOppSelectors(); renderPrior(); renderCmpMine();
   const e=entryFor($('tbRep').value,$('tbWeek').value);
   stepScores = e?.steps ? {...e.steps} : {};
   buildStepGrid();
@@ -3175,7 +3185,7 @@ function renderReview(){
     const e=entryFor(rep,week);
     if(!e || (!e.plan && !e.wins && !Object.keys(e.steps||{}).length)){
       const ra=rideAlongForWeek(rep,week);
-      grid.innerHTML+=`<div class="rev-card"><h4>${rep}</h4><div class="wk">Week of ${week}</div><div class="empty" style="padding:16px">No touch base submitted yet.</div>${ra?`<div class="rev-sec"><div class="eyebrow">Ride-along${ra.week!==week?' (from the week before)':''}</div>${raBlock(ra,{summary:true})}</div>`:''}</div>`;
+      grid.innerHTML+=`<div class="rev-card"><h4>${rep}</h4><div class="wk">Week of ${week}</div><div class="empty" style="padding:16px">No touch base submitted yet.</div>${cmpRevBlock(rep,week)}${ra?`<div class="rev-sec"><div class="eyebrow">Ride-along${ra.week!==week?' (from the week before)':''}</div>${raBlock(ra,{summary:true})}</div>`:''}</div>`;
       return;
     }
     const kchips=KPIS.map(k=>{
@@ -3195,6 +3205,7 @@ function renderReview(){
     grid.innerHTML+=`<div class="rev-card">
       <h4>${rep}</h4><div class="wk">Week of ${e.week} ${e.ack?'<span class="result-chip worked" title="Consultant reviewed the manager fields and agreed">Agreed &#10004;</span>':''}</div>
       <div class="mini-kpis">${kchips}</div>
+      ${cmpRevBlock(rep,week)}
       <div class="eyebrow">Sales system self-check</div>
       <div class="step-meter">${segs}</div>
       ${pr?`<div class="rev-sec"><div class="eyebrow">Last week's action</div>${prChip} <span style="font-size:.85rem">${dbEsc(e.prior?.note||'')}</span></div>`:''}
@@ -6622,6 +6633,33 @@ function renderCompliance(){
     <div style="text-align:right"><span class="cell ${cmpCls(S.overall)}" style="font-size:1.3rem;padding:6px 14px">${S.overall===null?'—':S.overall+'%'}<small>overall</small></span>${trend('overall')}</div></div>
     <div class="cmp-cards">${CMP_CATS.map(c=>{const x=S[c.k]; return `<div class="cmp-card"><div class="h"><b>${c.label}</b>${cmpCell(x)}</div><div class="why">${c.why}</div>${x.detail.length?'<ul>'+x.detail.slice(0,8).map(d=>'<li>'+dbEsc(d)+'</li>').join('')+(x.detail.length>8?'<li>…and '+(x.detail.length-8)+' more</li>':'')+'</ul>':''}${trend(c.k)}</div>`;}).join('')}</div>
     <p class="hint" style="margin-top:12px"><button class="btn ghost small" onclick="cmpSel=null;renderCompliance()">Close</button></p>`;
+}
+/* The compact version of a consultant's week, for the Monday card and My Week.
+   `wk` is the week being scored — normally the week *before* the touch base,
+   because Monday's one-on-one is about the week that just ended. */
+const CMP_SHORT={commit:'Commit',debrief:'Debrief',nod:'Nod',focus:'Focus',review:'Review',lfp:'LFP',hazt:'HA/ZT',words:'Words',checkpt:'Wed ✓',myweek:'My Week',graded:'Graded',agreed:'Agreed'};
+function cmpStrip(rep,wk,opts){
+  opts=opts||{}; const S=cmpScore(rep,wk);
+  const cells=CMP_CATS.map(c=>{const x=S[c.k]; return `<span class="cell ${cmpCls(x.pct)}" title="${c.label}: ${x.exp?x.done+' of '+x.exp:'nothing to measure'}${x.detail.length?' — '+dbEsc(x.detail.slice(0,3).join('; ')):''}">${CMP_SHORT[c.k]} ${x.pct===null?'—':x.pct+'%'}</span>`;}).join('');
+  const misses=CMP_CATS.filter(c=>S[c.k].pct!==null&&S[c.k].pct<70).map(c=>`<li><b>${c.label}</b> ${S[c.k].done} of ${S[c.k].exp}${S[c.k].detail.length?' — '+dbEsc(S[c.k].detail.slice(0,opts.maxDetail||2).join('; ')):''}</li>`);
+  return `<div class="cmp-strip"><span class="cell ov ${cmpCls(S.overall)}">${S.overall===null?'—':S.overall+'%'}</span>${cells}</div>`
+    +(misses.length?`<ul class="cmp-miss">${misses.join('')}</ul>`:(S.overall===null?'':'<p class="hint" style="margin:6px 0 0">Nothing under 70%.</p>'));
+}
+function cmpPrevWeek(wk){ const d=new Date(wk+'T12:00:00'); d.setDate(d.getDate()-7); return localISO(d); }
+function cmpRevBlock(rep,week){
+  const pw=cmpPrevWeek(week);
+  const lab=new Date(pw+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return `<div class="rev-sec"><div class="eyebrow">Compliance — week of ${lab} <a href="#" style="font-weight:500;letter-spacing:0;text-transform:none;margin-left:6px" onclick="cmpOpen('${dbEsc(rep)}','${pw}');return false">full detail &rarr;</a></div>${cmpStrip(rep,pw)}</div>`;
+}
+function cmpOpen(rep,wk){ $('cmpWeek').value=wk; cmpSel=rep; showView('compliance'); setTimeout(()=>{const d=$('cmpDrill'); if(d) d.scrollIntoView({behavior:'smooth',block:'start'});},100); }
+function renderCmpMine(){
+  const card=$('cmpMineCard'); if(!card) return;
+  const rep=$('tbRep').value, wk=$('tbWeek').value; if(!rep||!wk){ card.style.display='none'; return; }
+  const pw=cmpPrevWeek(wk); const S=cmpScore(rep,pw);
+  if(S.overall===null){ card.style.display='none'; return; }
+  card.style.display='';
+  $('cmpMineSub').textContent='— week of '+new Date(pw+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric'})+'. Nels sees the same strip on your Monday card.';
+  $('cmpMine').innerHTML=cmpStrip(rep,pw,{maxDetail:3});
 }
 function cmpExport(){
   const wk=cmpWeek(); const rows=[['Consultant','Overall',...CMP_CATS.flatMap(c=>[c.label+' %',c.label+' done',c.label+' expected'])]];
