@@ -47,11 +47,22 @@
   nav{background:var(--maroon)}
   .nav-inner{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:stretch}
   nav button{
-    background:none;border:none;color:#EBD9CE;font:inherit;font-size:.9rem;font-weight:600;
-    padding:10px 8px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;
+    background:none;border:none;color:#EBD9CE;font:inherit;font-size:.95rem;font-weight:600;
+    padding:12px 14px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;
   }
   nav button.active{color:#fff;border-bottom-color:var(--tan)}
   nav button:focus-visible{outline:2px solid var(--tan);outline-offset:-2px}
+  /* two tiers when more than one group is open: groups on maroon, that group's tabs on paper */
+  nav .tier1 .nav-inner{padding:8px 12px 0;gap:4px;align-items:flex-end}
+  nav .tier1 button{font-size:.76rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#DCC3B6;padding:9px 16px 11px;border-bottom:none;border-radius:8px 8px 0 0}
+  nav .tier1 button.on{background:var(--paper);color:var(--maroon)}
+  nav .tier2{background:var(--paper);border-bottom:1px solid var(--line)}
+  nav .tier2 .nav-inner{padding:0 12px}
+  nav .tier2 button{color:var(--ink);opacity:.78}
+  nav .tier2 button:hover{opacity:1}
+  nav .tier2 button.active{color:var(--maroon);opacity:1;border-bottom-color:var(--terracotta)}
+  nav .tier2 button:focus-visible{outline-color:var(--terracotta)}
+  nav .solo .nav-inner{padding:0 12px}
   main{max-width:1180px;margin:0 auto;padding:22px 20px 70px}
   .view{display:none}.view.active{display:block}
   /* ---------- generic ---------- */
@@ -301,6 +312,8 @@
   .tally-label{font-size:.8rem;font-weight:800;color:var(--sage-deep);margin-left:4px}
   .dseg{display:grid;gap:8px;margin-top:2px}
   .dseg.c3{grid-template-columns:1fr 1fr 1fr}
+  .dseg.c4{grid-template-columns:1fr 1fr 1fr 1fr}
+  @media(max-width:560px){.dseg.c4{grid-template-columns:1fr 1fr}}
   .dseg.c2{grid-template-columns:1fr 1fr}
   .dseg button{padding:14px 6px;font-size:.95rem;font-weight:800;border-radius:12px;border:1.5px solid var(--line);
     background:#fff;color:var(--ink);cursor:pointer;font-family:inherit;min-height:52px}
@@ -411,8 +424,6 @@
   .cc-out pre{white-space:pre-wrap;font:inherit;font-size:.85rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;max-height:320px;overflow:auto}
   /* ================= tracker views ================= */
   .ctx-month{background:#2c2523;border:1px solid #6b5f58;color:#F4E8D4;font:inherit;font-size:.78rem;padding:4px 8px;border-radius:6px}
-  nav .sep{width:1px;background:rgba(255,255,255,.22);margin:8px 4px;flex:0 0 auto}
-  nav .grp-label{color:#C9A99A;font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;align-self:center;padding:0 6px 0 2px;white-space:nowrap}
   .t-sub{color:var(--muted);font-size:.82rem;margin:-2px 0 14px}
   .t-src{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:10px;background:var(--tan-soft);color:var(--maroon);margin-left:8px;vertical-align:2px}
   .t-src.live{background:#E4EFEA;color:var(--sage-deep)}
@@ -637,31 +648,7 @@
   </div>
 </header>
 
-<nav>
-  <div class="nav-inner">
-    <span class="grp-label">Numbers</span>
-    <button data-v="overview" onclick="showView('overview')">The Board</button>
-    <button data-v="daily" onclick="showView('daily')">The Log</button>
-    <button data-v="recap" onclick="showView('recap')">Yesterday</button>
-    <button data-v="team" onclick="showView('team')">The Team</button>
-    <button data-v="forecast" onclick="showView('forecast')">Where We Land</button>
-    <button data-v="yoy" onclick="showView('yoy')">vs Last Year</button>
-    <div class="sep"></div><span class="grp-label">Coaching</span>
-    <button data-v="today" onclick="showView('today')">Today</button>
-    <button class="active" data-v="mytb" onclick="showView('mytb')">My Week</button>
-    <button data-v="myboard" onclick="showView('myboard')">My Board</button>
-    <button data-v="debrief" onclick="showView('debrief')">Debrief</button>
-    <button data-v="review" onclick="showView('review')">Team Review</button>
-    <button data-v="track" onclick="showView('track')">Track Record</button>
-    <button data-v="coach" onclick="showView('coach')">Call Coach</button>
-    <button data-v="ridealong" onclick="showView('ridealong')">Ride-Along</button>
-    <button data-v="pricebook" onclick="showView('pricebook')">Price Book</button>
-    <div class="sep"></div>
-    <button data-v="pace" onclick="showView('pace')">Setup</button>
-    <button data-v="import" onclick="showView('import')">Import</button>
-    <button data-v="guide" onclick="showView('guide')">Guide</button>
-  </div>
-</nav>
+<nav id="nav"></nav>
 
 <main>
 
@@ -938,10 +925,10 @@
       </div>
 
       <div id="qFocus" style="display:none">
-        <label id="focusQLabel">Did you run your focus behavior on this call?</label>
+        <label id="focusQLabel">Your focus behavior for this week is shown above. Did you actually do it on this call?</label>
         <div class="dseg c2">
-          <button data-cls="good" onclick="dbPick('focus','yes',this)">Ran it</button>
-          <button data-cls="bad" onclick="dbPick('focus','no',this)">Skipped it</button>
+          <button data-cls="good" onclick="dbPick('focus','yes',this)">Yes &mdash; I did it</button>
+          <button data-cls="bad" onclick="dbPick('focus','no',this)">No &mdash; I skipped it</button>
         </div>
       </div>
 
@@ -959,10 +946,11 @@
       </div>
 
       <label>Leslie Family Plan: did you offer it — and did they take it?</label>
-      <div class="dseg c3">
+      <div class="dseg c4">
         <button data-cls="good" onclick="dbPick('lfp','sold',this)">Signed up</button>
         <button data-cls="mid" onclick="dbPick('lfp','offered',this)">Offered, declined</button>
         <button data-cls="bad" onclick="dbPick('lfp','no',this)">Didn't offer</button>
+        <button data-cls="good" onclick="dbPick('lfp','member',this)">Already a member</button>
       </div>
 
       <label for="dbWords">One thing they said — their exact words</label>
@@ -2082,7 +2070,7 @@
       <li><b>Check the focus card.</b> If you filed a touch base this week your focus behavior sits at the top in quotes with a running tally &mdash; <em>ran it on 3 of 5 calls</em>. That's the number Nels asks about on Wednesday.</li>
       <li><b>Customer.</b> A first name is plenty. It's what shows in the coverage queue if the call didn't sell, so make it something you'd recognize at 6pm.</li>
       <li><b>How did it end?</b> Sold, Pending, or No sale. Pending means a real dated next step exists, not "they're thinking about it".</li>
-      <li><b>Did you run your focus behavior?</b> Only appears if you have a plan this week. Answer honestly &mdash; a "skipped it" that shows a pattern is worth more than a padded count.</li>
+      <li><b>Your focus behavior &mdash; did you do it on this call?</b> Only appears if you have a plan this week. Answer honestly &mdash; a "skipped it" that shows a pattern is worth more than a padded count.</li>
       <li><b>Restate-to-nod.</b> Did you say their top concern back in <em>their</em> words and get the nod before you opened the tablet? Every call, whatever your focus is.</li>
       <li><b>One thing they said &mdash; their exact words.</b> Not a summary. <em>"The upstairs bedroom is an oven by 3pm."</em> That line opens your next presentation and it's the line Nels reads back on Monday.</li>
       <li><b>If it sold:</b> the amount and the option they chose. <b>If it didn't:</b> the High Authority / Zero Ticket call &mdash; Made, Scheduled or Not yet &mdash; who you called, and what's holding them back in their words.</li>
@@ -2714,9 +2702,51 @@ async function push(action,data){
 }
 
 /* =================== nav =================== */
+/* Three groups. A tab with `need` shows only to a session that has it:
+   'full' = a full-access manager, 'coach' = any manager or call coach.
+   Everyone else — consultants, coordinators — sees one plain row of the
+   tabs they can actually open, and never a locked one. */
+const NAV=[
+  {g:'numbers',label:'Numbers',tabs:[
+    ['overview','The Board','full'],['daily','The Log','full'],['recap','Yesterday','full'],
+    ['team','The Team','full'],['forecast','Where We Land','full'],['yoy','vs Last Year','full']]},
+  {g:'coaching',label:'Coaching',tabs:[
+    ['today','Today'],['mytb','My Week'],['myboard','My Board'],['debrief','Debrief'],
+    ['review','Team Review','full'],['track','Track Record'],['coach','Call Coach','coach'],
+    ['ridealong','Ride-Along','coach'],['pricebook','Price Book'],['guide','Guide'],['training','Training',null,'training.html']]},
+  {g:'setup',label:'Setup',tabs:[['pace','Setup','full'],['import','Import','full']]}
+];
+let curView='mytb';
+function navCan(need){ return !need || (need==='full'?canFull():canCoach()); }
+function navGroups(){
+  return NAV.map(gr=>({g:gr.g,label:gr.label,tabs:gr.tabs.filter(t=>navCan(t[2]))})).filter(gr=>gr.tabs.length);
+}
+function navGroupOf(v){ const gr=NAV.find(gr=>gr.tabs.some(t=>t[0]===v)); return gr?gr.g:'coaching'; }
+let navGroup='coaching';
+function renderNav(){
+  const groups=navGroups();
+  const btn=t=>t[3]?`<button onclick="location.href='${t[3]}?role=${canFull()?'manager':canCoach()?'coach':(managerOn?'coordinator':'consultant')}'">${t[1]} &nearr;</button>`
+    :`<button data-v="${t[0]}" class="${t[0]===curView?'active':''}" onclick="showView('${t[0]}')">${t[1]}</button>`;
+  if(groups.length<2){
+    $('nav').innerHTML=`<div class="solo"><div class="nav-inner">${groups.map(gr=>gr.tabs.map(btn).join('')).join('')}</div></div>`;
+    return;
+  }
+  if(!groups.some(gr=>gr.g===navGroup)) navGroup=groups[0].g;
+  const cur=groups.find(gr=>gr.g===navGroup);
+  $('nav').innerHTML=
+    `<div class="tier1"><div class="nav-inner">${groups.map(gr=>`<button data-g="${gr.g}" class="${gr.g===navGroup?'on':''}" onclick="showGroup('${gr.g}')">${gr.label}</button>`).join('')}</div></div>`+
+    `<div class="tier2"><div class="nav-inner">${cur.tabs.map(btn).join('')}</div></div>`;
+}
+/* Picking a group opens its first tab, so the page never sits on a tab that
+   belongs to a group you are no longer looking at. */
+function showGroup(g){
+  navGroup=g;
+  const gr=navGroups().find(x=>x.g===g);
+  if(gr && !gr.tabs.some(t=>t[0]===curView)) showView(gr.tabs[0][0]); else renderNav();
+}
 function showView(v){
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.v===v));
+  curView=v; navGroup=navGroupOf(v); renderNav();
   $('view-'+v).classList.add('active');
   if(v==='debrief') renderDebrief();
   if(v==='myboard') renderMyBoard();
@@ -2848,6 +2878,7 @@ function toggleManager(){
   }
   $('mgrBtn').classList.toggle('on',managerOn);
   $('mgrBtn').textContent=mgrLabel();
+  { const open=navGroups().some(gr=>gr.tabs.some(t=>t[0]===curView)); if(!open) showView('mytb'); else renderNav(); }
   renderPaceView(); renderReview(); loadForm(); renderTrack(); renderCoach(); renderDebrief(); renderNumbers();
   renderPriceBook(); renderGuide(); renderMyBoard(); renderToday(); renderRideAlong();
 }
@@ -4935,7 +4966,7 @@ async function tdSaveRow(date,who,row){
 }
 /* Actuals for a calendar day from every consultant's debriefs. */
 function tdActual(date,rep){
-  const a={calls:0,sold:0,rev:0,reviews:0,asked:0,lfp:0,offered:0,pending:0};
+  const a={calls:0,sold:0,rev:0,reviews:0,asked:0,lfp:0,offered:0,members:0,pending:0};
   state.entries.forEach(e=>{
     if(rep&&e.rep!==rep) return;
     (e.debriefs||[]).forEach(c=>{
@@ -4947,6 +4978,7 @@ function tdActual(date,rep){
       if(c.review==='left'||c.review==='asked') a.asked++;
       if(c.lfp==='sold') a.lfp++;
       if(c.lfp==='sold'||c.lfp==='offered') a.offered++;
+      if(c.lfp==='member') a.members++;
     });
   });
   return a;
@@ -4974,10 +5006,10 @@ function tdDefaults(date,rep){
 function tdNum(id){ const v=$(id)&&$(id).value; return v===''||v==null?null:Number(v); }
 function tdPropose(){
   const a=tdNum('tdAppts')||0, c=tdNum('tdClose')||0, k=tdNum('tdTicket')||0;
-  const sold=Math.round(a*c/100), rev=Math.round(a*c/100*k);
+  const sold=Math.round(a*c/100), rev=sold*k;
   const box=$('tdProposal'); if(!box) return;
   box.innerHTML=a
-    ? `${a} appointment${a===1?'':'s'} &times; ${c}% &times; ${tMoney(k)} &asymp; <b>${sold} sold</b>, <b>${tMoney(rev)}</b>. `+
+    ? `${a} appointment${a===1?'':'s'} &times; ${c}% &asymp; <b>${sold} sold</b>; ${sold} &times; ${tMoney(k)} = <b>${tMoney(rev)}</b>. `+
       `<a href="#" onclick="tdUseProposal();return false">Use these numbers</a>`
     : `Put in how many appointments are on your board and the numbers will propose themselves.`;
   /* fill blanks only — never overwrite something the consultant typed */
@@ -4986,7 +5018,7 @@ function tdPropose(){
 }
 function tdUseProposal(){
   const a=tdNum('tdAppts')||0, c=tdNum('tdClose')||0, k=tdNum('tdTicket')||0;
-  $('tdSold').value=Math.round(a*c/100); $('tdRev').value=Math.round(a*c/100*k);
+  const sold=Math.round(a*c/100); $('tdSold').value=sold; $('tdRev').value=sold*k;
   if($('tdReviews').value==='') $('tdReviews').value=a; if($('tdLfp').value==='') $('tdLfp').value=a;
 }
 async function tdCommitMine(){
@@ -5104,7 +5136,7 @@ function renderToday(){
           const cls=team?(act[k]>=team[k]?'ok':''):'';
           return `<td class="num ${cls}">${act.calls?tdFmt(k,act[k]):'<span class="hint">—</span>'}</td>`;}).join('')}</tr>
       </tfoot></table></div>
-      ${act.calls?`<p class="hint" style="margin-top:8px">Asked for a review on ${act.asked} of ${act.calls} call${act.calls===1?'':'s'}; offered the Family Plan on ${act.offered}.${act.pending?` ${act.pending} pending.`:''}</p>`:''}
+      ${act.calls?`<p class="hint" style="margin-top:8px">Asked for a review on ${act.asked} of ${act.calls} call${act.calls===1?'':'s'}; offered the Family Plan on ${act.offered}${act.members?` (${act.members} already a member)`:''}.${act.pending?` ${act.pending} pending.`:''}</p>`:''}
       ${missing.length?`<p class="hint" style="margin-top:8px">${isToday?'Still to commit':'Never committed'}: ${missing.join(', ')}.</p>`:''}
       ${team&&committed===reps.length?(()=>{ const short=TD_KEYS.filter(k=>sum[k]<team[k]);
           return short.length
@@ -6048,10 +6080,7 @@ function openGuideFor(v){
     else window.scrollTo({top:0,behavior:'smooth'});
   },70);
 }
-function helpHere(){
-  const b=document.querySelector('nav button.active');
-  openGuideFor(b?b.dataset.v:'mytb');
-}
+function helpHere(){ openGuideFor(curView||'mytb'); }
 
 /* =================== init =================== */
 function fillRepSelects(){
@@ -6097,7 +6126,7 @@ async function dbSave(){
   if(!repAuthed(rep,'debrief')){ if(!unlockRep(rep)) return; }
   if(!dbPicks.outcome){toast('How did the call end?');return;}
   const plan=entryFor(rep,wk)?.plan;
-  if(plan?.behavior && !dbPicks.focus){toast('Did you run your focus behavior?');return;}
+  if(plan?.behavior && !dbPicks.focus){toast('Focus behavior \u2014 did you do it on this call? Yes or no.');return;}
   if(!dbPicks.nod){toast('Restate-to-nod — yes or no?');return;}
   if(!dbPicks.review){toast('Google review — did you ask?');return;}
   if(!dbPicks.lfp){toast('Leslie Family Plan — did you offer it?');return;}
@@ -6110,7 +6139,7 @@ async function dbSave(){
     focus:plan?.behavior ? (dbPicks.focus==='yes') : null,
     nod:dbPicks.nod==='yes',
     review:dbPicks.review,   /* left | asked | no  — a review commitment counts "left" */
-    lfp:dbPicks.lfp,         /* sold | offered | no — a Family Plan commitment counts "sold" */
+    lfp:dbPicks.lfp,         /* sold | offered | no | member — a Family Plan commitment counts "sold" */
     words:$('dbWords').value.trim(),
     amount:dbPicks.outcome==='sold'?($('dbAmt').value?Number($('dbAmt').value):null):null,
     option:dbPicks.outcome==='sold'?$('dbOpt').value.trim():'',
@@ -6148,7 +6177,7 @@ function renderDebrief(){
     $('focusCard').style.display=''; $('noPlanCard').style.display='none';
     $('focusQuote').textContent='\u201C'+plan.behavior+'\u201D';
     $('focusWhen').textContent = plan.when? ('When: '+plan.when) : '';
-    $('focusQLabel').textContent='Did you run it on this call?';
+    $('focusQLabel').textContent='Your focus behavior for this week is shown above. Did you actually do it on this call?';
     $('qFocus').style.display='';
     const fc=dbCalls(rep).filter(c=>c.focus!==null&&c.focus!==undefined);
     const hits=fc.filter(c=>c.focus).length;
@@ -6195,10 +6224,10 @@ function dbDetailRows(c){
     R.push(['HA/ZT call', h+(c.haztWho?(' \u00B7 '+dbEsc(c.haztWho)):'')]);
   }
   if(c.focus!==null&&c.focus!==undefined)
-    R.push(['Focus behavior', c.focus?'Ran it':'<span class="hd-none">Missed it</span>']);
+    R.push(['Focus behavior', c.focus?'Did it':'<span class="hd-none">Skipped it</span>']);
   R.push(['Restate-to-nod', c.nod?'Yes':'<span class="hd-none">No</span>']);
   if(c.review) R.push(['Google review', c.review==='left'?'They left one':c.review==='asked'?'Asked, not yet':'<span class="hd-none">Didn\u2019t ask</span>']);
-  if(c.lfp) R.push(['Leslie Family Plan', c.lfp==='sold'?'Signed up':c.lfp==='offered'?'Offered, declined':'<span class="hd-none">Didn\u2019t offer</span>']);
+  if(c.lfp) R.push(['Leslie Family Plan', c.lfp==='sold'?'Signed up':c.lfp==='offered'?'Offered, declined':c.lfp==='member'?'Already a member':'<span class="hd-none">Didn\u2019t offer</span>']);
   if(c.words) R.push(['Their words','<div class="hd-quote">\u201C'+dbEsc(c.words)+'\u201D</div>']);
   if(c.holdback) R.push(['Holding back','<div class="hd-quote">\u201C'+dbEsc(c.holdback)+'\u201D</div>']);
   return R;
@@ -6852,6 +6881,7 @@ function dbDaySend(){
   $('ctxMonth').value=ctxMK();
   $('mgrBtn').classList.toggle('on',managerOn);
   $('mgrBtn').textContent=mgrLabel();
+  renderNav();
   fillRepSelects();
   if(repOn && state.config.reps.includes(repOn)){ $('tbRep').value=repOn; $('trRep').value=repOn; $('dbRep').value=repOn; }
   loadForm();
