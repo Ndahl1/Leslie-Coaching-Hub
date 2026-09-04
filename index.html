@@ -1308,6 +1308,10 @@
       <label for="cfgFull" style="margin-top:12px">Full access to the whole hub</label>
       <input type="text" id="cfgFull" placeholder="Nels">
       <div class="hint">Comma separated, and everyone left off gets <b>Call Coach only</b> &mdash; their PIN opens the coaching tab and nothing else. The numbers, the log, the plan, Setup and the Monday board stay closed to them. Leave this blank and nobody but the shared PIN gets in.</div>
+      <label for="cfgCoord" style="margin-top:12px">Coordinators &mdash; Today and Debrief only</label>
+      <input type="text" id="cfgCoord" placeholder="Kristina">
+      <div class="hint">Comma separated. A coordinator's PIN opens <b>Today</b> and <b>Debrief</b> with the same rights you have there &mdash; set the team commitment, open any consultant's row without their PIN, delete a bad debrief &mdash; and nothing else. They are not on the managers list above, so consultants can't pick them for an HA/ZT call. Clear the box to remove them.</div>
+      <div class="row" id="coordPinGrid" style="margin-top:10px"></div>
       <div class="hint" style="margin:8px 0 12px">Leave the URL blank to run local-only on this device. With a URL + team code, the whole team syncs to your Google Sheet.</div>
       <button class="btn ghost small" onclick="saveSetup()">Save setup</button>
     </div>
@@ -1947,7 +1951,7 @@
       <li><b>Your PIN.</b> Pick your name in the Consultant dropdown; the hub asks for your PIN the first time you open your own touch base or track record. It holds for that browser session. PINs aren't printed anywhere &mdash; ask Nels if you've lost yours. They exist so somebody else's honest self-score doesn't get saved under your name on a shared office tablet.</li>
       <li><b>The month box.</b> One picker drives The Board, The Log, The Team, Where We Land and vs Last Year together. It does <em>not</em> drive the coaching tabs &mdash; those follow their own week pickers, so last week's touch bases can be reviewed against this month's numbers.</li>
       <li><b>The sync dot.</b> Green means the Google Sheet has everything. Red means the hub is working from the copy on this device and will push when the connection returns &mdash; keep going, nothing is lost.</li>
-      <li data-g="m"><b>Manager.</b> Press it, enter your PIN, and it turns red and shows your name. That unlocks The Log, Import, Setup and Call Coach, adds the notes boxes to the Monday board, and opens any consultant's form without their PIN. It lasts for the browser session only, which is what you want on a shared machine. The end-of-day team rollup has its own separate PIN so a borrowed laptop can't send it.<br><b>Your PIN also says who you are.</b> Whoever it resolves to gets stamped on every coached call you run and on the debrief that call clears &mdash; that is what makes the coverage block on the Monday board mean anything. The old shared PIN still opens the tab, but it has to ask for a name, and it accepts no answer: those calls save unattributed and are counted separately. Individual PINs are assigned on Setup.<br><b>Two levels of access.</b> A manager listed under <em>Full access</em> on Setup opens the whole hub. Everyone else opens <b>Call Coach</b> and nothing else &mdash; the numbers, the log, the plan, Setup and the Monday board stay shut, and their button reads <em>Coach</em> rather than <em>Manager</em>. Coaching a call has never needed the revenue, so the people running HA/ZT calls do not have to be handed it.</li>
+      <li data-g="m"><b>Manager.</b> Press it, enter your PIN, and it turns red and shows your name. That unlocks The Log, Import, Setup and Call Coach, adds the notes boxes to the Monday board, and opens any consultant's form without their PIN. It lasts for the browser session only, which is what you want on a shared machine. The end-of-day team rollup has its own separate PIN so a borrowed laptop can't send it.<br><b>Your PIN also says who you are.</b> Whoever it resolves to gets stamped on every coached call you run and on the debrief that call clears &mdash; that is what makes the coverage block on the Monday board mean anything. The old shared PIN still opens the tab, but it has to ask for a name, and it accepts no answer: those calls save unattributed and are counted separately. Individual PINs are assigned on Setup.<br><b>Two levels of access.</b> A manager listed under <em>Full access</em> on Setup opens the whole hub. Everyone else opens <b>Call Coach</b> and nothing else &mdash; the numbers, the log, the plan, Setup and the Monday board stay shut, and their button reads <em>Coach</em> rather than <em>Manager</em>. Coaching a call has never needed the revenue, so the people running HA/ZT calls do not have to be handed it.<br><b>A third door: coordinator.</b> A name listed under <em>Coordinators</em> on Setup gets <b>Today</b> and <b>Debrief</b> with the same rights Nels has on those two tabs &mdash; the team commitment, any consultant's row without their PIN, deleting a bad debrief &mdash; so the day's data keeps getting entered when he is out. Their button reads <em>Coordinator</em>, and every other tab stays shut, Call Coach included.</li>
     </ol>
   </div>
 
@@ -2350,6 +2354,7 @@
       <li><b>Consultants</b> &mdash; the roster as a comma-separated list. The Team tab is the friendlier way to edit it.</li>
       <li><b>Apps Script URL and team code</b> &mdash; the connection to the Google Sheet. Blank runs local-only on one device.</li>
       <li><b>Manager PIN and end-of-day PIN</b> &mdash; both set here.</li>
+      <li><b>Coordinators</b> &mdash; Today and Debrief only, with manager rights on those two tabs. Their PINs are set here too.</li>
     </ul>
   </div>
 
@@ -2480,6 +2485,16 @@ const DEFAULT_CONFIG = {
      honest blank. Until PINs are handed out on Setup the shared PIN opens the
      door and asks who you are. */
   managerPins:{},
+  /* Coordinators: a third door. A coordinator's PIN opens Today and Debrief
+     with everything Nels can do on those two tabs — set the team commitment,
+     open any consultant's row without their PIN, delete a bad debrief — and
+     nothing else. They are kept off the managers list on purpose: that list
+     is also the HA/ZT chips consultants pick from on Debrief, and a
+     coordinator does not take those calls. Kept in their own keys so a hub
+     whose Setup was saved before this existed still picks them up. */
+  coordinators:['Kristina'],
+  coordPins:{'Kristina':'2004'},
+  coordTabs:['today','debrief'],
   repPins:{'Jeremy M.':'4125','Justin B.':'6832','Tom O.':'6967','Kevin L.':'8645','Tony P.':'8895'},
   ownerPin:'7391'
 };
@@ -2511,7 +2526,10 @@ function repPin(rep){
   const s=p==null?'':String(p).trim();
   return s||null;
 }
-function repAuthed(rep){ return canFull() || repOn===rep || !repPin(rep); }
+/* Optional second argument names the tab asking. A coordinator bypasses a
+   consultant's PIN only on the tabs their role opens; everywhere else they
+   are treated like anyone without the manager button. */
+function repAuthed(rep,v){ return canFull() || (v&&canEdit(v)) || repOn===rep || !repPin(rep); }
 function unlockRep(rep){
   const pin=prompt('Enter the PIN for '+rep+':');
   if(pin===null) return false;
@@ -2723,32 +2741,62 @@ function mgrRoster(){
   const r=state.config.managers;
   return (Array.isArray(r)&&r.length)?r:DEFAULT_CONFIG.managers.slice();
 }
+/* Coordinators live beside the managers, not among them. An undefined key
+   means a hub whose Setup predates coordinators, so the defaults apply; an
+   empty list saved on Setup means there are none, and stays empty. */
+function coordRoster(){
+  const r=state.config.coordinators;
+  return Array.isArray(r)?r:DEFAULT_CONFIG.coordinators.slice();
+}
+function coordTabs(){
+  const t=state.config.coordTabs;
+  return (Array.isArray(t)&&t.length)?t:DEFAULT_CONFIG.coordTabs.slice();
+}
+function isCoord(name){ return !!name && coordRoster().some(n=>n.toLowerCase()===String(name).toLowerCase()); }
 function mgrRoleOf(name){
+  if(isCoord(name)) return 'coordinator';
   const m=state.config.managerRoles||DEFAULT_CONFIG.managerRoles;
   return (m&&m[name])==='full'?'full':'coach';
 }
 /* The whole hub, or only the coaching tab. An unnamed shared-PIN session is a
    coach: it cannot say who it is, so it does not get the numbers either. */
 function canFull(){ return managerOn && managerRole==='full'; }
+/* Call Coach and Ride-Along belong to managers and coaches. A coordinator's
+   PIN does not open them — coordinating the day has never needed the
+   coaching record, so it is not handed out with it. */
+function canCoach(){ return managerOn && managerRole!=='coordinator'; }
+/* Manager-level rights on one named tab: everything a full manager can do
+   there, granted to a coordinator only on the tabs their role lists. */
+function canEdit(v){
+  if(canFull()) return true;
+  return managerOn && managerRole==='coordinator' && coordTabs().includes(v);
+}
 /* A coach is already through the door, so "use the Manager button" would be a
    lie. Say what is actually true: this PIN opens Call Coach and stops there. */
 function lockNote(el,what){
   if(!el) return;
-  el.innerHTML = managerOn && !canFull()
-    ? '&#128274; '+what+' is not part of Call Coach access.'+(managerWho?' '+managerWho+"'s":' Your')+
+  const who=managerWho?' '+managerWho+"'s":' Your';
+  el.innerHTML = managerOn && managerRole==='coordinator'
+    ? '&#128274; '+what+' is not part of coordinator access.'+who+
+      ' PIN opens the <b>Today</b> and <b>Debrief</b> tabs only. Ask Nels if you need the numbers.'
+    : managerOn && !canFull()
+    ? '&#128274; '+what+' is not part of Call Coach access.'+who+
       ' PIN opens the <b>Call Coach</b> tab only. Ask Nels if you need the numbers.'
     : '&#128274; '+what+' is manager-only. Use the <b>Manager</b> button up top.';
 }
 function mgrPinOf(name){
-  const m=state.config.managerPins||DEFAULT_CONFIG.managerPins;
+  const m=isCoord(name)
+    ? (state.config.coordPins||DEFAULT_CONFIG.coordPins)
+    : (state.config.managerPins||DEFAULT_CONFIG.managerPins);
   const v=m&&m[name]; return v==null?'':String(v).trim();
 }
-/* First manager whose PIN matches. A blank PIN never matches, so an unassigned
-   manager cannot be impersonated by pressing enter on an empty prompt. */
+/* First manager or coordinator whose PIN matches. A blank PIN never matches,
+   so an unassigned name cannot be impersonated by pressing enter on an empty
+   prompt. */
 function mgrForPin(pin){
   const p=String(pin||'').trim();
   if(!p) return null;
-  return mgrRoster().find(n=>mgrPinOf(n)&&mgrPinOf(n)===p)||null;
+  return [...mgrRoster(),...coordRoster()].find(n=>mgrPinOf(n)&&mgrPinOf(n)===p)||null;
 }
 function legacyMgrPin(){return String(state.config.managerPin||DEFAULT_CONFIG.managerPin).trim();}
 /* The shared PIN still opens the door, because a hub in the field cannot be
@@ -2772,7 +2820,7 @@ function setManagerWho(name){
 }
 function mgrLabel(){
   if(!managerOn) return 'Manager';
-  return (canFull()?'Manager':'Coach')+(managerWho?' \u00b7 '+managerWho:' \u00b7 unnamed');
+  return (canFull()?'Manager':managerRole==='coordinator'?'Coordinator':'Coach')+(managerWho?' \u00b7 '+managerWho:' \u00b7 unnamed');
 }
 function toggleManager(){
   if(managerOn){
@@ -2786,8 +2834,9 @@ function toggleManager(){
       const who=mgrForPin(pin);
       if(who){
         managerOn=true; sessionStorage.setItem('leslie_tb_mgr','1'); setManagerWho(who);
-        toast((canFull()?'Manager \u00b7 ':'Call Coach \u00b7 ')+who);
-        if(!canFull()) showView('coach');
+        toast((canFull()?'Manager \u00b7 ':managerRole==='coordinator'?'Coordinator \u00b7 ':'Call Coach \u00b7 ')+who);
+        if(managerRole==='coordinator') showView(coordTabs()[0]||'today');
+        else if(!canFull()) showView('coach');
       }
       else if(String(pin).trim()===legacyMgrPin()){
         managerOn=true; sessionStorage.setItem('leslie_tb_mgr','1');
@@ -3269,9 +3318,11 @@ const CC_SPOKES={whyso:'Right Price — "why so much"',cheaper:'Right Price — 
 let cc={mode:'ha',marks:{},spoke:null,outcome:null,t0:null,tick:null,queueRef:null,lastText:''};
 
 function renderCoach(){
-  $('coachLocked').style.display=managerOn?'none':'';
-  $('coachOpen').style.display=managerOn?'':'none';
-  if(!managerOn) return;
+  if(managerOn&&!canCoach()) lockNote($('coachLocked'),'Call Coach');
+  else $('coachLocked').innerHTML='Manager access required. Use the <b>Manager</b> button in the header.';
+  $('coachLocked').style.display=canCoach()?'none':'';
+  $('coachOpen').style.display=canCoach()?'':'none';
+  if(!canCoach()) return;
   const opts=state.config.reps.map(r=>`<option>${r}</option>`).join('');
   const cur=$('ccRep').value; $('ccRep').innerHTML=opts; if(cur&&state.config.reps.includes(cur))$('ccRep').value=cur;
   ccRenderQueue();
@@ -3729,6 +3780,11 @@ function renderSetup(){
   $('cfgOwnerPin').value=state.config.ownerPin||'';
   $('cfgMgrs').value=mgrRoster().join(', ');
   $('cfgFull').value=mgrRoster().filter(m=>mgrRoleOf(m)==='full').join(', ');
+  $('cfgCoord').value=coordRoster().join(', ');
+  $('coordPinGrid').innerHTML=coordRoster().map((m,i)=>`<div>
+      <label for="coordPin${i}">${m}</label>
+      <input type="text" id="coordPin${i}" data-coord="${m}" class="coord-pin" inputmode="numeric" maxlength="6" value="${mgrPinOf(m)}" placeholder="No PIN (locked out)">
+    </div>`).join('');
   $('mgrPinGrid').innerHTML=mgrRoster().map((m,i)=>`<div>
       <label for="mgrPin${i}">${m}</label>
       <input type="text" id="mgrPin${i}" data-mgr="${m}" class="mgr-pin" inputmode="numeric" maxlength="6" value="${mgrPinOf(m)}" placeholder="No PIN (shared only)">
@@ -3751,9 +3807,16 @@ async function saveSetup(){
   const roles={};
   state.config.managers.forEach(m=>{ if(fullNames.includes(m.toLowerCase())) roles[m]='full'; });
   state.config.managerRoles=roles;
+  /* coordinators: an empty box saves as an empty list on purpose, so the
+     defaults do not quietly bring someone back after they were removed */
+  state.config.coordinators=$('cfgCoord').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const cpins={};
+  document.querySelectorAll('.coord-pin').forEach(inp=>{ const v=inp.value.trim(); if(v) cpins[inp.dataset.coord]=v; });
+  state.config.coordinators.forEach(c=>{ if(cpins[c]==null && mgrPinOf(c)) cpins[c]=mgrPinOf(c); });
+  state.config.coordPins=cpins;
   /* a PIN that opens two doors is worse than no PIN — say so rather than
      silently letting the first name in the list win every time */
-  const dupe=Object.values(mpins).find((v,i,a)=>a.indexOf(v)!==i);
+  const dupe=[...Object.values(mpins),...Object.values(cpins)].find((v,i,a)=>a.indexOf(v)!==i);
   if(dupe) toast('Two managers share the PIN '+dupe+' — the first one listed wins. Give them different PINs.');
   const pins={};
   document.querySelectorAll('.rep-pin').forEach(inp=>{ const v=inp.value.trim(); if(v) pins[inp.dataset.rep]=v; });
@@ -4086,7 +4149,7 @@ function statCard(label,value,sub,cls){
 const PB_DISCOUNT_URL='https://lesliehvac-nkmapgul.manus.space/next-day-discount';
 function renderPriceBook(){
   const box=$('pbDiscount'); if(!box) return;
-  box.innerHTML = managerOn
+  box.innerHTML = canCoach()
     ? `<a class="pb-card mgr" href="${PB_DISCOUNT_URL}" target="_blank" rel="noopener">
         <div class="pb-k">Before you discount &middot; managers</div>
         <h3>Next Day Discount &rarr;</h3>
@@ -4928,7 +4991,7 @@ function tdUseProposal(){
 }
 async function tdCommitMine(){
   const date=tdDate(), rep=$('tdRep').value;
-  if(!repAuthed(rep)){ if(!unlockRep(rep)) return; }
+  if(!repAuthed(rep,'today')){ if(!unlockRep(rep)) return; }
   const row={appts:tdNum('tdAppts'),close:tdNum('tdClose'),ticket:tdNum('tdTicket'),
     sold:tdNum('tdSold'),rev:tdNum('tdRev'),reviews:tdNum('tdReviews'),lfp:tdNum('tdLfp'),
     note:$('tdNote').value.trim(),ts:Date.now(),first:(tdMine(date,rep)||{}).first||Date.now()};
@@ -4937,7 +5000,7 @@ async function tdCommitMine(){
   toast('Committed — go get it'); renderToday();
 }
 async function tdCommitTeam(){
-  if(!canFull()){ toast('Manager only'); return; }
+  if(!canEdit('today')){ toast('Manager only'); return; }
   const date=tdDate();
   const row={sold:tdNum('tdTSold'),rev:tdNum('tdTRev'),reviews:tdNum('tdTReviews'),lfp:tdNum('tdTLfp'),
     note:$('tdTNote').value.trim(),by:managerWho||'Manager',ts:Date.now()};
@@ -4961,7 +5024,7 @@ function renderToday(){
     const h=tdPlanHint(date);
     const hint=`<p class="hint" style="margin:6px 0 10px">For ${dayLab}. The month's plan works out to about <b>${Math.round(h.leads*10)/10} leads</b> a day, which at the planned close rates is <b>${Math.round(h.sold*10)/10} sold</b> and <b>${tMoney(h.rev)}</b>.`+
       (h.left?` To land the month on target from here it takes <b>${tMoney(h.need)}</b> a day over the ${h.left} working day${h.left===1?'':'s'} left.`:'')+`</p>`;
-    if(canFull()){
+    if(canEdit('today')){
       const v=k=>team&&team[k]!=null?team[k]:'';
       $('tdTeamBody').innerHTML=hint+`<div class="row">
         <div><label for="tdTSold">Jobs sold</label><input type="number" id="tdTSold" inputmode="numeric" value="${v('sold')}" placeholder="e.g., 4"></div>
@@ -4983,7 +5046,7 @@ function renderToday(){
   }
 
   /* ---- my commitment ---- */
-  if(!repAuthed(rep)){
+  if(!repAuthed(rep,'today')){
     $('tdMine').style.display='none'; $('tdLock').style.display='';
     $('tdLock').innerHTML=`&#128274; This commitment belongs to ${dbEsc(rep)}. <button class="btn ghost small" style="margin-left:8px" onclick="if(unlockRep($('tdRep').value)){renderToday();}">Enter ${dbEsc(rep)}'s PIN</button>`;
     $('tdStamp').textContent='';
@@ -5019,7 +5082,7 @@ function renderToday(){
     const sum={sold:0,rev:0,reviews:0,lfp:0,appts:0}; let committed=0;
     reps.forEach(r=>{ const m=rec[r]; if(!m) return; committed++; TD_KEYS.forEach(k=>sum[k]+=Number(m[k])||0); sum.appts+=Number(m.appts)||0; });
     const act=tdActual(date,null);
-    const seeAll=canFull();
+    const seeAll=canEdit('today');
     const cell=(k,m,a,show)=>`<td class="num">${m?`<b>${tdFmt(k,m[k])}</b>`:'<span class="hint">—</span>'}${show&&a.calls?`<br><span class="hint">${tdFmt(k,a[k])} so far</span>`:''}</td>`;
     $('tdStandSub').textContent=`— ${committed} of ${reps.length} committed${act.calls?` · ${act.calls} call${act.calls===1?'':'s'} debriefed so far`:''}`;
     const missing=reps.filter(r=>!rec[r]);
@@ -5028,7 +5091,7 @@ function renderToday(){
         return `<td class="num">${pill((g>=0?'+':'−')+(k==='rev'?tMoney(Math.abs(g)):Math.abs(g)),cls)}</td>`;}).join('')}</tr>`:'';
     $('tdStand').innerHTML=`<div class="tbl-wrap"><table>
       <thead><tr><th>Consultant</th><th class="num">Appts</th><th class="num">Sold</th><th class="num">Revenue</th><th class="num">Reviews</th><th class="num">Family Plans</th></tr></thead>
-      <tbody>${reps.map(r=>{ const m=rec[r], a=tdActual(date,r), show=seeAll||repAuthed(r);
+      <tbody>${reps.map(r=>{ const m=rec[r], a=tdActual(date,r), show=seeAll||repAuthed(r,'today');
         return `<tr><td><b>${dbEsc(r)}</b>${m&&m.note?`<br><span class="hint">${dbEsc(m.note)}</span>`:''}${m?`<br><span class="hint">${m.close!=null?m.close+'% · '+tMoney(m.ticket)+' · ':''}${tdWhen(m.ts)}</span>`:''}</td>
           <td class="num">${m&&m.appts!=null?m.appts:'<span class="hint">—</span>'}${show&&a.calls?`<br><span class="hint">${a.calls} run</span>`:''}</td>
           ${TD_KEYS.map(k=>cell(k,m,a,show)).join('')}</tr>`; }).join('')}
@@ -5102,8 +5165,9 @@ function rideAlongForWeek(rep,week){
 }
 function renderRideAlong(){
   const L=$('raLocked'), B=$('raBody'); if(!L) return;
-  L.style.display=managerOn?'none':''; B.style.display=managerOn?'':'none';
-  if(!managerOn) return;
+  if(managerOn&&!canCoach()) lockNote(L,'Ride-Along');
+  L.style.display=canCoach()?'none':''; B.style.display=canCoach()?'':'none';
+  if(!canCoach()) return;
   const sel=$('raRep'); if(!sel.options.length) fillRepSelects();
   if(raForm.rep && state.config.reps.includes(raForm.rep)) sel.value=raForm.rep; else raForm.rep=sel.value;
   $('raDate').value=raForm.date||localISO(); $('raJob').value=raForm.job||''; $('raCoach').value=raForm.coach||managerWho||'';
@@ -5150,7 +5214,7 @@ function raChips(){
 function raUseChip(b){ raForm.oppT=b.dataset.text; raForm.oppStep=b.dataset.step; $('raOppT').value=raForm.oppT; $('raOppStep').value=raForm.oppStep; raChips(); $('raOppD').focus(); }
 function raNew(){ if(raForm.id||raAvg(raForm)||raForm.summary){ if(!confirm('Start a new recap? Unsaved changes are lost.')) return; } const rep=raForm.rep; raForm=raBlank(); raForm.rep=rep; raOpenSteps={Prepare:true}; renderRideAlong(); }
 async function raSave(){
-  if(!managerOn){ toast('Manager or coach PIN required'); return; }
+  if(!canCoach()){ toast('Manager or coach PIN required'); return; }
   const rep=$('raRep').value, date=$('raDate').value||localISO();
   if(!rep){ toast('Pick a consultant'); return; }
   if(!raAvg(raForm)){ toast('Score at least one step'); return; }
@@ -6030,7 +6094,7 @@ function dbReset(){
 }
 async function dbSave(){
   const rep=$('dbRep').value, wk=thisWeek();
-  if(!repAuthed(rep)){ if(!unlockRep(rep)) return; }
+  if(!repAuthed(rep,'debrief')){ if(!unlockRep(rep)) return; }
   if(!dbPicks.outcome){toast('How did the call end?');return;}
   const plan=entryFor(rep,wk)?.plan;
   if(plan?.behavior && !dbPicks.focus){toast('Did you run your focus behavior?');return;}
@@ -6073,7 +6137,7 @@ function renderDebrief(){
     chips.innerHTML=mgrRoster().map(n=>`<button class="${on.includes(n)?'on':''}" onclick="dbChip(this)">${n}</button>`).join('');
   }
   const rep=$('dbRep').value;
-  if(!repAuthed(rep)){
+  if(!repAuthed(rep,'debrief')){
     $('dbBody').style.display='none'; $('dbLock').style.display='';
     $('dbLockMsg').textContent='\uD83D\uDD12 This debrief log belongs to '+rep+'. Enter '+rep+"'s PIN to open it.";
     return;
@@ -6161,7 +6225,7 @@ function dbRowHTML(c,i,wk,dupe){
     :c.outcome==='pending'?'PENDING':'NO SALE';
   const when=new Date(c.ts).toLocaleDateString(undefined,{weekday:'short',month:'numeric',day:'numeric'});
   const cw=c.week||wk;
-  const rm = canFull()
+  const rm = canEdit('debrief')
     ? '<div class="hd-row"><span class="k">Remove</span><span class="v">'
       +'<button class="btn ghost small" style="padding:3px 10px" onclick="event.stopPropagation();dbRemove(\''+dbEsc(cw)+'\','+(c.ts||0)+')">Delete this debrief</button>'
       +'</span></div>'
@@ -6182,7 +6246,7 @@ function dbRowHTML(c,i,wk,dupe){
    apart. Everything downstream re-derives, so the week's stats, the coverage
    queue and the Monday board all settle by themselves. */
 async function dbRemove(wk,ts){
-  if(!canFull()){toast('Manager PIN required to remove a debrief');return;}
+  if(!canEdit('debrief')){toast('Manager PIN required to remove a debrief');return;}
   const rep=$('dbRep').value;
   const e=entryFor(rep,wk);
   const i=(e?.debriefs||[]).findIndex(c=>(c.ts||0)===Number(ts));
@@ -6200,7 +6264,7 @@ async function dbRemove(wk,ts){
 function dbToggle(i){ const el=$('hi'+i); if(el) el.classList.toggle('open'); }
 function renderDebriefHistory(){
   const rep=$('dbRep').value, sel=$('dbWeekSel');
-  if(!rep||!sel||!repAuthed(rep)) return;
+  if(!rep||!sel||!repAuthed(rep,'debrief')) return;
   const cur=thisWeek(), weeks=dbWeeksFor(rep), opts=[];
   if(!weeks.includes(cur)) opts.push([cur,dbWeekLabel(cur)+' (0)']);
   weeks.forEach(w=>opts.push([w,dbWeekLabel(w)+' ('+dbCallsIn(rep,w).length+')']));
@@ -6210,7 +6274,7 @@ function renderDebriefHistory(){
   const want = has(sel.value)?sel.value : (has(dbHistWeek)?dbHistWeek : (weeks.length?weeks[0]:cur));
   sel.innerHTML=opts.map(o=>'<option value="'+o[0]+'">'+dbEsc(o[1])+'</option>').join('');
   sel.value=want; dbHistWeek=want;
-  const mine = !canFull() || repOn===rep;
+  const mine = !canEdit('debrief') || repOn===rep;
   $('dbHistTitle').textContent = want==='all' ? ('Every debrief \u2014 '+rep)
     : want===cur ? (mine?'My week so far':rep+' \u2014 this week')
     : (dbWeekLabel(want)+(mine?'':' \u2014 '+rep));
@@ -6222,7 +6286,7 @@ function renderDebriefHistory(){
     renderRepCoverage(rep); return;
   }
   $('dbHistHint').style.display='';
-  $('dbHistHint').textContent = canFull()
+  $('dbHistHint').textContent = canEdit('debrief')
     ? 'Tap any call to open the full debrief. Manager mode \u2014 switch consultants above.'
     : 'Tap any call to open the full debrief.';
   const sold=calls.filter(c=>c.outcome==='sold');
@@ -6248,7 +6312,7 @@ function renderDebriefHistory(){
         ' logged more than once</b> \u2014 '+names.join(', ')+
         '. Each copy counts again in the totals'+
         (Object.values(dupes).flat().some(c=>c.outcome!=='sold')?' and can sit in the Call Coach queue twice':'')+
-        '. '+(canFull()?'Open one and use <b>Delete this debrief</b> to drop the extra.':'Ask a manager to remove the extra.')+
+        '. '+(canEdit('debrief')?'Open one and use <b>Delete this debrief</b> to drop the extra.':'Ask a manager to remove the extra.')+
         '</div>'
       : '';
   }
@@ -6335,7 +6399,7 @@ function renderDebriefCoverage(){
 }
 function dbCheckpoint(){
   const rep=$('dbRep').value;
-  if(!repAuthed(rep)){ if(!unlockRep(rep)) return; }
+  if(!repAuthed(rep,'debrief')){ if(!unlockRep(rep)) return; }
   const plan=entryFor(rep,thisWeek())?.plan;
   const calls=dbCalls(rep);
   const fc=calls.filter(c=>c.focus!==null&&c.focus!==undefined);
