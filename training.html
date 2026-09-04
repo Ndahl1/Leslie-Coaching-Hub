@@ -610,13 +610,13 @@ function setRole(r){
   const vis=visible(); if(!cur||!vis.some(g=>g.id===cur)) cur=vis[0].id;
   render();
 }
-function open(id){ cur=id; render(); window.scrollTo({top:0}); history.replaceState(null,'','?role='+role+'#'+id); }
+function goTo(id){ cur=id; render(); window.scrollTo({top:0}); history.replaceState(null,'','?role='+role+'#'+id); }
 function render(){
   const vis=visible().filter(matches);
   /* sidebar */
   const groups=['Start here','Coaching','Numbers','Setup'];
   $('side').innerHTML=groups.map(gr=>{const items=vis.filter(g=>g.group===gr); if(!items.length) return '';
-    return `<div class="g">${gr}</div>`+items.map(g=>`<a href="#${g.id}" class="${g.id===cur?'on':''}" onclick="open('${g.id}');return false">${g.tab}</a>`).join('');}).join('')
+    return `<div class="g">${gr}</div>`+items.map(g=>`<a href="#${g.id}" class="${g.id===cur?'on':''}" onclick="goTo('${g.id}');return false">${g.tab}</a>`).join('');}).join('')
     +`<button class="printall" onclick="printAll()">Print the whole ${ROLE_NAME[role]} guide</button>`;
   /* main */
   if(!vis.length){ $('main').innerHTML=`<div class="empty">Nothing matches &ldquo;${query}&rdquo; for a ${ROLE_NAME[role]}.</div>`; return; }
